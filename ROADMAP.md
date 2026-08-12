@@ -10,6 +10,13 @@ The current MS HSE thesis asks:
 
 The primary unit of analysis is the **therapy episode**, aligned to treatment-relative time with `day 0 = infusion`.
 
+This roadmap is controlled by four supporting specifications:
+
+- [Requirements](docs/requirements.md) — testable system and research requirements;
+- [Phase gates](docs/phase_gates.md) — evidence required before advancing phases;
+- [Data requirements](docs/data_requirements.md) — minimum hospital data and source-to-canonical mapping expectations;
+- [Validation plan](docs/validation_plan.md) — staged verification from schemas through governed source-record validation.
+
 ## Development status
 
 - [x] Thesis question narrowed to hospital care trajectories
@@ -19,8 +26,15 @@ The primary unit of analysis is the **therapy episode**, aligned to treatment-re
 - [x] Therapy-episode schema created
 - [x] Care-state interval schema created
 - [x] Care-transition schema created
+- [x] Engineering/research requirements defined
+- [x] Phase-gate criteria defined
+- [x] Minimum hospital data requirements defined
+- [x] Staged validation plan defined
 - [ ] Governance/data-use document completed
+- [ ] Provenance schema completed
+- [ ] Encounter input contract completed
 - [ ] Treatment-relative time utilities implemented
+- [ ] Complete end-to-end synthetic episode validated
 - [ ] Synthetic cohort fixtures implemented
 - [ ] Transition reconstruction implemented
 - [ ] Utilization metrics implemented
@@ -28,7 +42,8 @@ The primary unit of analysis is the **therapy episode**, aligned to treatment-re
 - [ ] Cohort characterization implemented
 - [ ] Governed hospital-data validation initiated
 
-**Current phase:** Phase 1 - Episode and transition schema
+**Current phase:** Phase 1 — Episode and transition schema  
+**Current gate:** Gate 1 -> 2 — canonical model must become stable enough to support synthetic fixtures.
 
 ## Thesis scope
 
@@ -64,175 +79,299 @@ Initial development window:
 
 The canonical episode preserves patient/episode identity, infusion timestamp, encounter boundaries, care-state intervals, transitions, discharge/acute-care return, provenance, and explicit uncertainty.
 
-## Phased development
-
-### Phase 0 - Scope and governance
+## Phase 0 — Scope and governance
 
 **Status: substantially complete**
 
-Goal: establish a credible public research boundary.
+Goal: establish a credible public research boundary and lock the thesis question before implementation expands.
 
+### Completed
 - [x] Define thesis question and aims
 - [x] Define thesis success criterion
 - [x] Establish synthetic-first development policy
 - [x] Establish no-PHI/no-production-credentials rule
 - [x] Separate descriptive research from bedside decision support
 - [x] Separate thesis scope from post-thesis extensions
-- [ ] Add `docs/governance.md` with data-use, privacy, provenance, and institutional-approval expectations
+- [x] Define minimum-necessary data principle
+- [x] Define institutional approval gate for real-data use
 
-**Exit criterion:** governance documentation is complete and public examples remain synthetic-only.
+### Remaining
+- [ ] Add `docs/governance.md`
+- [ ] Document research-data lifecycle expectations
+- [ ] Document public/private artifact separation
+- [ ] Document minimum institutional approval assumptions without embedding institution-specific policy
+
+### Gate 0 -> 1 evidence
+- [x] thesis question documented
+- [x] included/excluded domains documented
+- [x] synthetic-first policy documented
+- [x] public non-operational boundary documented
+- [x] success criterion documented
+
+**Gate status: PASSED**, with governance documentation still required before any real-data phase.
 
 ---
 
-### Phase 1 - Episode and transition schema
+## Phase 1 — Episode and transition schema
 
 **Status: active / near completion**
 
-Goal: define the core research objects required to represent a CAR T hospital episode.
+Goal: define the canonical research objects and semantics needed to represent a CAR T hospital episode without relying on institution-specific workflow names.
 
-- [x] Define controlled care-state vocabulary
-- [x] Document episode model and treatment-relative representation
-- [x] Create `therapy_episode` schema
-- [x] Create `care_state_interval` schema
-- [x] Create `care_transition` schema
-- [ ] Define provenance object/schema
-- [ ] Define encounter input contract or minimal schema
-- [ ] Validate schema relationships using a complete synthetic episode
+### Completed
+- [x] Controlled care-state vocabulary
+- [x] Episode-model documentation
+- [x] `therapy_episode` schema
+- [x] `care_state_interval` schema
+- [x] `care_transition` schema
+- [x] Absolute plus treatment-relative time required conceptually
+- [x] Missingness/uncertainty required conceptually
+- [x] Source provenance required conceptually
+- [x] Minimum hospital data requirements specified
 
-Design requirements:
+### Remaining
+- [ ] Define `provenance` schema/object
+- [ ] Define minimal encounter input schema/contract
+- [ ] Freeze treatment-relative time convention
+- [ ] Freeze interval-boundary semantics
+- [ ] Define deterministic tie-breaking at identical timestamps
+- [ ] Define overlap/conflict precedence rules in machine-readable or testable form
+- [ ] Create one hand-worked multi-encounter episode
+- [ ] Validate that episode across all schemas
 
-- [x] preserve absolute timestamps
-- [x] support treatment-relative time
-- [x] avoid institution-specific unit names in the canonical model
-- [x] represent missingness/uncertainty explicitly
-- [x] preserve source identifiers/provenance fields
-- [ ] demonstrate multiple encounters within one episode
+### Gate 1 -> 2 evidence required
+- [x] controlled vocabulary
+- [x] therapy-episode schema
+- [x] care-state interval schema
+- [x] care-transition schema
+- [ ] encounter input specification
+- [ ] provenance specification
+- [ ] deterministic relative-time convention
+- [ ] complete hand-worked episode
 
-**Exit criterion:** one end-to-end synthetic episode validates across all core schemas without ambiguity.
+**Gate status: NOT YET PASSED.**
 
 ---
 
-### Phase 2 - Synthetic cohort
+## Phase 2 — Synthetic cohort
 
 **Status: not started**
 
-Goal: build deterministic synthetic trajectories for development and validation.
+Goal: create a deterministic truth set that can function as the oracle for reconstruction and metric testing.
 
-Required fixtures:
-
+### Required trajectory fixtures
 - [ ] routine recovery
 - [ ] prolonged routine inpatient care
 - [ ] transient escalation and de-escalation
 - [ ] ICU escalation
 - [ ] discharge followed by early acute-care return
-- [ ] incomplete or conflicting location records
+- [ ] incomplete/conflicting location records
 
-For each fixture:
+### Every fixture must include
+- [ ] source-like encounter/location inputs
+- [ ] expected normalized state intervals
+- [ ] expected transition sequence
+- [ ] expected uncertainty flags
+- [ ] expected utilization metrics
+- [ ] requirement IDs exercised by the fixture
+- [ ] edge-case notes
 
-- [ ] define expected state intervals
-- [ ] define expected transitions
-- [ ] define expected utilization metrics
-- [ ] document edge cases
-- [ ] confirm no institutional identifiers/workflow names are embedded
+### Required fixture edge cases
+- [ ] duplicate same-state records
+- [ ] identical timestamps
+- [ ] adjacent intervals
+- [ ] overlapping location records
+- [ ] missing end time
+- [ ] gap in known care state
+- [ ] event at infusion boundary
+- [ ] event at study-window boundary
+- [ ] insufficient post-discharge follow-up
 
-**Exit criterion:** all fixtures have known expected outputs suitable for automated testing.
+### Gate 2 -> 3 evidence required
+- [ ] six trajectory classes implemented
+- [ ] expected outputs prespecified
+- [ ] fixture requirement-coverage matrix complete
+- [ ] invalid fixtures available for schema/error testing
 
----
-
-### Phase 3 - Transition reconstruction
-
-**Status: not started**
-
-Goal: transform event-level records into reproducible care-state intervals and transitions.
-
-- [ ] implement infusion-day anchoring
-- [ ] implement treatment-relative time conversion
-- [ ] normalize encounter/location events
-- [ ] sort events deterministically
-- [ ] resolve overlapping records using documented precedence rules
-- [ ] derive care-state intervals
-- [ ] derive transition events
-- [ ] preserve source provenance
-- [ ] preserve uncertainty/conflict flags
-- [ ] generate a patient-level timeline table
-
-Primary outputs:
-
-- [ ] patient-level care-state interval table
-- [ ] patient-level transition table
-- [ ] treatment-relative timeline
-- [ ] reconstruction validation report
-
-**Exit criterion:** synthetic fixtures reconstruct to their prespecified expected trajectories.
+**Gate status: NOT STARTED.**
 
 ---
 
-### Phase 4 - Hospital utilization metrics
+## Phase 3 — Transition reconstruction
 
 **Status: not started**
 
-Goal: quantify hospital use from reconstructed trajectories.
+Goal: convert event-level records into deterministic patient-level care-state intervals and transitions.
 
-- [ ] total inpatient days
-- [ ] days by care state
-- [ ] number of transfers
-- [ ] time to first escalation
-- [ ] duration of high-acuity exposure
+### Implementation requirements
+- [ ] infusion-day anchoring
+- [ ] treatment-relative day/hour conversion
+- [ ] timezone convention
+- [ ] deterministic event sorting
+- [ ] identical-timestamp tie-breaking
+- [ ] local-source-to-canonical state mapping interface
+- [ ] duplicate suppression
+- [ ] overlap/conflict handling
+- [ ] interval derivation
+- [ ] transition derivation
+- [ ] discharge semantics
+- [ ] acute-care-return semantics
+- [ ] provenance propagation
+- [ ] uncertainty propagation
+- [ ] stable canonical serialization
+
+### Validation requirements
+- [ ] exact reconstruction of deterministic synthetic fixtures
+- [ ] expected `unknown`/uncertainty behavior for conflict fixtures
+- [ ] repeated runs produce equivalent outputs
+- [ ] no false transitions from duplicate same-state records
+
+### Gate 3 -> 4 acceptance target
+- [ ] 100% agreement with prespecified synthetic intervals/transitions for deterministic fixtures
+- [ ] all conflict fixtures produce prespecified uncertainty behavior
+- [ ] clean reruns are reproducible
+
+**Gate status: NOT STARTED.**
+
+---
+
+## Phase 4 — Hospital utilization metrics
+
+**Status: not started**
+
+Goal: derive transparent, thesis-relevant measures of hospital resource utilization from reconstructed trajectories.
+
+### Required metrics
+- [ ] total inpatient duration/days
+- [ ] routine inpatient duration
+- [ ] higher-observation duration
+- [ ] ICU duration
+- [ ] combined high-acuity duration where prespecified
+- [ ] number of normalized care-state transitions
+- [ ] time from infusion to first escalation
 - [ ] time from final escalation to discharge
+- [ ] treatment-relative time to discharge
 - [ ] 7-day acute-care reuse
 - [ ] 30-day acute-care reuse
 - [ ] unplanned readmission where source data support the distinction
-- [ ] metric-level provenance and missingness reporting
 
-These remain descriptive research measures, not clinical thresholds.
+### Required metric semantics
+- [ ] partial-day calculation rule
+- [ ] inclusive/exclusive interval rule
+- [ ] zero-versus-missing rule
+- [ ] insufficient-follow-up behavior
+- [ ] unknown-state handling
+- [ ] study-window censoring behavior
+- [ ] provenance for every metric
 
-**Exit criterion:** every synthetic fixture produces deterministic, tested utilization measures.
+### Gate 4 -> 5 evidence required
+- [ ] formulas/algorithms documented
+- [ ] hand-calculated expected fixture values
+- [ ] unit tests for each metric
+- [ ] window-boundary sensitivity checks
+
+**Gate status: NOT STARTED.**
 
 ---
 
-### Phase 5 - Cohort characterization
+## Phase 5 — Cohort characterization
 
 **Status: not started**
 
-Goal: determine whether recurrent hospital care patterns are visible across episodes.
+Goal: determine whether recurrent hospital care patterns can be described across episodes without converting them into predictive or clinical labels.
 
-Candidate descriptive patterns:
-
+### Candidate descriptive patterns
 - [ ] uncomplicated routine recovery
 - [ ] prolonged routine care
 - [ ] transient escalation
 - [ ] sustained high-acuity care
 - [ ] discharge with early acute-care return
 
-Method development:
+### Analysis requirements
+- [ ] prespecified feature set derived from Phase 4
+- [ ] interpretable grouping strategy
+- [ ] rationale for any distance/similarity measure
+- [ ] rationale for number of groups
+- [ ] sensitivity analyses
+- [ ] uncertainty-aware analysis
+- [ ] patient-level traceability from group to trajectory
+- [ ] descriptive language only
 
-- [ ] establish interpretable feature set from Phase 4
-- [ ] define descriptive grouping strategy
-- [ ] perform sensitivity analyses
-- [ ] retain patient-level traceability from group summaries
-- [ ] visualize missingness and uncertainty
-- [ ] avoid predictive/clinical labeling claims
+### Required outputs
+- [ ] cohort flow diagram
+- [ ] utilization summary table
+- [ ] patient-level trajectory examples
+- [ ] cohort trajectory visualization
+- [ ] missingness/uncertainty report
+- [ ] sensitivity-analysis appendix/output
 
-**Exit criterion:** cohort summaries are reproducible and every group assignment can be traced back to the underlying episode sequence.
+### Gate 5 -> 6 evidence required
+- [ ] cohort summaries reproduce from canonical outputs
+- [ ] all group assignments trace to episode-level features
+- [ ] uncertainty is visible
+- [ ] results do not require undocumented manual intervention
+
+**Gate status: NOT STARTED.**
 
 ---
 
-### Phase 6 - Governed hospital-data study
+## Phase 6 — Governed hospital-data study
 
 **Status: future / approval dependent**
 
-Goal: evaluate CART-TRACE on appropriately governed institutional data.
+Goal: evaluate the framework using appropriately approved institutional data and determine whether the synthetic-first methods transfer to real hospital records.
 
-- [ ] define institutional data requirements
-- [ ] obtain required research/privacy approvals
-- [ ] map local encounter/location data into the canonical model
-- [ ] compare reconstructed transitions against source records
-- [ ] quantify missingness and disagreement
-- [ ] manually adjudicate an approved validation subset
-- [ ] characterize hospital utilization using the validated pipeline
-- [ ] document limitations and transportability
+### Readiness requirements
+- [ ] finalized data dictionary
+- [ ] minimum necessary field list
+- [ ] local source-to-canonical mapping plan
+- [ ] date/time and timezone conventions
+- [ ] approved research/privacy/data-use pathway
+- [ ] protected analytic environment
+- [ ] validation sample/adjudication plan
+- [ ] approved cohort definition
+- [ ] follow-up availability assessed for reuse metrics
 
-**Exit criterion:** demonstrate whether the framework can reproducibly characterize real hospital care trajectories without making operational recommendations.
+### Validation activities
+- [ ] compare reconstructed encounter boundaries to source records
+- [ ] compare reconstructed care-state intervals to source records
+- [ ] compare transitions to source records
+- [ ] quantify timestamp disagreements
+- [ ] quantify `unknown`-state burden
+- [ ] classify discrepancies using validation error taxonomy
+- [ ] adjudicate approved subset
+- [ ] version mapping/reconstruction changes
+
+### Real-data acceptance targets
+Numerical thresholds should be prespecified with the thesis committee after source-data characteristics and feasible validation sample size are known. The public repository should not invent universal clinical-performance thresholds.
+
+**Gate status: APPROVAL DEPENDENT.**
+
+---
+
+## Cross-phase requirement tracking
+
+The implementation should maintain traceability between requirements, evidence, and thesis outputs.
+
+### Mandatory traceability chain
+
+`thesis aim -> requirement ID -> schema/function -> synthetic fixture -> automated test -> thesis table/figure/result`
+
+### Required artifacts
+- [x] `THESIS.md`
+- [x] `ROADMAP.md`
+- [x] `docs/requirements.md`
+- [x] `docs/phase_gates.md`
+- [x] `docs/data_requirements.md`
+- [x] `docs/validation_plan.md`
+- [x] `docs/care_state_vocabulary.md`
+- [x] `docs/episode_model.md`
+- [ ] `docs/governance.md`
+- [ ] `docs/data_dictionary.md`
+- [ ] `docs/metric_definitions.md`
+- [ ] `docs/requirements_traceability.md`
+- [ ] provenance schema
+- [ ] encounter input schema/contract
 
 ## Thesis deliverables
 
@@ -240,6 +379,10 @@ Goal: evaluate CART-TRACE on appropriately governed institutional data.
 - [x] documented care-state vocabulary
 - [x] documented episode model
 - [x] initial core schemas
+- [x] testable requirements specification
+- [x] formal phase-gate plan
+- [x] minimum data requirements
+- [x] staged validation plan
 - [ ] reproducible transition-reconstruction code
 - [ ] synthetic validation cohort and tests
 - [ ] utilization metric library
@@ -248,19 +391,19 @@ Goal: evaluate CART-TRACE on appropriately governed institutional data.
 - [ ] validation/missingness analysis
 - [ ] written discussion of implications for hospital capacity and care-transition research
 
-## Near-term build order
+## Immediate next build sequence
 
-- [x] Care-state vocabulary
-- [x] Therapy-episode schema
-- [x] Care-state interval schema
-- [x] Care-transition schema
-- [ ] Provenance and encounter input definitions
-- [ ] Treatment-relative time utilities
-- [ ] Synthetic fixtures
-- [ ] Transition reconstruction
-- [ ] Utilization metrics
-- [ ] Validation tests
-- [ ] Cohort reporting
+Before entering Phase 2:
+
+1. [ ] Create `docs/governance.md`.
+2. [ ] Create provenance schema.
+3. [ ] Create minimal encounter input contract/schema.
+4. [ ] Freeze treatment-relative time and interval semantics.
+5. [ ] Create one complete hand-worked multi-encounter episode.
+6. [ ] Validate all Phase 1 objects together.
+7. [ ] Mark Gate 1 -> 2 complete only after the evidence is present.
+
+Then begin Phase 2 synthetic fixtures.
 
 ## Post-thesis opportunities
 
