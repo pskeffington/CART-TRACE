@@ -1,4 +1,4 @@
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -19,10 +19,9 @@ def test_relative_day_before_infusion():
 
 def test_timezone_awareness_must_match():
     infusion = datetime(2026, 1, 10, tzinfo=UTC)
-    observed = datetime(2026, 1, 10, tzinfo=timezone(timedelta(hours=-5)))
-    naive = observed.replace(tzinfo=None)  # noqa: DTZ001 - intentional negative test fixture
+    observed = datetime(2026, 1, 10, tzinfo=UTC).replace(tzinfo=None)
     with pytest.raises(ValueError):
-        relative_day(naive, infusion)
+        relative_day(observed, infusion)
 
 
 def test_relative_window_is_descriptive():
