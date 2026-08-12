@@ -1,0 +1,36 @@
+{
+  "mapping_version": "0.1.0",
+  "description": "Synthetic-only mapping used to exercise canonical care-state reconstruction in public tests.",
+  "rules": [
+    {
+      "source_care_label": "synthetic_standard_floor",
+      "canonical_state": "routine_inpatient",
+      "priority": 10
+    },
+    {
+      "source_care_label": "synthetic_stepdown",
+      "canonical_state": "higher_observation",
+      "priority": 15
+    },
+    {
+      "source_care_label": "synthetic_icu",
+      "canonical_state": "icu",
+      "priority": 20
+    },
+    {
+      "source_care_label": "synthetic_emergency",
+      "canonical_state": "acute_care_return",
+      "priority": 10
+    },
+    {
+      "source_care_label": "synthetic_outpatient",
+      "canonical_state": "outpatient",
+      "priority": 5
+    }
+  ],
+  "precedence": {
+    "higher_numeric_priority_wins": true,
+    "identical_priority_tie_breaker": "lexicographic_source_record_id"
+  },
+  "unknown_policy": "unmapped or irreconcilable source records produce canonical state 'unknown' with uncertainty metadata"
+}
