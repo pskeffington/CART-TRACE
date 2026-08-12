@@ -4,43 +4,41 @@
   "title": "CART-TRACE Therapy Episode",
   "type": "object",
   "additionalProperties": false,
-  "required": ["episode_id", "infusion_timestamp", "window_start", "window_end"],
+  "required": [
+    "episode_id",
+    "infusion_timestamp",
+    "window_start_timestamp",
+    "window_end_timestamp",
+    "window_start_relative_hours",
+    "window_end_relative_hours",
+    "source_type"
+  ],
   "properties": {
-    "episode_id": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Research episode identifier. Public examples must use synthetic identifiers."
-    },
-    "patient_id": {
+    "episode_id": {"type": "string", "minLength": 1},
+    "patient_research_id": {
       "type": ["string", "null"],
-      "description": "Research patient identifier, if represented separately from episode_id."
+      "description": "Synthetic or governed research identifier only; no direct identifiers or PHI in public artifacts."
     },
     "infusion_timestamp": {
       "type": "string",
       "format": "date-time",
-      "description": "CAR T-cell infusion timestamp defining treatment-relative day 0."
+      "description": "CAR T-cell infusion timestamp defining treatment-relative time 0."
     },
-    "window_start": {
-      "type": "string",
-      "format": "date-time"
+    "window_start_timestamp": {"type": "string", "format": "date-time"},
+    "window_end_timestamp": {"type": "string", "format": "date-time"},
+    "window_start_relative_hours": {"type": "number"},
+    "window_end_relative_hours": {"type": "number"},
+    "therapy_label": {"type": ["string", "null"]},
+    "source_type": {"type": "string", "minLength": 1},
+    "source_record_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
     },
-    "window_end": {
-      "type": "string",
-      "format": "date-time"
-    },
-    "therapy_label": {
-      "type": ["string", "null"],
-      "description": "Optional governed research label for therapy type; not required for the core trajectory model."
-    },
-    "source_system": {
-      "type": ["string", "null"]
-    },
-    "provenance_id": {
-      "type": ["string", "null"]
-    },
+    "provenance_id": {"type": ["string", "null"]},
     "notes": {
       "type": ["string", "null"],
-      "description": "Synthetic or governed research annotation. Identifying free text is prohibited in public examples."
+      "description": "Synthetic or governed research annotation; identifying free text is prohibited in public examples."
     }
   }
 }
