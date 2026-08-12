@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from hashlib import sha256
 import json
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from hashlib import sha256
 from typing import Any
 
 
@@ -17,12 +17,17 @@ class TransformationRecord:
     created_at: datetime
 
     @classmethod
-    def create(cls, name: str, parameters: dict[str, Any], input_ids: list[str]) -> "TransformationRecord":
+    def create(
+        cls,
+        name: str,
+        parameters: dict[str, Any],
+        input_ids: list[str],
+    ) -> TransformationRecord:
         return cls(
             name=name,
             parameters=parameters,
             input_ids=tuple(input_ids),
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     def fingerprint(self) -> str:
