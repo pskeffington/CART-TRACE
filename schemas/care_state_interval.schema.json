@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/care_state_interval.schema.json",
+  "title": "CART-TRACE Care-State Interval",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["episode_id", "state", "start_timestamp", "start_day_relative"],
+  "properties": {
+    "episode_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "outpatient",
+        "routine_inpatient",
+        "higher_observation",
+        "icu",
+        "discharged",
+        "acute_care_return",
+        "unknown"
+      ]
+    },
+    "start_timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_timestamp": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    },
+    "start_day_relative": {
+      "type": "number",
+      "description": "Elapsed days from infusion timestamp. Infusion occurs at 0."
+    },
+    "end_day_relative": {
+      "type": ["number", "null"]
+    },
+    "source_location": {
+      "type": ["string", "null"],
+      "description": "Source location/category retained for governed provenance. Public fixtures should use generic synthetic values."
+    },
+    "source_record_id": {
+      "type": ["string", "null"]
+    },
+    "provenance_id": {
+      "type": ["string", "null"]
+    },
+    "uncertain": {
+      "type": "boolean",
+      "default": false
+    },
+    "uncertainty_reason": {
+      "type": ["string", "null"]
+    }
+  }
+}
