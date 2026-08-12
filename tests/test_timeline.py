@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -6,22 +6,23 @@ from cart_trace.timeline import relative_day, relative_window
 
 
 def test_relative_day_after_infusion():
-    infusion = datetime(2026, 1, 10, tzinfo=timezone.utc)
-    observed = datetime(2026, 1, 13, 12, tzinfo=timezone.utc)
+    infusion = datetime(2026, 1, 10, tzinfo=UTC)
+    observed = datetime(2026, 1, 13, 12, tzinfo=UTC)
     assert relative_day(observed, infusion) == 3.5
 
 
 def test_relative_day_before_infusion():
-    infusion = datetime(2026, 1, 10, tzinfo=timezone.utc)
-    observed = datetime(2026, 1, 9, tzinfo=timezone.utc)
+    infusion = datetime(2026, 1, 10, tzinfo=UTC)
+    observed = datetime(2026, 1, 9, tzinfo=UTC)
     assert relative_day(observed, infusion) == -1.0
 
 
 def test_timezone_awareness_must_match():
-    infusion = datetime(2026, 1, 10, tzinfo=timezone.utc)
-    observed = datetime(2026, 1, 10)
+    infusion = datetime(2026, 1, 10, tzinfo=UTC)
+    observed = datetime(2026, 1, 10, tzinfo=timezone(timedelta(hours=-5)))
+    naive = observed.replace(tzinfo=None)  # noqa: DTZ001 - intentional negative test fixture
     with pytest.raises(ValueError):
-        relative_day(observed, infusion)
+        relative_day(naive, infusion)
 
 
 def test_relative_window_is_descriptive():
