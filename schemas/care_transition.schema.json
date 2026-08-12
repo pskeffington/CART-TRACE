@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/care_transition.schema.json",
+  "title": "CART-TRACE Care Transition",
+  "description": "Research representation of a transition between hospital care states during a CAR T-cell therapy episode.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "episode_id",
+    "transition_time",
+    "relative_day",
+    "from_state",
+    "to_state",
+    "source_system"
+  ],
+  "properties": {
+    "episode_id": {"type": "string", "minLength": 1},
+    "transition_time": {"type": "string", "format": "date-time"},
+    "relative_day": {"type": "number"},
+    "from_state": {
+      "type": "string",
+      "enum": ["outpatient", "inpatient_routine", "higher_observation", "icu", "discharged", "acute_care_return", "unknown"]
+    },
+    "to_state": {
+      "type": "string",
+      "enum": ["outpatient", "inpatient_routine", "higher_observation", "icu", "discharged", "acute_care_return", "unknown"]
+    },
+    "transition_reason_recorded": {"type": ["string", "null"]},
+    "source_system": {"type": "string", "minLength": 1},
+    "source_record_id": {"type": ["string", "null"]},
+    "derived": {"type": "boolean", "default": false},
+    "derivation_version": {"type": ["string", "null"]},
+    "missingness_note": {"type": ["string", "null"]}
+  }
+}
