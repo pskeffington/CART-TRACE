@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cart-trace.org/schemas/evidence-record.schema.json",
+  "title": "CART-TRACE CAR-T evidence record",
+  "description": "A provenance-preserving evidence record for research on auditable CAR-T decision gates. This schema does not itself define clinical rules.",
+  "type": "object",
+  "required": [
+    "evidence_id",
+    "gate_id",
+    "decision",
+    "criterion",
+    "authority_class",
+    "source_title",
+    "source_date",
+    "population",
+    "product_or_indication",
+    "support_type",
+    "evidence_strength",
+    "provenance"
+  ],
+  "properties": {
+    "evidence_id": {"type": "string", "pattern": "^EV-[0-9]{4,}$"},
+    "gate_id": {"type": "string", "pattern": "^G[0-9]{2}$"},
+    "decision": {"type": "string"},
+    "criterion": {"type": "string"},
+    "threshold": {
+      "type": ["string", "null"],
+      "description": "Only populated when a defensible source-supported threshold exists."
+    },
+    "action_if_met": {
+      "type": "string",
+      "enum": ["proceed", "pause", "evaluate_or_mitigate", "redirect", "monitor", "not_determined"]
+    },
+    "authority_class": {
+      "type": "string",
+      "enum": ["regulatory", "guideline_consensus", "pivotal_trial", "comparative_trial", "real_world", "validated_prediction_tool", "institutional_practice", "investigational"]
+    },
+    "source_title": {"type": "string"},
+    "source_date": {"type": "string", "format": "date"},
+    "source_url": {"type": ["string", "null"], "format": "uri"},
+    "source_identifier": {"type": ["string", "null"], "description": "PMID, DOI, FDA STN/BLA identifier, NCT number, or equivalent."},
+    "population": {"type": "string"},
+    "product_or_indication": {"type": "string"},
+    "endpoint_or_criterion_supported": {"type": ["string", "null"]},
+    "support_type": {
+      "type": "string",
+      "enum": ["requirement", "recommendation", "association", "prediction", "practice_pattern", "hypothesis"]
+    },
+    "evidence_strength": {
+      "type": "string",
+      "enum": ["A_regulatory_or_multiple_high_quality", "B_high_quality_consensus_or_pivotal", "C_observational_or_external_validation", "D_expert_or_institutional", "E_investigational_or_insufficient"]
+    },
+    "uncertainty": {"type": "string"},
+    "conflicts_or_disagreement": {"type": "string"},
+    "last_verified": {"type": "string", "format": "date"},
+    "provenance": {
+      "type": "object",
+      "required": ["extracted_by", "extraction_method"],
+      "properties": {
+        "extracted_by": {"type": "string"},
+        "extraction_method": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    }
+  },
+  "additionalProperties": false
+}
