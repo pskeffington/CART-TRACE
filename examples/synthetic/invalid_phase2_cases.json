@@ -7,16 +7,19 @@
       "expected_failure": "schema",
       "record": {
         "episode_id": "SYN-INVALID-001",
+        "interval_id": "INT-INVALID-001",
         "state": "unsupported_ward",
         "start_timestamp": "2026-02-01T10:00:00Z",
         "end_timestamp": "2026-02-01T12:00:00Z",
-        "start_day_relative": 0.0,
-        "end_day_relative": 0.0833333333,
-        "source_location": "synthetic_invalid",
-        "source_record_id": "SRC-INVALID-001",
+        "start_relative_hours": 0.0,
+        "end_relative_hours": 2.0,
+        "source_type": "synthetic_invalid",
+        "source_record_ids": ["SRC-INVALID-001"],
+        "mapping_method": "invalid_test",
         "provenance_id": "PROV-INVALID-001",
         "uncertain": false,
-        "uncertainty_reason": null
+        "uncertainty_reason": null,
+        "open_end_reason": null
       }
     },
     {
@@ -25,9 +28,11 @@
       "expected_failure": "schema",
       "record": {
         "episode_id": "SYN-INVALID-002",
-        "window_start": "2026-01-25T10:00:00Z",
-        "window_end": "2026-03-03T10:00:00Z",
-        "source_system": "synthetic_fixture"
+        "window_start_timestamp": "2026-01-25T10:00:00Z",
+        "window_end_timestamp": "2026-03-03T10:00:00Z",
+        "window_start_relative_hours": -168.0,
+        "window_end_relative_hours": 720.0,
+        "source_type": "synthetic_fixture"
       }
     },
     {
@@ -49,16 +54,19 @@
       "expected_failure": "semantic",
       "record": {
         "episode_id": "SYN-INVALID-004",
+        "interval_id": "INT-INVALID-004",
         "state": "routine_inpatient",
         "start_timestamp": "2026-02-02T12:00:00Z",
         "end_timestamp": "2026-02-02T10:00:00Z",
-        "start_day_relative": 1.0833333333,
-        "end_day_relative": 1.0,
-        "source_location": "synthetic_standard_floor",
-        "source_record_id": "SRC-INVALID-004",
+        "start_relative_hours": 26.0,
+        "end_relative_hours": 24.0,
+        "source_type": "encounter_location",
+        "source_record_ids": ["SRC-INVALID-004"],
+        "mapping_method": "direct_label_map",
         "provenance_id": "PROV-INVALID-004",
         "uncertain": false,
-        "uncertainty_reason": null
+        "uncertainty_reason": null,
+        "open_end_reason": null
       }
     },
     {
@@ -69,7 +77,7 @@
         {"source_record_id":"SRC-AMB-001","episode_id":"SYN-INVALID-005","encounter_start":"2026-02-03T10:00:00Z","encounter_end":"2026-02-03T14:00:00Z","source_care_label":"synthetic_standard_floor","priority":10},
         {"source_record_id":"SRC-AMB-002","episode_id":"SYN-INVALID-005","encounter_start":"2026-02-03T10:00:00Z","encounter_end":"2026-02-03T14:00:00Z","source_care_label":"synthetic_icu","priority":10}
       ],
-      "note": "The records are individually schema-valid. Reconstruction must resolve equal-priority overlap using the frozen deterministic tie-break rule rather than silently choosing by input order."
+      "note": "The records are individually schema-valid. Reconstruction must resolve equal-priority overlap using the frozen deterministic conflict policy rather than silently choosing by input order."
     }
   ]
 }
