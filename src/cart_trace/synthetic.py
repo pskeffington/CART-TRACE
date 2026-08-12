@@ -8,7 +8,7 @@ It does not simulate validated clinical risk or treatment response.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from random import Random
 
 from .schema import ResearchEvent, TreatmentAnchor
@@ -53,7 +53,7 @@ def generate_patient(index: int, seed: int = 20260812) -> SyntheticPatient:
     """
     rng = Random(seed + index)
     patient_id = f"SYN-{index:04d}"
-    infusion_at = datetime(2026, 1, 15, 12, tzinfo=timezone.utc) + timedelta(days=index)
+    infusion_at = datetime(2026, 1, 15, 12, tzinfo=UTC) + timedelta(days=index)
     anchor = TreatmentAnchor(
         patient_id=patient_id,
         infusion_at=infusion_at,
@@ -67,9 +67,8 @@ def generate_patient(index: int, seed: int = 20260812) -> SyntheticPatient:
     response_category = rng.choice(["synthetic-response", "synthetic-stable", "synthetic-progression"])
 
     events: list[ResearchEvent] = []
-    sequence = 0
-    for day in (-14, -7, -3, 0, 1, 2, 3, 5, 7, 14, 30, 90):
-        sequence += 1
+    days = (-14, -7, -3, 0, 1, 2, 3, 5, 7, 14, 30, 90)
+    for sequence, day in enumerate(days, start=1):
         observed_at = infusion_at + timedelta(days=day, hours=rng.uniform(-4, 4))
         inflammatory_shape = max(0.0, 5.0 - abs(day - 3.0))
         crp = 4.0 + inflammatory_shape * (1.0 + 0.35 * crs_grade) + rng.uniform(-1.0, 1.0)
@@ -78,7 +77,15 @@ def generate_patient(index: int, seed: int = 20260812) -> SyntheticPatient:
 
         events.extend(
             [
-                _event(patient_id, observed_at, "lab", "crp", round(crp, 2), "mg/L", f"{patient_id}-crp-{sequence}"),
+                _event(
+                    patient_id,
+                    observed_at,
+                    "lab",
+                    "crp",
+                    round(crp, 2),
+                    "mg/L",
+                    f"{patient_id}-crp-{sequence}",
+                ),
                 _event(
                     patient_id,
                     observed_at + timedelta(minutes=5),
