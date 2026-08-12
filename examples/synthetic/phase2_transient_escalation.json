@@ -1,0 +1,55 @@
+{
+  "fixture_id": "SYN-FIX-TRANSIENT-001",
+  "episode": {
+    "episode_id": "SYN-EP-TRANSIENT-001",
+    "patient_id": "SYN-P-TRANSIENT-001",
+    "infusion_timestamp": "2026-02-20T10:00:00Z",
+    "window_start": "2026-02-13T10:00:00Z",
+    "window_end": "2026-03-22T10:00:00Z",
+    "therapy_label": "synthetic_car_t",
+    "source_system": "synthetic_fixture",
+    "provenance_id": "PROV-TRANSIENT-EP",
+    "notes": "Synthetic transient escalation and de-escalation fixture."
+  },
+  "encounters": [
+    {
+      "source_record_id": "SRC-TRANSIENT-001",
+      "episode_id": "SYN-EP-TRANSIENT-001",
+      "encounter_id": "ENC-TRANSIENT-001",
+      "encounter_start": "2026-02-20T08:00:00Z",
+      "encounter_end": "2026-02-25T12:00:00Z",
+      "source_care_label": "synthetic_standard_floor",
+      "encounter_type": "inpatient",
+      "source_system": "synthetic_fixture",
+      "priority": 10,
+      "status": "completed",
+      "provenance_id": "PROV-TRANSIENT-SRC-001"
+    },
+    {
+      "source_record_id": "SRC-TRANSIENT-002",
+      "episode_id": "SYN-EP-TRANSIENT-001",
+      "encounter_id": "ENC-TRANSIENT-001",
+      "encounter_start": "2026-02-22T02:00:00Z",
+      "encounter_end": "2026-02-22T18:00:00Z",
+      "source_care_label": "synthetic_intermediate",
+      "encounter_type": "inpatient_location",
+      "source_system": "synthetic_fixture",
+      "priority": 20,
+      "status": "completed",
+      "provenance_id": "PROV-TRANSIENT-SRC-002"
+    }
+  ],
+  "expected_pattern": ["routine_inpatient", "higher_observation", "routine_inpatient", "discharged"],
+  "expected_metrics": {
+    "total_inpatient_hours": 124.0,
+    "routine_inpatient_hours": 108.0,
+    "higher_observation_hours": 16.0,
+    "icu_hours": 0.0,
+    "transition_count": 3,
+    "time_to_first_escalation_hours": 40.0,
+    "high_acuity_hours": 16.0,
+    "acute_care_reuse_7d": false,
+    "acute_care_reuse_30d": false
+  },
+  "requirements_exercised": ["VALID-001", "VALID-002", "RECON-004", "METRIC-003", "METRIC-004", "METRIC-005"]
+}
