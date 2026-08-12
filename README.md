@@ -1,37 +1,62 @@
 # CART-TRACE
 
-**CART-TRACE** is a research framework for reconstructing reproducible patient-level trajectories around CAR T-cell and cellular immunotherapy.
+**CART-TRACE** is a research framework for reconstructing longitudinal hospital care trajectories around CAR T-cell therapy.
 
-The central question is:
+The current MS HSE thesis question is:
 
-> How can heterogeneous longitudinal clinical, product/CMC, system, and patient-generated data be transformed into reproducible treatment trajectories for studying CAR T-cell treatment, toxicity, recovery, response, and care delivery?
+> **How can longitudinal clinical data be used to characterize hospital resource utilization and transitions in level of care following CAR T-cell therapy?**
 
-## Research orientation
+## Current research scope
 
-CART-TRACE is being developed for retrospective research, methods development, reproducible analytics, and future protocol design. It is **not** a clinical decision-support system and should not be used for bedside diagnosis, alarms, treatment recommendations, product release decisions, or other operational clinical functions.
+The thesis focuses on the hospital episode surrounding CAR T-cell infusion, with particular attention to:
 
-The project is intentionally designed around questions relevant to an academic hospital and regional cancer system: high-acuity capacity, treatment transitions, cellular-therapy utilization, rural access, longitudinal monitoring, manufacturing-to-outcome research, and continuity of data across inpatient, outpatient, home, and regional care settings.
+- treatment-relative time (`day 0 = infusion`);
+- inpatient and outpatient encounters;
+- care location and level-of-care transitions;
+- high-acuity escalation and de-escalation;
+- length of stay;
+- discharge timing;
+- 7-day and 30-day acute-care reuse;
+- provenance, missingness, and reproducible transformation rules.
 
-Development is synthetic-first. Public examples should contain no PHI, institutional secrets, production credentials, or identifying free text.
+The primary unit of analysis is the **CAR T-cell therapy episode**, not the individual encounter.
 
-## Planned data domains
+Initial development uses a synthetic-first window of approximately `day -7` through `day +30`, subject to refinement with advisor input and governed data availability.
 
-- longitudinal encounters, laboratory results, vitals, medications, procedures, and disease response;
-- CAR T toxicity and recovery events;
-- cell-product and appropriately governed CMC/manufacturing attributes;
-- inpatient, ICU-level, outpatient, emergency, and readmission utilization;
-- care transitions across tertiary, regional, and home settings;
-- patient-generated health signals and patient-reported observations where available;
-- provenance, missingness, and transformation metadata for reproducibility.
+## Thesis aims
 
-## Development roadmap
+1. **Reconstruct the hospital episode** on a common treatment-relative timeline.
+2. **Characterize utilization trajectories** across care settings and acuity levels.
+3. **Identify recurrent descriptive care phenotypes** without turning those phenotypes into clinical labels or recommendations.
 
-Development proceeds from a reproducible research foundation to a common episode model, trajectory reconstruction, hospital-operations research, CMC-to-outcome linkage, patient-generated signals, and ultimately prospective translational study designs.
+See [THESIS.md](THESIS.md) for the full thesis scaffold.
 
-See [ROADMAP.md](ROADMAP.md) for the phased research plan.
+## Research guardrails
+
+CART-TRACE is a **research project**, not a clinical decision-support system.
+
+The public repository will not:
+
+- contain PHI, production credentials, or identifying free text;
+- issue clinical alerts;
+- diagnose CRS, ICANS, or other toxicities from raw signals;
+- recommend transfer, escalation, discharge, or treatment;
+- represent research associations as validated bedside guidance.
+
+Public development is synthetic-first. Any future use of institutional data must occur under appropriate governance and approvals.
+
+## Repository direction
+
+Near-term implementation is intentionally narrow:
+
+`episode schema -> care-state vocabulary -> treatment-relative time -> synthetic episodes -> transition reconstruction -> utilization metrics -> validation`
+
+Broader CART-TRACE ideas such as patient-generated signals, rural follow-up, prospective monitoring, or other translational extensions are treated as **post-thesis opportunities**, not requirements for the current MS project.
+
+See [ROADMAP.md](ROADMAP.md) for the phased build plan.
 
 ## Guiding principle
 
 **Signals into evidence. Evidence into care.**
 
-The repository's role is to strengthen the evidence layer: preserving patient-level sequence, provenance, uncertainty, and reproducibility so that future clinical and health-system studies can be designed on a more rigorous data foundation.
+For the thesis, that means making the hospital care sequence transparent, reproducible, and measurable before attempting prediction or clinical implementation.
