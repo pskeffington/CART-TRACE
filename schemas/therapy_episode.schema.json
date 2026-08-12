@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/therapy_episode.schema.json",
+  "title": "CART-TRACE Therapy Episode",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["episode_id", "infusion_timestamp", "window_start", "window_end"],
+  "properties": {
+    "episode_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Research episode identifier. Public examples must use synthetic identifiers."
+    },
+    "patient_id": {
+      "type": ["string", "null"],
+      "description": "Research patient identifier, if represented separately from episode_id."
+    },
+    "infusion_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "CAR T-cell infusion timestamp defining treatment-relative day 0."
+    },
+    "window_start": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "window_end": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "therapy_label": {
+      "type": ["string", "null"],
+      "description": "Optional governed research label for therapy type; not required for the core trajectory model."
+    },
+    "source_system": {
+      "type": ["string", "null"]
+    },
+    "provenance_id": {
+      "type": ["string", "null"]
+    },
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Synthetic or governed research annotation. Identifying free text is prohibited in public examples."
+    }
+  }
+}
