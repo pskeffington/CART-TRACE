@@ -1,154 +1,220 @@
-# CART-TRACE MS HSE Thesis Scaffold
+# CART-TRACE MS Health Data Science Capstone Project
 
 ## Working title
 
-**CART-TRACE: Longitudinal Characterization of Hospital Care Trajectories Following CAR T-Cell Therapy**
+**CART-TRACE: Reconstructing Hospital Care Trajectories Following CAR T-Cell Therapy from Longitudinal Clinical Data**
 
-## Primary research question
+## Capstone objective
 
-How can longitudinal clinical data be used to characterize hospital resource utilization and transitions in level of care following CAR T-cell therapy?
+Develop and validate a reproducible health-data method for transforming heterogeneous longitudinal hospital records into treatment-relative patient-level trajectories of care during the first 30 days following CAR T-cell infusion.
 
-## Thesis premise
+The capstone is deliberately narrow. Its primary contribution is a transparent and testable data-processing method; hospital utilization after infusion is the applied clinical context in which that method is evaluated.
 
-CAR T-cell treatment produces a time-dependent hospital care episode in which patients may move between outpatient care, routine inpatient care, higher-observation settings, intensive care, discharge, and early readmission. These transitions are clinically meaningful but are often distributed across encounter, location, laboratory, medication, and utilization records.
+## Primary capstone question
 
-The engineering problem is to build a reproducible temporal representation of these care trajectories that preserves patient-level sequence, supports cohort-level analysis, and makes hospital utilization patterns measurable without functioning as a bedside decision-support system.
+> **Can longitudinal encounter and location data surrounding CAR T-cell infusion be transformed into a reproducible representation of hospital level-of-care trajectories during the first 30 days after infusion?**
 
-## Specific aims
+## Secondary applied question
 
-### Aim 1 - Reconstruct the hospital episode
+> What patterns of acute-care utilization, escalation, de-escalation, discharge, and early return are observed in the reconstructed trajectories?
 
-Develop a reproducible method for aligning CAR T-cell events to a common treatment-relative timeline anchored on infusion day (`day 0`). Represent care setting, encounter state, and transitions throughout the acute episode and early follow-up period.
+The secondary question is descriptive. CART-TRACE does not predict eligibility, toxicity, disposition, treatment response, or clinical outcomes.
 
-Primary outputs:
-- canonical episode table;
-- treatment-relative event timeline;
-- care-location sequence;
-- transition table;
-- provenance for each derived state.
+## Capstone premise
 
-### Aim 2 - Characterize utilization trajectories
+CAR T-cell therapy creates a time-dependent acute-care episode in which patients may move among outpatient care, emergency care, routine inpatient care, intermediate care, intensive care, discharge, and subsequent acute-care encounters. Relevant information can be distributed across encounter, location, admission/discharge, transfer, and utilization records.
 
-Quantify hospital utilization across CAR T-cell episodes.
+The health-data problem is therefore not simply to count encounters. It is to reconstruct a coherent temporal representation of the treatment episode while preserving sequence, provenance, missingness, and uncertainty.
 
-Candidate measures:
-- total inpatient days;
-- days by care level;
-- number and timing of transfers;
-- ICU or other high-acuity escalation;
-- discharge timing;
-- 7-day and 30-day acute-care reuse;
-- unplanned readmission;
-- monitoring intensity by treatment-relative day.
+The capstone evaluates whether this reconstruction can be performed deterministically and reproducibly enough to support defensible patient-level and cohort-level utilization analyses.
 
-### Aim 3 - Identify recurrent hospital care phenotypes
+## Scope boundary
 
-Determine whether recurrent patterns of hospital use can be identified from the reconstructed trajectories.
+### Included in the capstone core
 
-Candidate descriptive phenotypes:
-- uncomplicated routine recovery;
-- prolonged routine inpatient care;
-- transient escalation and de-escalation;
-- sustained high-acuity care;
-- discharge followed by early acute-care reuse.
+- CAR T-cell infusion as the treatment anchor;
+- continuous treatment-relative time;
+- encounter and care-location records;
+- canonical hospital care states;
+- admission, transfer, escalation, de-escalation, discharge, and acute-care-return transitions;
+- interval reconstruction using explicit boundary semantics;
+- provenance and source-record traceability;
+- explicit missingness and uncertainty;
+- post-infusion hospital utilization measures;
+- synthetic truth-set validation;
+- governed retrospective clinical-data validation if approvals and data access are available.
 
-Phenotypes will be descriptive research constructs and must not be presented as diagnostic labels or treatment recommendations.
+### Explicitly outside the capstone core
 
-## Primary unit of analysis
+- candidate identification or referral tracking;
+- CAR T-cell eligibility adjudication;
+- treatment-readiness gating;
+- product or therapy selection;
+- leukapheresis, bridging, or lymphodepletion decision support;
+- toxicity prediction or automated CRS/ICANS detection;
+- discharge prediction;
+- prospective clinical alerts;
+- patient-generated health data;
+- CMC/manufacturing analytics;
+- treatment recommendation.
 
-The primary unit is the **CAR T-cell therapy episode**, not the individual encounter.
+These may motivate future work but are not required for capstone completion.
 
-Minimum episode window for initial development:
+## Unit and analytic window
 
-`infusion day -7 -> infusion day +30`
+The primary unit of analysis is the **CAR T-cell therapy episode**, not the individual encounter.
 
-This window may be revised based on available research data and advisor input.
+Primary post-infusion analytic window:
 
-## Core data domains
+`infusion timestamp = time 0 -> day +30`
 
-The thesis core is intentionally limited to hospital-relevant clinical and system data:
+A limited pre-infusion window may be retained only when necessary to establish encounter continuity around infusion. It is not an eligibility or treatment-readiness study period.
 
-1. therapy episode identifiers and treatment anchors;
-2. encounters and admission/discharge events;
-3. care location and level-of-care states;
-4. transfers between care settings;
-5. routinely collected laboratory and vital-sign timestamps where useful for contextualizing care intensity;
-6. recorded toxicity events where available;
-7. discharge and acute-care reuse.
+## Canonical care-state model
 
-CMC/manufacturing attributes and patient-generated data are out of scope for the primary thesis.
+The capstone uses a small institution-agnostic state vocabulary:
 
-## Primary outcomes
+- `outpatient`
+- `emergency`
+- `routine_inpatient`
+- `intermediate_care`
+- `intensive_care`
+- `discharged`
+- `unknown`
 
-The initial analysis should prioritize outcomes measurable from hospital data:
+Institution-specific unit labels are source data that map into these canonical states. Acute-care return is represented as a transition/event, not as a distinct patient state.
 
-- length of stay;
-- high-acuity care exposure;
-- time to first escalation;
-- number of level-of-care transitions;
-- time from last escalation to discharge;
-- 7-day readmission or emergency acute-care return;
-- 30-day readmission or emergency acute-care return.
+## Capstone aims
+
+### Aim 1 — Build the reproducible trajectory representation
+
+Develop a deterministic method that converts source-like longitudinal hospital records into canonical care-state intervals and transitions anchored to CAR T-cell infusion.
+
+Primary products:
+
+- therapy-episode representation;
+- canonical care-state intervals;
+- transition records;
+- treatment-relative timestamps;
+- source-record provenance;
+- explicit uncertainty and missingness indicators.
+
+### Aim 2 — Validate reconstruction fidelity and reproducibility
+
+Evaluate the method against prespecified synthetic truth sets before applying it to governed clinical data.
+
+Validation targets include:
+
+- exact agreement with deterministic expected intervals and transitions;
+- prespecified behavior for conflicting or incomplete records;
+- reproducible results across repeated runs;
+- no false transitions caused by duplicate same-state records;
+- traceability of each derived state to source evidence.
+
+If governed institutional data are available, a separate retrospective validation layer may compare reconstructed outputs with source encounter/location records and an approved adjudication sample.
+
+### Aim 3 — Characterize post-infusion hospital utilization
+
+Apply the validated representation to derive transparent descriptive measures of the hospital episode.
+
+Core measures include:
+
+- total inpatient duration;
+- routine inpatient duration;
+- intermediate-care duration;
+- intensive-care duration;
+- number and timing of level-of-care transitions;
+- time from infusion to first escalation;
+- time to discharge;
+- 7-day acute-care return;
+- 30-day acute-care return;
+- missing/unknown-state burden.
+
+Any recurrent trajectory grouping is exploratory and subordinate to reconstruction and validation. Predictive modeling is not required for capstone success.
 
 ## Methodological contribution
 
-The thesis contribution is the design and evaluation of a reproducible patient-level temporal model for hospital care trajectories around CAR T-cell therapy.
+The primary academic contribution is a **deterministic temporal/state reconstruction framework for longitudinal hospital data**.
 
-The project should emphasize:
-- temporal alignment;
+The project emphasizes:
+
+- treatment-relative temporal alignment;
 - explicit state definitions;
-- deterministic transformation rules;
+- half-open interval semantics;
+- deterministic conflict and tie-breaking rules;
+- source-to-canonical mapping;
 - provenance;
-- missingness;
-- validation against source events;
-- interpretable cohort summaries.
+- missingness and uncertainty;
+- synthetic truth-set testing;
+- reproducibility;
+- interpretable clinical-data outputs.
 
-Prediction is not required for thesis success.
+The hospital-utilization analysis demonstrates the value of the method; it is not a claim that CART-TRACE is an operational hospital-management or bedside decision-support system.
 
-## Validation plan
+## Capstone evidence chain
 
-### Synthetic validation
+Every major result should be traceable through:
 
-Before governed institutional data are used, the repository should contain synthetic episodes representing:
+`capstone question -> requirement -> schema/function -> synthetic fixture -> automated test -> analytic output -> capstone table/figure`
 
-1. routine inpatient recovery;
-2. transient escalation with return to routine care;
-3. ICU escalation;
-4. prolonged hospitalization;
-5. discharge followed by early readmission;
-6. incomplete or missing location records.
+This traceability is part of the capstone deliverable rather than an implementation detail.
 
-### Research-data validation
+## Development phases
 
-If institutional data become available under appropriate approvals:
-- compare reconstructed transitions against source encounter/location records;
-- quantify disagreement and missingness;
-- manually review a small validation sample under the approved protocol;
-- document all adjudication rules.
+### Phase 0 — Scope and governance
 
-## Guardrails
+Define the capstone question, public/non-operational boundary, synthetic-first policy, and requirements for any future governed data use.
 
-CART-TRACE is a research framework.
+### Phase 1 — Canonical model
 
-It will not:
-- issue clinical alerts;
-- diagnose CRS, ICANS, or other toxicity from raw signals;
-- recommend escalation, transfer, discharge, or treatment;
-- claim prospective clinical utility without separate validation;
-- include PHI in the public repository.
+Define episode, interval, transition, provenance, encounter-input, mapping, and temporal semantics.
 
-## Near-term build sequence
+### Phase 2 — Synthetic truth set
 
-1. Define the care-state vocabulary.
-2. Define the episode schema.
-3. Implement treatment-relative time conversion.
-4. Implement transition reconstruction.
-5. Create synthetic episodes covering core hospital trajectories.
-6. Implement utilization metrics.
-7. Add validation tests.
-8. Produce a cohort-level descriptive report.
-9. Refine phenotype definitions based on data availability and advisor review.
+Prespecify representative post-infusion trajectories and edge cases with expected intervals, transitions, uncertainty behavior, and utilization values.
 
-## Thesis success criterion
+### Phase 3 — Reconstruction
 
-A successful thesis will demonstrate that heterogeneous hospital records surrounding CAR T-cell therapy can be transformed into a transparent, reproducible, patient-level sequence of care states and transitions that supports meaningful characterization of hospital utilization across a cohort.
+Implement deterministic conversion from source-like records to canonical trajectories and require exact agreement with the frozen synthetic oracle.
+
+### Phase 4 — Utilization measures
+
+Implement transparent post-infusion hospital-utilization measures from reconstructed trajectories.
+
+### Phase 5 — Capstone analysis and communication
+
+Produce patient-level trajectory examples, cohort summaries, validation results, uncertainty/missingness reporting, methods diagrams, and reproducible capstone figures/tables.
+
+### Phase 6 — Governed clinical-data application, if feasible
+
+Apply the frozen method to appropriately approved institutional records and evaluate transfer from synthetic to real-world hospital data. This phase is approval-dependent and is not allowed to become a prerequisite for demonstrating the core computational method if data access is delayed.
+
+## Capstone deliverables
+
+A complete CART-TRACE capstone should produce:
+
+1. a clearly specified applied health-data question;
+2. a documented canonical data model and transformation method;
+3. reproducible implementation code;
+4. a prespecified synthetic validation cohort;
+5. automated reconstruction and schema tests;
+6. quantitative reconstruction-validation results;
+7. hospital-utilization measures derived from canonical trajectories;
+8. interpretable patient-level and cohort-level visualizations;
+9. a missingness/uncertainty analysis;
+10. a manuscript-style capstone report or equivalent final scholarly product;
+11. a public, synthetic-only reproducibility repository, with governed clinical artifacts kept in approved environments.
+
+## Minimum viable capstone
+
+CART-TRACE does **not** depend on completing a large predictive model or gaining immediate access to production hospital data.
+
+The minimum viable scholarly contribution is achieved if the project can demonstrate that heterogeneous source-like hospital records surrounding CAR T-cell infusion can be transformed into a transparent, deterministic, reproducible sequence of care states and transitions; that the method reproduces prespecified truth sets; and that those outputs support defensible post-infusion utilization measures.
+
+Governed real-data validation substantially strengthens the capstone but remains contingent on approvals and data availability.
+
+## Success criterion
+
+The capstone succeeds if CART-TRACE demonstrates a reproducible and auditable method for reconstructing post-CAR-T hospital care trajectories from longitudinal clinical records and shows that the resulting patient-level representation can support meaningful descriptive characterization of hospital utilization during the first 30 days after infusion.
+
+Prediction, clinical eligibility determination, and prospective decision support are not required for success.
