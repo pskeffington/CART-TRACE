@@ -1,0 +1,41 @@
+{
+  "fixture_id": "SYN-FIX-PROLONGED-001",
+  "episode": {
+    "episode_id": "SYN-EP-PROLONGED-001",
+    "patient_id": "SYN-P-PROLONGED-001",
+    "infusion_timestamp": "2026-02-10T10:00:00Z",
+    "window_start": "2026-02-03T10:00:00Z",
+    "window_end": "2026-03-12T10:00:00Z",
+    "therapy_label": "synthetic_car_t",
+    "source_system": "synthetic_fixture",
+    "provenance_id": "PROV-PROLONGED-EP",
+    "notes": "Synthetic prolonged routine inpatient fixture."
+  },
+  "encounters": [
+    {
+      "source_record_id": "SRC-PROLONGED-001",
+      "episode_id": "SYN-EP-PROLONGED-001",
+      "encounter_id": "ENC-PROLONGED-001",
+      "encounter_start": "2026-02-10T07:00:00Z",
+      "encounter_end": "2026-02-21T15:00:00Z",
+      "source_care_label": "synthetic_standard_floor",
+      "encounter_type": "inpatient",
+      "source_system": "synthetic_fixture",
+      "priority": 10,
+      "status": "completed",
+      "provenance_id": "PROV-PROLONGED-SRC-001"
+    }
+  ],
+  "expected_metrics": {
+    "total_inpatient_hours": 272.0,
+    "routine_inpatient_hours": 272.0,
+    "higher_observation_hours": 0.0,
+    "icu_hours": 0.0,
+    "transition_count": 1,
+    "time_to_first_escalation_hours": null,
+    "acute_care_reuse_7d": false,
+    "acute_care_reuse_30d": false
+  },
+  "expected_pattern": ["routine_inpatient", "discharged"],
+  "requirements_exercised": ["VALID-001", "VALID-002", "METRIC-001", "METRIC-002", "METRIC-006"]
+}
