@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.1.0",
+  "reviewed_on": "2026-08-12",
+  "status": "research-specification-draft",
+  "guardrail": "Store adjudicated endpoint grades and their source/version. CART-TRACE does not infer clinical toxicity grades from isolated measurements.",
+  "endpoints": {
+    "crs": {
+      "name": "cytokine release syndrome",
+      "preferred_grading_system": "ASTCT consensus grading",
+      "source": "Lee DW et al. Biol Blood Marrow Transplant. 2019;25(4):625-638. doi:10.1016/j.bbmt.2018.12.758",
+      "required_fields": ["present", "grade", "onset_at", "resolved_at", "grading_system", "grading_version", "adjudication_source"],
+      "supporting_observations": ["temperature", "blood_pressure", "vasopressor_support", "oxygen_support", "encounter_level", "anti_cytokine_therapy"],
+      "notes": "ASTCT CRS grading is driven by fever at onset and the severity of hypotension and/or hypoxia; biomarkers alone do not define grade."
+    },
+    "icans": {
+      "name": "immune effector cell-associated neurotoxicity syndrome",
+      "preferred_grading_system": "ASTCT consensus grading",
+      "source": "Lee DW et al. Biol Blood Marrow Transplant. 2019;25(4):625-638. doi:10.1016/j.bbmt.2018.12.758",
+      "required_fields": ["present", "grade", "onset_at", "resolved_at", "grading_system", "grading_version", "adjudication_source"],
+      "supporting_observations": ["ice_score", "level_of_consciousness", "seizure", "motor_findings", "intracranial_pressure_or_cerebral_edema"],
+      "notes": "ASTCT ICANS grading depends on the most severe applicable neurologic domain; the repository stores domain observations separately from adjudicated grade."
+    },
+    "response": {
+      "name": "disease response",
+      "required_fields": ["assessment_at", "response_category", "criteria_name", "criteria_version", "source_id"],
+      "notes": "Response criteria are disease-specific and must not be mixed across indications without an explicit harmonization rule."
+    },
+    "progression": {
+      "name": "disease progression",
+      "required_fields": ["progressed", "progression_at", "criteria_name", "criteria_version", "source_id"]
+    },
+    "infection": {
+      "name": "infection event",
+      "required_fields": ["present", "onset_at", "resolved_at", "site_or_syndrome", "ascertainment_method", "source_id"]
+    },
+    "icu_transfer": {
+      "name": "ICU-level transfer/event",
+      "required_fields": ["occurred", "start_at", "end_at", "source_id"]
+    },
+    "overall_survival": {
+      "name": "overall survival",
+      "time_origin": "CAR-T infusion",
+      "event": "death from any cause",
+      "required_fields": ["infusion_at", "last_known_alive_at", "death_at", "censoring_status"]
+    },
+    "progression_free_survival": {
+      "name": "progression-free survival",
+      "time_origin": "CAR-T infusion",
+      "event": "protocol-defined progression or death",
+      "required_fields": ["infusion_at", "progression_at", "death_at", "last_disease_assessment_at", "censoring_status", "criteria_name", "criteria_version"]
+    }
+  }
+}
