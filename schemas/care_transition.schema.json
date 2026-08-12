@@ -2,37 +2,48 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.org/cart-trace/care_transition.schema.json",
   "title": "CART-TRACE Care Transition",
-  "description": "Research representation of a transition between hospital care states during a CAR T-cell therapy episode.",
+  "description": "Research representation of a transition between canonical care states during a CAR T-cell therapy episode.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "episode_id",
-    "transition_time",
-    "relative_day",
+    "transition_id",
+    "transition_timestamp",
+    "relative_time_hours",
     "from_state",
     "to_state",
-    "source_system"
+    "transition_type",
+    "source_type",
+    "source_record_ids"
   ],
   "properties": {
     "episode_id": {"type": "string", "minLength": 1},
-    "transition_time": {"type": "string", "format": "date-time"},
-    "relative_day": {"type": "number"},
+    "transition_id": {"type": "string", "minLength": 1},
+    "transition_timestamp": {"type": "string", "format": "date-time"},
+    "relative_time_hours": {"type": "number"},
     "from_state": {
       "type": "string",
-      "enum": ["outpatient", "routine_inpatient", "higher_observation", "icu", "discharged", "acute_care_return", "unknown"]
+      "enum": ["outpatient", "emergency", "routine_inpatient", "intermediate_care", "intensive_care", "discharged", "unknown"]
     },
     "to_state": {
       "type": "string",
-      "enum": ["outpatient", "routine_inpatient", "higher_observation", "icu", "discharged", "acute_care_return", "unknown"]
+      "enum": ["outpatient", "emergency", "routine_inpatient", "intermediate_care", "intensive_care", "discharged", "unknown"]
     },
-    "transition_reason_recorded": {"type": ["string", "null"]},
-    "source_system": {"type": "string", "minLength": 1},
-    "source_record_id": {"type": ["string", "null"]},
+    "transition_type": {
+      "type": "string",
+      "enum": ["admission", "transfer", "escalation", "deescalation", "discharge", "acute_care_return", "other", "unknown"]
+    },
+    "source_type": {"type": "string", "minLength": 1},
+    "source_record_ids": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
     "provenance_id": {"type": ["string", "null"]},
-    "derived": {"type": "boolean", "default": false},
+    "derived": {"type": "boolean", "default": true},
     "derivation_version": {"type": ["string", "null"]},
     "uncertain": {"type": "boolean", "default": false},
-    "uncertainty_reason": {"type": ["string", "null"]},
-    "missingness_note": {"type": ["string", "null"]}
+    "uncertainty_reason": {"type": ["string", "null"]}
   }
 }
