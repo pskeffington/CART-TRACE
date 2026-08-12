@@ -1,0 +1,78 @@
+version: 0.1.0
+status: research_scaffold
+purpose: >-
+  Define the major clinical decision points to be populated with source-grounded evidence.
+  Gate outcomes are research abstractions and are not executable clinical instructions.
+
+gates:
+  - id: G01
+    name: patient_identification
+    decision: Is CAR-T evaluation appropriate for this disease state and treatment history?
+    candidate_actions: [proceed, redirect]
+    evidence_needed: [current FDA indication, disease status, prior lines, target expression where relevant]
+
+  - id: G02
+    name: eligibility_and_baseline_fitness
+    decision: Is the patient sufficiently eligible and clinically fit to proceed to collection/planning?
+    candidate_actions: [proceed, pause, evaluate_or_mitigate, redirect]
+    evidence_needed: [performance status, organ function, infection status, marrow reserve, CNS status, comorbidity context]
+
+  - id: G03
+    name: product_or_therapy_selection
+    decision: Which approved CAR-T product or alternative therapy is best supported for this indication and patient context?
+    candidate_actions: [proceed, redirect]
+    evidence_needed: [label indication, comparative evidence, prior exposure, disease kinetics, toxicity profile, access/manufacturing constraints]
+
+  - id: G04
+    name: leukapheresis_readiness
+    decision: Can collection proceed with acceptable likelihood of manufacturing a usable product?
+    candidate_actions: [proceed, pause, evaluate_or_mitigate]
+    evidence_needed: [circulating lymphocytes, recent therapies, infection, vascular access, manufacturing-specific constraints]
+
+  - id: G05
+    name: bridging_strategy
+    decision: Is bridging therapy needed, and what strategy best controls disease without compromising CAR-T delivery?
+    candidate_actions: [proceed, evaluate_or_mitigate, redirect]
+    evidence_needed: [disease tempo, tumor burden, prior response, washout constraints, organ reserve]
+
+  - id: G06
+    name: lymphodepletion_readiness
+    decision: Can lymphodepleting chemotherapy safely and appropriately begin?
+    candidate_actions: [proceed, pause, evaluate_or_mitigate]
+    evidence_needed: [product-specific regimen, counts, renal function, infection, disease status, interval to infusion]
+
+  - id: G07
+    name: infusion_readiness
+    decision: Should the manufactured CAR-T product be infused now?
+    candidate_actions: [proceed, pause, evaluate_or_mitigate, redirect]
+    evidence_needed: [product release, active infection, acute clinical instability, recent toxicity, timing after lymphodepletion]
+
+  - id: G08
+    name: toxicity_risk_stratification
+    decision: What pre-infusion risk state should modify monitoring or mitigation planning?
+    candidate_actions: [proceed, evaluate_or_mitigate, monitor]
+    evidence_needed: [tumor burden, inflammatory markers, organ reserve, CAR-HEMATOTOX or other validated tools, product-specific risk]
+
+  - id: G09
+    name: early_post_infusion_monitoring
+    decision: What monitoring intensity and escalation are justified after infusion?
+    candidate_actions: [monitor, evaluate_or_mitigate]
+    evidence_needed: [current product label, CRS/ICANS timing, ASTCT grading, cytopenia/infection risk, delayed toxicities]
+
+  - id: G10
+    name: response_assessment
+    decision: Has the patient achieved a clinically meaningful response at the appropriate disease-specific assessment point?
+    candidate_actions: [monitor, proceed, evaluate_or_mitigate, redirect]
+    evidence_needed: [disease-specific response criteria, imaging or marrow timing, MRD where validated, product/trial assessment schedule]
+
+  - id: G11
+    name: relapse_or_nonresponse
+    decision: Is there primary nonresponse, early relapse, late relapse, or target-loss biology requiring a new pathway?
+    candidate_actions: [evaluate_or_mitigate, redirect]
+    evidence_needed: [confirmation of relapse, antigen status where relevant, disease kinetics, prior CAR-T response duration]
+
+  - id: G12
+    name: subsequent_treatment
+    decision: Which subsequent therapy is best supported after CAR-T failure or relapse?
+    candidate_actions: [proceed, redirect]
+    evidence_needed: [post-CAR-T evidence by disease, bispecific antibodies, transplant, second cellular therapy, clinical trials, patient fitness]
