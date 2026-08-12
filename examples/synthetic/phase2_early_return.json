@@ -1,0 +1,55 @@
+{
+  "fixture_id": "SYN-FIX-RETURN-001",
+  "episode": {
+    "episode_id": "SYN-EP-RETURN-001",
+    "patient_id": "SYN-P-RETURN-001",
+    "infusion_timestamp": "2026-03-01T10:00:00Z",
+    "window_start": "2026-02-22T10:00:00Z",
+    "window_end": "2026-03-31T10:00:00Z",
+    "therapy_label": "synthetic_car_t",
+    "source_system": "synthetic_fixture",
+    "provenance_id": "PROV-RETURN-EP",
+    "notes": "Synthetic discharge followed by early acute-care return fixture."
+  },
+  "encounters": [
+    {
+      "source_record_id": "SRC-RETURN-001",
+      "episode_id": "SYN-EP-RETURN-001",
+      "encounter_id": "ENC-RETURN-001",
+      "encounter_start": "2026-03-01T08:00:00Z",
+      "encounter_end": "2026-03-05T12:00:00Z",
+      "source_care_label": "synthetic_standard_floor",
+      "encounter_type": "inpatient",
+      "source_system": "synthetic_fixture",
+      "priority": 10,
+      "status": "completed",
+      "provenance_id": "PROV-RETURN-SRC-001"
+    },
+    {
+      "source_record_id": "SRC-RETURN-002",
+      "episode_id": "SYN-EP-RETURN-001",
+      "encounter_id": "ENC-RETURN-002",
+      "encounter_start": "2026-03-09T09:00:00Z",
+      "encounter_end": "2026-03-09T16:00:00Z",
+      "source_care_label": "synthetic_emergency",
+      "encounter_type": "emergency",
+      "source_system": "synthetic_fixture",
+      "priority": 10,
+      "status": "completed",
+      "provenance_id": "PROV-RETURN-SRC-002"
+    }
+  ],
+  "expected_pattern": ["routine_inpatient", "discharged", "acute_care_return"],
+  "expected_metrics": {
+    "total_inpatient_hours": 100.0,
+    "routine_inpatient_hours": 100.0,
+    "higher_observation_hours": 0.0,
+    "icu_hours": 0.0,
+    "transition_count": 2,
+    "time_to_first_escalation_hours": null,
+    "acute_care_reuse_7d": true,
+    "acute_care_reuse_30d": true,
+    "hours_from_discharge_to_return": 93.0
+  },
+  "requirements_exercised": ["VALID-001", "VALID-002", "RECON-006", "METRIC-007"]
+}
