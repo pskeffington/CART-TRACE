@@ -37,10 +37,11 @@
       "record": {
         "source_record_id": "SRC-INVALID-003",
         "episode_id": "SYN-INVALID-003",
-        "encounter_start": "not-a-timestamp",
+        "encounter_start": 12345,
         "encounter_end": "2026-02-01T12:00:00Z",
         "source_care_label": "synthetic_standard_floor"
-      }
+      },
+      "note": "Timestamp has the wrong JSON type so failure is deterministic even when format assertion support differs across validators."
     },
     {
       "case_id": "REVERSED-INTERVAL-001",
@@ -65,22 +66,8 @@
       "kind": "semantic_encounter_pair",
       "expected_failure": "semantic",
       "records": [
-        {
-          "source_record_id": "SRC-AMB-001",
-          "episode_id": "SYN-INVALID-005",
-          "encounter_start": "2026-02-03T10:00:00Z",
-          "encounter_end": "2026-02-03T14:00:00Z",
-          "source_care_label": "synthetic_standard_floor",
-          "priority": 10
-        },
-        {
-          "source_record_id": "SRC-AMB-002",
-          "episode_id": "SYN-INVALID-005",
-          "encounter_start": "2026-02-03T10:00:00Z",
-          "encounter_end": "2026-02-03T14:00:00Z",
-          "source_care_label": "synthetic_icu",
-          "priority": 10
-        }
+        {"source_record_id":"SRC-AMB-001","episode_id":"SYN-INVALID-005","encounter_start":"2026-02-03T10:00:00Z","encounter_end":"2026-02-03T14:00:00Z","source_care_label":"synthetic_standard_floor","priority":10},
+        {"source_record_id":"SRC-AMB-002","episode_id":"SYN-INVALID-005","encounter_start":"2026-02-03T10:00:00Z","encounter_end":"2026-02-03T14:00:00Z","source_care_label":"synthetic_icu","priority":10}
       ],
       "note": "The records are individually schema-valid. Reconstruction must resolve equal-priority overlap using the frozen deterministic tie-break rule rather than silently choosing by input order."
     }
