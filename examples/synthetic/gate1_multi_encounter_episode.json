@@ -1,14 +1,17 @@
 {
   "therapy_episode": {
     "episode_id": "SYN-EP-001",
-    "patient_id": "SYN-P-001",
+    "patient_research_id": "SYN-P-001",
     "infusion_timestamp": "2026-01-08T10:00:00Z",
-    "window_start": "2026-01-01T10:00:00Z",
-    "window_end": "2026-02-07T10:00:00Z",
+    "window_start_timestamp": "2026-01-01T10:00:00Z",
+    "window_end_timestamp": "2026-02-07T10:00:00Z",
+    "window_start_relative_hours": -168.0,
+    "window_end_relative_hours": 720.0,
     "therapy_label": "synthetic_car_t",
-    "source_system": "synthetic_fixture",
+    "source_type": "synthetic_fixture",
+    "source_record_ids": ["SRC-001", "SRC-002", "SRC-003"],
     "provenance_id": "PROV-EP-001",
-    "notes": "Synthetic multi-encounter episode for Gate 1 representation review."
+    "notes": "Synthetic multi-encounter episode for canonical representation review."
   },
   "encounters": [
     {
@@ -51,52 +54,17 @@
       "provenance_id": "PROV-SRC-003"
     }
   ],
-  "expected_canonical_intervals": [
-    {
-      "state": "routine_inpatient",
-      "start": "2026-01-08T08:00:00Z",
-      "end": "2026-01-09T18:00:00Z",
-      "relative_start_hours": -2.0,
-      "relative_end_hours": 32.0,
-      "source_record_ids": ["SRC-001"]
-    },
-    {
-      "state": "icu",
-      "start": "2026-01-09T18:00:00Z",
-      "end": "2026-01-10T06:00:00Z",
-      "relative_start_hours": 32.0,
-      "relative_end_hours": 44.0,
-      "source_record_ids": ["SRC-001", "SRC-002"]
-    },
-    {
-      "state": "routine_inpatient",
-      "start": "2026-01-10T06:00:00Z",
-      "end": "2026-01-11T14:00:00Z",
-      "relative_start_hours": 44.0,
-      "relative_end_hours": 76.0,
-      "source_record_ids": ["SRC-001"]
-    },
-    {
-      "state": "discharged",
-      "start": "2026-01-11T14:00:00Z",
-      "end": "2026-01-15T09:00:00Z",
-      "relative_start_hours": 76.0,
-      "relative_end_hours": 167.0,
-      "source_record_ids": ["SRC-001"]
-    },
-    {
-      "state": "acute_care_return",
-      "start": "2026-01-15T09:00:00Z",
-      "end": "2026-01-15T17:00:00Z",
-      "relative_start_hours": 167.0,
-      "relative_end_hours": 175.0,
-      "source_record_ids": ["SRC-003"]
-    }
+  "expected_state_sequence": [
+    "routine_inpatient",
+    "intensive_care",
+    "routine_inpatient",
+    "discharged",
+    "emergency"
   ],
-  "expected_transitions": [
-    {"at": "2026-01-09T18:00:00Z", "from": "routine_inpatient", "to": "icu"},
-    {"at": "2026-01-10T06:00:00Z", "from": "icu", "to": "routine_inpatient"},
-    {"at": "2026-01-11T14:00:00Z", "from": "routine_inpatient", "to": "discharged"},
-    {"at": "2026-01-15T09:00:00Z", "from": "discharged", "to": "acute_care_return"}
+  "expected_transition_types": [
+    "escalation",
+    "deescalation",
+    "discharge",
+    "acute_care_return"
   ]
 }
