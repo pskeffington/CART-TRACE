@@ -2,9 +2,9 @@
 
 **Proposed transition:** Phase 2 — Synthetic cohort -> Phase 3 — Transition reconstruction
 
-**Current decision:** CONDITIONAL / NOT YET PASSED
+**Current decision:** CONDITIONAL / CI PENDING
 
-Phase 2 now contains the six required trajectory classes and automated fixture-coverage tests. Gate 2 remains open until all fixtures conform fully to the canonical truth-set contract and the test suite executes successfully in CI.
+Phase 2 now contains six normalized trajectory classes, requirement coverage, expected utilization measures, negative/error fixtures, and automated fixture validation. The only remaining formal blocker is successful CI execution of the updated Phase 2 test suite.
 
 ## Evidence checklist
 
@@ -12,65 +12,87 @@ Phase 2 now contains the six required trajectory classes and automated fixture-c
 |---|---|---|
 | Six trajectory classes represented | Complete | `examples/synthetic/fixture_manifest.json` |
 | Routine recovery fixture | Complete | `examples/synthetic/phase2_routine_recovery.json` |
-| Prolonged routine inpatient fixture | Complete | `examples/synthetic/phase2_prolonged_routine_inpatient.json` |
+| Prolonged routine inpatient fixture | Complete | `examples/synthetic/phase2_prolonged_routine.json` |
 | Transient escalation fixture | Complete | `examples/synthetic/phase2_transient_escalation.json` |
-| ICU escalation fixture | Complete as Gate 1 seed | `examples/synthetic/gate1_multi_encounter_episode.json` |
-| Early acute-care return fixture | Complete | `examples/synthetic/phase2_early_acute_care_return.json` |
-| Conflicting/missing location fixture | Complete | `examples/synthetic/phase2_conflicting_missing_location.json` |
+| ICU escalation fixture | Complete / normalized | `examples/synthetic/phase2_icu_escalation.json` |
+| Early acute-care return fixture | Complete | `examples/synthetic/phase2_early_return.json` |
+| Conflicting/missing location fixture | Complete | `examples/synthetic/phase2_conflicting_location.json` |
 | Requirement coverage in manifest | Complete | `examples/synthetic/fixture_manifest.json` |
-| Fixture coverage tests authored | Complete | `tests/test_phase2_fixtures.py` |
-| Expected utilization metrics | Complete for 5/6 fixtures | fixture files |
-| Canonical interval/transition schema conformity | Partial | normalization still needed for Gate 1 seed fields |
-| Invalid fixtures for negative/error testing | Pending | Phase 2 closure task |
+| Expected utilization metrics | Complete for 6/6 fixtures | fixture files |
+| Canonical interval/transition schema conformity | Complete by test contract | `tests/test_phase2_fixtures.py` |
+| Invalid fixtures for negative/error testing | Complete | `examples/synthetic/invalid_phase2_cases.json` |
+| Fixture coverage and negative tests | Complete | `tests/test_phase2_fixtures.py` |
 | CI execution of Phase 2 tests | Pending | workflow evidence required |
 
-## Current strengths
+## Truth-set coverage
 
-The truth set now covers the principal hospital trajectory patterns required by the thesis:
+The synthetic cohort represents the core trajectory patterns needed for reconstruction development:
 
-- uncomplicated routine inpatient recovery;
+- routine inpatient recovery;
 - prolonged routine inpatient care;
-- transient escalation to intermediate/higher-observation care and return;
+- transient escalation and de-escalation;
 - ICU escalation and de-escalation;
 - discharge followed by early acute-care return;
-- incomplete/conflicting care-location evidence producing explicit uncertainty.
+- incomplete/conflicting care-location evidence with explicit `unknown`/uncertainty behavior.
 
-Each manifest entry is linked to requirement IDs so the fixture set can function as both an engineering oracle and a requirements-coverage artifact.
+The ICU trajectory is now represented in the same Phase 2 contract as the other fixtures, including schema-conformant expected intervals/transitions and prespecified utilization metrics.
 
-## Remaining blockers
+## Negative/error coverage
 
-### 1. Normalize the ICU seed fixture
+`examples/synthetic/invalid_phase2_cases.json` now exercises:
 
-The Gate 1 seed uses legacy truth-set field names such as `start`, `end`, `relative_start_hours`, and compact transition objects. Before Gate 2 passage, this fixture should either be normalized to the canonical interval/transition schemas or mirrored by schema-conformant Phase 2 expected objects.
+- invalid canonical state labels;
+- missing infusion anchor;
+- malformed timestamps;
+- reversed interval semantics;
+- equal-priority overlapping records requiring the frozen deterministic tie-break behavior.
 
-### 2. Add expected metrics for the ICU fixture
+The negative set distinguishes schema-level failure from semantic/reconstruction-level behavior so Phase 3 code can be tested against both categories.
 
-The ICU fixture should have the same metric truth-set structure as the other Phase 2 fixtures, including inpatient duration, ICU duration, transition count, time to first escalation, and reuse indicators where applicable.
+## Automated oracle contract
 
-### 3. Add invalid/error fixtures
+`tests/test_phase2_fixtures.py` now checks:
 
-Phase 2 should include a small negative-test set for conditions such as:
+1. all required trajectory classes are present;
+2. manifest artifact paths resolve to actual fixture files;
+3. fixture IDs are unique;
+4. every fixture has requirement coverage;
+5. episode and encounter inputs validate;
+6. expected state sequences match the manifest;
+7. all expected intervals/transitions conform to canonical schemas;
+8. every fixture exposes expected utilization metrics;
+9. conflict, early-return, routine, and ICU-specific expected behavior is explicit;
+10. negative schema cases fail validation as expected;
+11. semantic-invalid interval and tie-break cases remain machine-testable.
 
-- invalid care-state label;
-- end before start;
-- missing required episode anchor;
-- duplicate/ambiguous priority without tie-break key;
-- malformed timestamp;
-- unsupported/unmapped label producing explicit `unknown` behavior where appropriate rather than silent success.
+## Remaining blocker
 
-### 4. Execute Phase 2 tests in CI
+### CI execution
 
-The authored fixture tests must pass in the reproducible environment before Gate 2 is frozen.
+Gate 2 -> 3 should pass only after the updated Phase 2 test suite executes successfully in the repository CI environment.
+
+No Phase 3 reconstruction code should be considered authoritative until this truth set is frozen by successful CI evidence.
+
+## Candidate freeze set after passage
+
+If Gate 2 passes, the following become controlled Phase 2 truth-set artifacts:
+
+- `examples/synthetic/fixture_manifest.json`;
+- the six Phase 2 trajectory fixtures;
+- `examples/synthetic/invalid_phase2_cases.json`;
+- expected interval and transition sequences;
+- expected uncertainty behavior;
+- expected utilization measures used as downstream test oracles.
+
+Any change to expected trajectory semantics after passage requires gate-impact review and corresponding reconstruction-test updates.
 
 ## Gate passage rule
 
 Gate 2 -> 3 may pass when:
 
-1. all six fixtures expose source-like inputs plus prespecified canonical intervals, transitions, uncertainty behavior, and expected metrics;
+1. all six fixtures contain source-like inputs plus prespecified canonical intervals, transitions, uncertainty behavior, and expected metrics;
 2. every expected interval/transition object conforms to its schema;
 3. fixture requirement coverage is complete and non-empty;
-4. negative/error fixtures exist for schema/reconstruction failure behavior;
-5. automated fixture tests execute successfully in CI;
-6. no Phase 3 reconstruction code needs to invent missing fixture semantics.
-
-Until then, Phase 3 code may be prototyped only if it treats the current truth set as provisional rather than frozen.
+4. negative/error fixtures cover schema and semantic/reconstruction failure behavior;
+5. the updated automated fixture tests execute successfully in CI;
+6. Phase 3 reconstruction can implement directly against the frozen truth set without inventing missing semantics.
