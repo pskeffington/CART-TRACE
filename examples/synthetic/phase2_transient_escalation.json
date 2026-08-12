@@ -12,44 +12,20 @@
     "notes": "Synthetic transient escalation and de-escalation fixture."
   },
   "encounters": [
-    {
-      "source_record_id": "SRC-TRANSIENT-001",
-      "episode_id": "SYN-EP-TRANSIENT-001",
-      "encounter_id": "ENC-TRANSIENT-001",
-      "encounter_start": "2026-02-20T08:00:00Z",
-      "encounter_end": "2026-02-25T12:00:00Z",
-      "source_care_label": "synthetic_standard_floor",
-      "encounter_type": "inpatient",
-      "source_system": "synthetic_fixture",
-      "priority": 10,
-      "status": "completed",
-      "provenance_id": "PROV-TRANSIENT-SRC-001"
-    },
-    {
-      "source_record_id": "SRC-TRANSIENT-002",
-      "episode_id": "SYN-EP-TRANSIENT-001",
-      "encounter_id": "ENC-TRANSIENT-001",
-      "encounter_start": "2026-02-22T02:00:00Z",
-      "encounter_end": "2026-02-22T18:00:00Z",
-      "source_care_label": "synthetic_intermediate",
-      "encounter_type": "inpatient_location",
-      "source_system": "synthetic_fixture",
-      "priority": 20,
-      "status": "completed",
-      "provenance_id": "PROV-TRANSIENT-SRC-002"
-    }
+    {"source_record_id":"SRC-TRANSIENT-001","episode_id":"SYN-EP-TRANSIENT-001","encounter_id":"ENC-TRANSIENT-001","encounter_start":"2026-02-20T08:00:00Z","encounter_end":"2026-02-25T12:00:00Z","source_care_label":"synthetic_standard_floor","encounter_type":"inpatient","source_system":"synthetic_fixture","priority":10,"status":"completed","provenance_id":"PROV-TRANSIENT-SRC-001"},
+    {"source_record_id":"SRC-TRANSIENT-002","episode_id":"SYN-EP-TRANSIENT-001","encounter_id":"ENC-TRANSIENT-001","encounter_start":"2026-02-22T02:00:00Z","encounter_end":"2026-02-22T18:00:00Z","source_care_label":"synthetic_intermediate","encounter_type":"inpatient_location","source_system":"synthetic_fixture","priority":20,"status":"completed","provenance_id":"PROV-TRANSIENT-SRC-002"}
   ],
-  "expected_pattern": ["routine_inpatient", "higher_observation", "routine_inpatient", "discharged"],
-  "expected_metrics": {
-    "total_inpatient_hours": 124.0,
-    "routine_inpatient_hours": 108.0,
-    "higher_observation_hours": 16.0,
-    "icu_hours": 0.0,
-    "transition_count": 3,
-    "time_to_first_escalation_hours": 40.0,
-    "high_acuity_hours": 16.0,
-    "acute_care_reuse_7d": false,
-    "acute_care_reuse_30d": false
-  },
-  "requirements_exercised": ["VALID-001", "VALID-002", "RECON-004", "METRIC-003", "METRIC-004", "METRIC-005"]
+  "expected_intervals": [
+    {"episode_id":"SYN-EP-TRANSIENT-001","state":"routine_inpatient","start_timestamp":"2026-02-20T08:00:00Z","end_timestamp":"2026-02-22T02:00:00Z","start_day_relative":-0.0833333333,"end_day_relative":1.6666666667,"source_location":"synthetic_standard_floor","source_record_id":"SRC-TRANSIENT-001","provenance_id":"PROV-TRANSIENT-INT-001","uncertain":false,"uncertainty_reason":null},
+    {"episode_id":"SYN-EP-TRANSIENT-001","state":"higher_observation","start_timestamp":"2026-02-22T02:00:00Z","end_timestamp":"2026-02-22T18:00:00Z","start_day_relative":1.6666666667,"end_day_relative":2.3333333333,"source_location":"synthetic_intermediate","source_record_id":"SRC-TRANSIENT-002","provenance_id":"PROV-TRANSIENT-INT-002","uncertain":false,"uncertainty_reason":null},
+    {"episode_id":"SYN-EP-TRANSIENT-001","state":"routine_inpatient","start_timestamp":"2026-02-22T18:00:00Z","end_timestamp":"2026-02-25T12:00:00Z","start_day_relative":2.3333333333,"end_day_relative":5.0833333333,"source_location":"synthetic_standard_floor","source_record_id":"SRC-TRANSIENT-001","provenance_id":"PROV-TRANSIENT-INT-003","uncertain":false,"uncertainty_reason":null},
+    {"episode_id":"SYN-EP-TRANSIENT-001","state":"discharged","start_timestamp":"2026-02-25T12:00:00Z","end_timestamp":"2026-03-22T10:00:00Z","start_day_relative":5.0833333333,"end_day_relative":30.0,"source_location":null,"source_record_id":"SRC-TRANSIENT-001","provenance_id":"PROV-TRANSIENT-INT-004","uncertain":false,"uncertainty_reason":null}
+  ],
+  "expected_transitions": [
+    {"episode_id":"SYN-EP-TRANSIENT-001","transition_time":"2026-02-22T02:00:00Z","relative_day":1.6666666667,"from_state":"routine_inpatient","to_state":"higher_observation","transition_reason_recorded":null,"source_system":"synthetic_fixture","source_record_id":"SRC-TRANSIENT-002","provenance_id":"PROV-TRANSIENT-TR-001","derived":true,"derivation_version":"0.1.0","uncertain":false,"uncertainty_reason":null,"missingness_note":null},
+    {"episode_id":"SYN-EP-TRANSIENT-001","transition_time":"2026-02-22T18:00:00Z","relative_day":2.3333333333,"from_state":"higher_observation","to_state":"routine_inpatient","transition_reason_recorded":null,"source_system":"synthetic_fixture","source_record_id":"SRC-TRANSIENT-002","provenance_id":"PROV-TRANSIENT-TR-002","derived":true,"derivation_version":"0.1.0","uncertain":false,"uncertainty_reason":null,"missingness_note":null},
+    {"episode_id":"SYN-EP-TRANSIENT-001","transition_time":"2026-02-25T12:00:00Z","relative_day":5.0833333333,"from_state":"routine_inpatient","to_state":"discharged","transition_reason_recorded":null,"source_system":"synthetic_fixture","source_record_id":"SRC-TRANSIENT-001","provenance_id":"PROV-TRANSIENT-TR-003","derived":true,"derivation_version":"0.1.0","uncertain":false,"uncertainty_reason":null,"missingness_note":null}
+  ],
+  "expected_metrics": {"total_inpatient_hours":124.0,"routine_inpatient_hours":108.0,"higher_observation_hours":16.0,"icu_hours":0.0,"transition_count":3,"time_to_first_escalation_hours":40.0,"high_acuity_hours":16.0,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false},
+  "requirements_exercised": ["VALID-001","VALID-002","RECON-004","METRIC-003","METRIC-004","METRIC-005"]
 }
