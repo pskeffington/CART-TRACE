@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/provenance.schema.json",
+  "title": "CART-TRACE Provenance",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["provenance_id", "source_system", "source_record_ids", "transformation_name", "transformation_version"],
+  "properties": {
+    "provenance_id": {"type": "string", "minLength": 1},
+    "source_system": {"type": "string", "minLength": 1},
+    "source_domain": {"type": ["string", "null"]},
+    "source_record_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "transformation_name": {"type": "string", "minLength": 1},
+    "transformation_version": {"type": "string", "minLength": 1},
+    "derived_at": {"type": ["string", "null"], "format": "date-time"},
+    "uncertainty_flag": {"type": "boolean", "default": false},
+    "missingness_reason": {"type": ["string", "null"]},
+    "notes": {"type": ["string", "null"], "description": "Synthetic or governed research annotation only; no identifying free text in public examples."}
+  }
+}
