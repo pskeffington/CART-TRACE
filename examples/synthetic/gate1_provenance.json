@@ -1,0 +1,74 @@
+[
+  {
+    "provenance_id": "PROV-EP-001",
+    "source_system": "synthetic_fixture",
+    "source_domain": "therapy_episode",
+    "source_record_ids": ["SRC-INFUSION-001"],
+    "transformation_name": "construct_therapy_episode",
+    "transformation_version": "0.1.0",
+    "derived_at": null,
+    "uncertainty_flag": false,
+    "missingness_reason": null,
+    "notes": "Synthetic episode provenance."
+  },
+  {
+    "provenance_id": "PROV-SRC-001",
+    "source_system": "synthetic_fixture",
+    "source_domain": "encounter",
+    "source_record_ids": ["SRC-001"],
+    "transformation_name": "source_record_passthrough",
+    "transformation_version": "0.1.0",
+    "derived_at": null,
+    "uncertainty_flag": false,
+    "missingness_reason": null,
+    "notes": null
+  },
+  {
+    "provenance_id": "PROV-SRC-002",
+    "source_system": "synthetic_fixture",
+    "source_domain": "encounter_location",
+    "source_record_ids": ["SRC-002"],
+    "transformation_name": "source_record_passthrough",
+    "transformation_version": "0.1.0",
+    "derived_at": null,
+    "uncertainty_flag": false,
+    "missingness_reason": null,
+    "notes": null
+  },
+  {
+    "provenance_id": "PROV-SRC-003",
+    "source_system": "synthetic_fixture",
+    "source_domain": "acute_care_return",
+    "source_record_ids": ["SRC-003"],
+    "transformation_name": "source_record_passthrough",
+    "transformation_version": "0.1.0",
+    "derived_at": null,
+    "uncertainty_flag": false,
+    "missingness_reason": null,
+    "notes": null
+  },
+  {
+    "provenance_id": "PROV-INT-002",
+    "source_system": "synthetic_fixture",
+    "source_domain": "derived_care_state_interval",
+    "source_record_ids": ["SRC-001", "SRC-002"],
+    "transformation_name": "reconstruct_care_state_intervals",
+    "transformation_version": "0.1.0",
+    "derived_at": null,
+    "uncertainty_flag": false,
+    "missingness_reason": null,
+    "notes": "Higher-priority synthetic ICU location overrides routine inpatient source during overlap."
+  },
+  {
+    "provenance_id": "PROV-TR-001",
+    "source_system": "synthetic_fixture",
+    "source_domain": "derived_care_transition",
+    "source_record_ids": ["SRC-001", "SRC-002"],
+    "transformation_name": "derive_care_transitions",
+    "transformation_version": "0.1.0",
+    "derived_at": null,
+    "uncertainty_flag": false,
+    "missingness_reason": null,
+    "notes": null
+  }
+]
