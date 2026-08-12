@@ -9,6 +9,17 @@ ROOT = Path(__file__).resolve().parents[1]
 SCHEMAS = ROOT / "schemas"
 FIXTURES = ROOT / "examples" / "synthetic"
 
+CANONICAL_STATES = {
+    "outpatient",
+    "emergency",
+    "routine_inpatient",
+    "intermediate_care",
+    "intensive_care",
+    "discharged",
+    "unknown",
+}
+LEGACY_STATES = {"higher_observation", "icu", "acute_care_return", "inpatient_routine"}
+
 
 def load_json(path: Path):
     return json.loads(path.read_text())
@@ -64,6 +75,12 @@ def test_manifest_entries_have_requirement_coverage():
         assert all(isinstance(req, str) and req for req in item["requirements"])
 
 
+def test_manifest_uses_only_canonical_states():
+    for item in MANIFEST["fixtures"]:
+        assert set(item["expected_patterns"]) <= CANONICAL_STATES
+        assert not (set(item["expected_patterns"]) & LEGACY_STATES)
+
+
 @pytest.mark.parametrize("name,path", FIXTURE_FILES.items())
 def test_episode_and_encounter_objects_validate(name, path):
     data = load_json(path)
@@ -113,11 +130,27 @@ def test_all_expected_outputs_are_schema_conformant(name, path):
         transition_validator.validate(transition)
 
 
+def test_all_fixture_outputs_use_only_canonical_states():
+    for path in FIXTURE_FILES.values():
+        data = load_json(path)
+        states = {i["state"] for i in _expected_intervals(data)}
+        transition_states = {
+            s
+            for transition in _expected_transitions(data)
+            for s in (transition["from_state"], transition["to_state"])
+        }
+        assert states <= CANONICAL_STATES
+        assert transition_states <= CANONICAL_STATES
+        assert not ((states | transition_states) & LEGACY_STATES)
+
+
 @pytest.mark.parametrize("name,path", FIXTURE_FILES.items())
 def test_fixture_has_expected_metrics(name, path):
     data = load_json(path)
     metrics = data.get("expected_metrics")
     assert isinstance(metrics, dict) and metrics, f"{name} fixture lacks expected metrics"
+    assert "higher_observation_hours" not in metrics
+    assert "icu_hours" not in metrics
 
 
 def test_conflict_fixture_exposes_uncertainty():
@@ -127,11 +160,14 @@ def test_conflict_fixture_exposes_uncertainty():
     assert any(interval.get("uncertain") is True for interval in intervals)
 
 
-def test_early_return_fixture_encodes_reuse():
+def test_early_return_fixture_encodes_reuse_and_transition_type():
     data = load_json(FIXTURE_FILES["early_acute_care_return"])
     metrics = data["expected_metrics"]
     assert metrics["acute_care_reuse_7d"] is True
     assert metrics["acute_care_reuse_30d"] is True
+    transition = next(t for t in data["expected_transitions"] if t["transition_type"] == "acute_care_return")
+    assert transition["from_state"] == "discharged"
+    assert transition["to_state"] == "emergency"
 
 
 def test_routine_fixture_encodes_no_escalation_or_reuse():
@@ -147,7 +183,7 @@ def test_icu_fixture_encodes_expected_high_acuity_exposure():
     metrics = data["expected_metrics"]
     assert metrics["total_inpatient_hours"] == 78.0
     assert metrics["routine_inpatient_hours"] == 66.0
-    assert metrics["icu_hours"] == 12.0
+    assert metrics["intensive_care_hours"] == 12.0
     assert metrics["time_to_first_escalation_hours"] == 32.0
     assert metrics["acute_care_reuse_7d"] is True
 
@@ -172,10 +208,10 @@ def test_reversed_interval_is_semantically_invalid():
     record = case["record"]
     validator("care_state_interval.schema.json").validate(record)
     assert parse_timestamp(record["end_timestamp"]) <= parse_timestamp(record["start_timestamp"])
-    assert record["end_day_relative"] <= record["start_day_relative"]
+    assert record["end_relative_hours"] <= record["start_relative_hours"]
 
 
-def test_equal_priority_overlap_requires_deterministic_tie_break():
+def test_equal_priority_overlap_requires_explicit_conflict_handling():
     cases = load_json(FIXTURES / "invalid_phase2_cases.json")["cases"]
     case = next(item for item in cases if item["case_id"] == "AMBIGUOUS-PRIORITY-001")
     records = case["records"]
@@ -186,3 +222,10 @@ def test_equal_priority_overlap_requires_deterministic_tie_break():
     assert records[0]["encounter_start"] == records[1]["encounter_start"]
     assert records[0]["encounter_end"] == records[1]["encounter_end"]
     assert sorted(record["source_record_id"] for record in records) == ["SRC-AMB-001", "SRC-AMB-002"]
+
+
+def test_conflict_fixture_prespecifies_unknown_for_equal_priority_disagreement():
+    data = load_json(FIXTURE_FILES["conflicting_or_missing_location"])
+    conflict = next(i for i in data["expected_intervals"] if i["state"] == "unknown")
+    assert conflict["mapping_method"] == "equal_priority_conflict_to_unknown"
+    assert set(conflict["source_record_ids"]) == {"SRC-CONFLICT-002", "SRC-CONFLICT-003"}
