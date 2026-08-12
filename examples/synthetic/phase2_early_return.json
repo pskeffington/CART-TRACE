@@ -12,44 +12,18 @@
     "notes": "Synthetic discharge followed by early acute-care return fixture."
   },
   "encounters": [
-    {
-      "source_record_id": "SRC-RETURN-001",
-      "episode_id": "SYN-EP-RETURN-001",
-      "encounter_id": "ENC-RETURN-001",
-      "encounter_start": "2026-03-01T08:00:00Z",
-      "encounter_end": "2026-03-05T12:00:00Z",
-      "source_care_label": "synthetic_standard_floor",
-      "encounter_type": "inpatient",
-      "source_system": "synthetic_fixture",
-      "priority": 10,
-      "status": "completed",
-      "provenance_id": "PROV-RETURN-SRC-001"
-    },
-    {
-      "source_record_id": "SRC-RETURN-002",
-      "episode_id": "SYN-EP-RETURN-001",
-      "encounter_id": "ENC-RETURN-002",
-      "encounter_start": "2026-03-09T09:00:00Z",
-      "encounter_end": "2026-03-09T16:00:00Z",
-      "source_care_label": "synthetic_emergency",
-      "encounter_type": "emergency",
-      "source_system": "synthetic_fixture",
-      "priority": 10,
-      "status": "completed",
-      "provenance_id": "PROV-RETURN-SRC-002"
-    }
+    {"source_record_id":"SRC-RETURN-001","episode_id":"SYN-EP-RETURN-001","encounter_id":"ENC-RETURN-001","encounter_start":"2026-03-01T08:00:00Z","encounter_end":"2026-03-05T12:00:00Z","source_care_label":"synthetic_standard_floor","encounter_type":"inpatient","source_system":"synthetic_fixture","priority":10,"status":"completed","provenance_id":"PROV-RETURN-SRC-001"},
+    {"source_record_id":"SRC-RETURN-002","episode_id":"SYN-EP-RETURN-001","encounter_id":"ENC-RETURN-002","encounter_start":"2026-03-09T09:00:00Z","encounter_end":"2026-03-09T16:00:00Z","source_care_label":"synthetic_emergency","encounter_type":"emergency","source_system":"synthetic_fixture","priority":10,"status":"completed","provenance_id":"PROV-RETURN-SRC-002"}
   ],
-  "expected_pattern": ["routine_inpatient", "discharged", "acute_care_return"],
-  "expected_metrics": {
-    "total_inpatient_hours": 100.0,
-    "routine_inpatient_hours": 100.0,
-    "higher_observation_hours": 0.0,
-    "icu_hours": 0.0,
-    "transition_count": 2,
-    "time_to_first_escalation_hours": null,
-    "acute_care_reuse_7d": true,
-    "acute_care_reuse_30d": true,
-    "hours_from_discharge_to_return": 93.0
-  },
-  "requirements_exercised": ["VALID-001", "VALID-002", "RECON-006", "METRIC-007"]
+  "expected_intervals": [
+    {"episode_id":"SYN-EP-RETURN-001","state":"routine_inpatient","start_timestamp":"2026-03-01T08:00:00Z","end_timestamp":"2026-03-05T12:00:00Z","start_day_relative":-0.0833333333,"end_day_relative":4.0833333333,"source_location":"synthetic_standard_floor","source_record_id":"SRC-RETURN-001","provenance_id":"PROV-RETURN-INT-001","uncertain":false,"uncertainty_reason":null},
+    {"episode_id":"SYN-EP-RETURN-001","state":"discharged","start_timestamp":"2026-03-05T12:00:00Z","end_timestamp":"2026-03-09T09:00:00Z","start_day_relative":4.0833333333,"end_day_relative":7.9583333333,"source_location":null,"source_record_id":"SRC-RETURN-001","provenance_id":"PROV-RETURN-INT-002","uncertain":false,"uncertainty_reason":null},
+    {"episode_id":"SYN-EP-RETURN-001","state":"acute_care_return","start_timestamp":"2026-03-09T09:00:00Z","end_timestamp":"2026-03-09T16:00:00Z","start_day_relative":7.9583333333,"end_day_relative":8.25,"source_location":"synthetic_emergency","source_record_id":"SRC-RETURN-002","provenance_id":"PROV-RETURN-INT-003","uncertain":false,"uncertainty_reason":null}
+  ],
+  "expected_transitions": [
+    {"episode_id":"SYN-EP-RETURN-001","transition_time":"2026-03-05T12:00:00Z","relative_day":4.0833333333,"from_state":"routine_inpatient","to_state":"discharged","transition_reason_recorded":null,"source_system":"synthetic_fixture","source_record_id":"SRC-RETURN-001","provenance_id":"PROV-RETURN-TR-001","derived":true,"derivation_version":"0.1.0","uncertain":false,"uncertainty_reason":null,"missingness_note":null},
+    {"episode_id":"SYN-EP-RETURN-001","transition_time":"2026-03-09T09:00:00Z","relative_day":7.9583333333,"from_state":"discharged","to_state":"acute_care_return","transition_reason_recorded":null,"source_system":"synthetic_fixture","source_record_id":"SRC-RETURN-002","provenance_id":"PROV-RETURN-TR-002","derived":true,"derivation_version":"0.1.0","uncertain":false,"uncertainty_reason":null,"missingness_note":null}
+  ],
+  "expected_metrics": {"total_inpatient_hours":100.0,"routine_inpatient_hours":100.0,"higher_observation_hours":0.0,"icu_hours":0.0,"transition_count":2,"time_to_first_escalation_hours":null,"acute_care_reuse_7d":true,"acute_care_reuse_30d":true,"hours_from_discharge_to_return":93.0},
+  "requirements_exercised": ["VALID-001","VALID-002","RECON-006","METRIC-007"]
 }
