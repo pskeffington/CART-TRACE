@@ -19,31 +19,31 @@ This roadmap is controlled by four supporting specifications:
 
 ## Development status
 
-- [x] Thesis question narrowed to hospital care trajectories
-- [x] Thesis aims and success criterion defined
+- [x] Thesis question, aims, and success criterion defined
 - [x] Public research/non-operational boundary documented
+- [x] Governance/data-use document completed
 - [x] Controlled care-state vocabulary defined
 - [x] Therapy-episode schema created
 - [x] Care-state interval schema created
 - [x] Care-transition schema created
-- [x] Engineering/research requirements defined
-- [x] Phase-gate criteria defined
-- [x] Minimum hospital data requirements defined
-- [x] Staged validation plan defined
-- [ ] Governance/data-use document completed
-- [ ] Provenance schema completed
-- [ ] Encounter input contract completed
-- [ ] Treatment-relative time utilities implemented
-- [ ] Complete end-to-end synthetic episode validated
-- [ ] Synthetic cohort fixtures implemented
+- [x] Provenance schema completed
+- [x] Encounter input contract completed
+- [x] Treatment-relative time and interval semantics frozen
+- [x] Machine-readable mapping and precedence rules defined
+- [x] Complete hand-worked Gate 1 episode validated
+- [x] Gate 1 -> 2 passed with CI evidence
+- [x] Six-class synthetic cohort implemented
+- [x] Phase 2 fixture coverage tests implemented
+- [x] Normalized ICU escalation fixture with expected metrics implemented
+- [x] Negative/error fixture set implemented
+- [ ] Phase 2 CI evidence recorded and Gate 2 -> 3 passed
 - [ ] Transition reconstruction implemented
-- [ ] Utilization metrics implemented
-- [ ] Validation test suite implemented
+- [ ] Utilization metrics implemented as production research functions
 - [ ] Cohort characterization implemented
 - [ ] Governed hospital-data validation initiated
 
-**Current phase:** Phase 1 — Episode and transition schema  
-**Current gate:** Gate 1 -> 2 — canonical model must become stable enough to support synthetic fixtures.
+**Current phase:** Phase 2 — Synthetic cohort  
+**Current gate:** Gate 2 -> 3 — synthetic truth set must be complete, schema-conformant, and CI-validated before reconstruction semantics are frozen.
 
 ## Thesis scope
 
@@ -81,7 +81,7 @@ The canonical episode preserves patient/episode identity, infusion timestamp, en
 
 ## Phase 0 — Scope and governance
 
-**Status: substantially complete**
+**Status: complete**
 
 Goal: establish a credible public research boundary and lock the thesis question before implementation expands.
 
@@ -94,27 +94,18 @@ Goal: establish a credible public research boundary and lock the thesis question
 - [x] Separate thesis scope from post-thesis extensions
 - [x] Define minimum-necessary data principle
 - [x] Define institutional approval gate for real-data use
+- [x] Add `docs/governance.md`
+- [x] Document research-data lifecycle expectations
+- [x] Document public/private artifact separation
+- [x] Document minimum institutional approval assumptions without embedding institution-specific policy
 
-### Remaining
-- [ ] Add `docs/governance.md`
-- [ ] Document research-data lifecycle expectations
-- [ ] Document public/private artifact separation
-- [ ] Document minimum institutional approval assumptions without embedding institution-specific policy
-
-### Gate 0 -> 1 evidence
-- [x] thesis question documented
-- [x] included/excluded domains documented
-- [x] synthetic-first policy documented
-- [x] public non-operational boundary documented
-- [x] success criterion documented
-
-**Gate status: PASSED**, with governance documentation still required before any real-data phase.
+**Gate 0 -> 1 status: PASSED.**
 
 ---
 
 ## Phase 1 — Episode and transition schema
 
-**Status: active / near completion**
+**Status: complete / semantics frozen**
 
 Goal: define the canonical research objects and semantics needed to represent a CAR T hospital episode without relying on institution-specific workflow names.
 
@@ -124,96 +115,89 @@ Goal: define the canonical research objects and semantics needed to represent a 
 - [x] `therapy_episode` schema
 - [x] `care_state_interval` schema
 - [x] `care_transition` schema
-- [x] Absolute plus treatment-relative time required conceptually
-- [x] Missingness/uncertainty required conceptually
-- [x] Source provenance required conceptually
-- [x] Minimum hospital data requirements specified
+- [x] `provenance` schema
+- [x] Minimal encounter input schema/contract
+- [x] Treatment-relative time convention
+- [x] Half-open interval-boundary semantics
+- [x] Deterministic identical-timestamp behavior
+- [x] Machine-readable overlap/conflict precedence rules
+- [x] Hand-worked multi-encounter episode
+- [x] Schema-conformant expected intervals and transitions
+- [x] Provenance truth records
+- [x] Automated schema/consistency tests
+- [x] Reproducible CI execution
 
-### Remaining
-- [ ] Define `provenance` schema/object
-- [ ] Define minimal encounter input schema/contract
-- [ ] Freeze treatment-relative time convention
-- [ ] Freeze interval-boundary semantics
-- [ ] Define deterministic tie-breaking at identical timestamps
-- [ ] Define overlap/conflict precedence rules in machine-readable or testable form
-- [ ] Create one hand-worked multi-encounter episode
-- [ ] Validate that episode across all schemas
+**Gate 1 -> 2 status: PASSED.** See `docs/gates/gate_1_to_2_candidate.md` for the evidence record.
 
-### Gate 1 -> 2 evidence required
-- [x] controlled vocabulary
-- [x] therapy-episode schema
-- [x] care-state interval schema
-- [x] care-transition schema
-- [ ] encounter input specification
-- [ ] provenance specification
-- [ ] deterministic relative-time convention
-- [ ] complete hand-worked episode
-
-**Gate status: NOT YET PASSED.**
+Changes to frozen Phase 1 semantics require explicit gate-impact review and corresponding fixture/test updates.
 
 ---
 
 ## Phase 2 — Synthetic cohort
 
-**Status: not started**
+**Status: active / gate closure pending CI**
 
-Goal: create a deterministic truth set that can function as the oracle for reconstruction and metric testing.
+Goal: create a deterministic truth set that functions as the oracle for reconstruction and metric testing.
 
 ### Required trajectory fixtures
-- [ ] routine recovery
-- [ ] prolonged routine inpatient care
-- [ ] transient escalation and de-escalation
-- [ ] ICU escalation
-- [ ] discharge followed by early acute-care return
-- [ ] incomplete/conflicting location records
+- [x] routine recovery
+- [x] prolonged routine inpatient care
+- [x] transient escalation and de-escalation
+- [x] ICU escalation
+- [x] discharge followed by early acute-care return
+- [x] incomplete/conflicting location records
 
-### Every fixture must include
-- [ ] source-like encounter/location inputs
-- [ ] expected normalized state intervals
-- [ ] expected transition sequence
-- [ ] expected uncertainty flags
-- [ ] expected utilization metrics
-- [ ] requirement IDs exercised by the fixture
-- [ ] edge-case notes
+### Fixture contract
+- [x] source-like encounter/location inputs
+- [x] expected normalized state intervals
+- [x] expected transition sequence
+- [x] expected uncertainty behavior
+- [x] expected utilization metrics
+- [x] requirement IDs exercised by each fixture
+- [x] edge-case annotations in the manifest
 
-### Required fixture edge cases
-- [ ] duplicate same-state records
-- [ ] identical timestamps
-- [ ] adjacent intervals
-- [ ] overlapping location records
-- [ ] missing end time
-- [ ] gap in known care state
-- [ ] event at infusion boundary
-- [ ] event at study-window boundary
-- [ ] insufficient post-discharge follow-up
+### Validation and failure behavior
+- [x] requirement-coverage tests authored
+- [x] manifest-to-artifact consistency tests authored
+- [x] expected interval/transition schema tests authored
+- [x] invalid care-state test case
+- [x] malformed timestamp test case
+- [x] missing infusion-anchor test case
+- [x] reversed interval test case
+- [x] deterministic equal-priority overlap case
+- [ ] additional boundary fixtures may be added during Phase 3 if they expose previously undocumented reconstruction ambiguity
 
 ### Gate 2 -> 3 evidence required
-- [ ] six trajectory classes implemented
-- [ ] expected outputs prespecified
-- [ ] fixture requirement-coverage matrix complete
-- [ ] invalid fixtures available for schema/error testing
+- [x] six trajectory classes implemented
+- [x] expected outputs prespecified
+- [x] fixture requirement coverage complete
+- [x] ICU fixture normalized to the Phase 2 contract
+- [x] expected metrics available for all six fixtures
+- [x] invalid/error fixtures available
+- [x] automated Phase 2 tests authored
+- [ ] successful CI execution of the current Phase 2 truth set
+- [ ] Gate 2 evidence record changed from conditional to PASS
 
-**Gate status: NOT STARTED.**
+**Gate 2 -> 3 status: CONDITIONAL / CI PENDING.** See `docs/gates/gate_2_to_3_candidate.md`.
 
 ---
 
 ## Phase 3 — Transition reconstruction
 
-**Status: not started**
+**Status: next phase / not yet authorized for semantic freeze**
 
-Goal: convert event-level records into deterministic patient-level care-state intervals and transitions.
+Goal: convert event-level records into deterministic patient-level care-state intervals and transitions that exactly reproduce the frozen synthetic truth set.
 
 ### Implementation requirements
-- [ ] infusion-day anchoring
-- [ ] treatment-relative day/hour conversion
-- [ ] timezone convention
+- [ ] infusion anchoring and continuous treatment-relative hours
+- [ ] timezone normalization
 - [ ] deterministic event sorting
 - [ ] identical-timestamp tie-breaking
-- [ ] local-source-to-canonical state mapping interface
-- [ ] duplicate suppression
-- [ ] overlap/conflict handling
-- [ ] interval derivation
-- [ ] transition derivation
+- [ ] source-label-to-canonical-state mapping interface
+- [ ] duplicate same-state suppression
+- [ ] overlap/conflict resolution
+- [ ] interval derivation using `[start, end)` semantics
+- [ ] transition derivation only on canonical state changes
 - [ ] discharge semantics
 - [ ] acute-care-return semantics
 - [ ] provenance propagation
@@ -222,9 +206,10 @@ Goal: convert event-level records into deterministic patient-level care-state in
 
 ### Validation requirements
 - [ ] exact reconstruction of deterministic synthetic fixtures
-- [ ] expected `unknown`/uncertainty behavior for conflict fixtures
+- [ ] prespecified `unknown`/uncertainty behavior for conflict fixtures
 - [ ] repeated runs produce equivalent outputs
 - [ ] no false transitions from duplicate same-state records
+- [ ] negative inputs fail or resolve exactly as specified by the Phase 2 oracle
 
 ### Gate 3 -> 4 acceptance target
 - [ ] 100% agreement with prespecified synthetic intervals/transitions for deterministic fixtures
@@ -278,7 +263,7 @@ Goal: derive transparent, thesis-relevant measures of hospital resource utilizat
 
 **Status: not started**
 
-Goal: determine whether recurrent hospital care patterns can be described across episodes without converting them into predictive or clinical labels.
+Goal: describe recurrent hospital care patterns across episodes without converting them into predictive or clinical labels.
 
 ### Candidate descriptive patterns
 - [ ] uncomplicated routine recovery
@@ -291,7 +276,6 @@ Goal: determine whether recurrent hospital care patterns can be described across
 - [ ] prespecified feature set derived from Phase 4
 - [ ] interpretable grouping strategy
 - [ ] rationale for any distance/similarity measure
-- [ ] rationale for number of groups
 - [ ] sensitivity analyses
 - [ ] uncertainty-aware analysis
 - [ ] patient-level traceability from group to trajectory
@@ -304,12 +288,6 @@ Goal: determine whether recurrent hospital care patterns can be described across
 - [ ] cohort trajectory visualization
 - [ ] missingness/uncertainty report
 - [ ] sensitivity-analysis appendix/output
-
-### Gate 5 -> 6 evidence required
-- [ ] cohort summaries reproduce from canonical outputs
-- [ ] all group assignments trace to episode-level features
-- [ ] uncertainty is visible
-- [ ] results do not require undocumented manual intervention
 
 **Gate status: NOT STARTED.**
 
@@ -342,8 +320,7 @@ Goal: evaluate the framework using appropriately approved institutional data and
 - [ ] adjudicate approved subset
 - [ ] version mapping/reconstruction changes
 
-### Real-data acceptance targets
-Numerical thresholds should be prespecified with the thesis committee after source-data characteristics and feasible validation sample size are known. The public repository should not invent universal clinical-performance thresholds.
+Numerical real-data acceptance thresholds should be prespecified with the thesis committee after source-data characteristics and feasible validation sample size are known. The public repository should not invent universal clinical-performance thresholds.
 
 **Gate status: APPROVAL DEPENDENT.**
 
@@ -351,9 +328,7 @@ Numerical thresholds should be prespecified with the thesis committee after sour
 
 ## Cross-phase requirement tracking
 
-The implementation should maintain traceability between requirements, evidence, and thesis outputs.
-
-### Mandatory traceability chain
+The implementation maintains the traceability chain:
 
 `thesis aim -> requirement ID -> schema/function -> synthetic fixture -> automated test -> thesis table/figure/result`
 
@@ -366,25 +341,22 @@ The implementation should maintain traceability between requirements, evidence, 
 - [x] `docs/validation_plan.md`
 - [x] `docs/care_state_vocabulary.md`
 - [x] `docs/episode_model.md`
-- [ ] `docs/governance.md`
+- [x] `docs/governance.md`
+- [x] provenance schema
+- [x] encounter input schema/contract
 - [ ] `docs/data_dictionary.md`
 - [ ] `docs/metric_definitions.md`
 - [ ] `docs/requirements_traceability.md`
-- [ ] provenance schema
-- [ ] encounter input schema/contract
 
 ## Thesis deliverables
 
 - [x] thesis question and aims
-- [x] documented care-state vocabulary
-- [x] documented episode model
-- [x] initial core schemas
-- [x] testable requirements specification
-- [x] formal phase-gate plan
-- [x] minimum data requirements
-- [x] staged validation plan
+- [x] documented care-state vocabulary and episode model
+- [x] canonical schemas and governance boundary
+- [x] testable requirements and formal phase-gate plan
+- [x] minimum data requirements and staged validation plan
+- [x] synthetic validation cohort substantially complete
 - [ ] reproducible transition-reconstruction code
-- [ ] synthetic validation cohort and tests
 - [ ] utilization metric library
 - [ ] interpretable patient-level visualizations
 - [ ] cohort-level characterization
@@ -393,17 +365,12 @@ The implementation should maintain traceability between requirements, evidence, 
 
 ## Immediate next build sequence
 
-Before entering Phase 2:
-
-1. [ ] Create `docs/governance.md`.
-2. [ ] Create provenance schema.
-3. [ ] Create minimal encounter input contract/schema.
-4. [ ] Freeze treatment-relative time and interval semantics.
-5. [ ] Create one complete hand-worked multi-encounter episode.
-6. [ ] Validate all Phase 1 objects together.
-7. [ ] Mark Gate 1 -> 2 complete only after the evidence is present.
-
-Then begin Phase 2 synthetic fixtures.
+1. [ ] Obtain and record a green CI run for the current Phase 2 fixture/test set.
+2. [ ] Mark Gate 2 -> 3 PASS and freeze the synthetic truth set.
+3. [ ] Implement the Phase 3 reconstruction module against that frozen oracle.
+4. [ ] Require exact interval/transition agreement for deterministic fixtures.
+5. [ ] Add explicit tests for reproducibility, duplicate suppression, conflict handling, and provenance propagation.
+6. [ ] Pass Gate 3 -> 4 before treating utilization metrics as derived research outputs.
 
 ## Post-thesis opportunities
 
