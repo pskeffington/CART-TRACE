@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Synthetic truth-set manifest for CART-TRACE Phase 2 development.",
   "fixtures": [
     {
@@ -32,9 +32,9 @@
     {
       "fixture_id": "SYN-FIX-004",
       "name": "icu_escalation",
-      "status": "implemented_as_gate1_seed",
-      "artifact": "examples/synthetic/gate1_multi_encounter_episode.json",
-      "requirements": ["VALID-001", "VALID-002", "RECON-004", "METRIC-003", "METRIC-004", "METRIC-005"],
+      "status": "implemented",
+      "artifact": "examples/synthetic/phase2_icu_escalation.json",
+      "requirements": ["VALID-001", "VALID-002", "RECON-004", "METRIC-003", "METRIC-004", "METRIC-005", "METRIC-007"],
       "expected_patterns": ["routine_inpatient", "icu", "routine_inpatient", "discharged", "acute_care_return"],
       "edge_cases": ["nested_higher_priority_interval", "post_discharge_return"]
     },
