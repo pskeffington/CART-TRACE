@@ -2,252 +2,263 @@
 
 ## Research purpose
 
-CART-TRACE is a research-oriented framework for transforming heterogeneous longitudinal data into reproducible patient-level trajectories around CAR T-cell and cellular immunotherapy. The repository is intentionally non-clinical and non-operational: it is designed for retrospective research, methods development, reproducible analysis, and future protocol design rather than bedside decision-making.
+CART-TRACE is a synthetic-first, non-operational research framework for reconstructing hospital care trajectories surrounding CAR T-cell therapy.
 
-The near-term design assumption is an academic health system preparing for greater inpatient capacity, higher-acuity care, and increasingly integrated cancer and cellular-therapy services. CART-TRACE should therefore answer hospital-relevant research questions while remaining portable, privacy-conscious, and suitable for synthetic or properly governed de-identified data.
+The current MS HSE thesis is intentionally narrow. The repository should answer one hospital-facing research question well before expanding into broader translational directions.
 
-## Hospital-centered research questions
+> **How can longitudinal clinical data be used to characterize hospital resource utilization and transitions in level of care following CAR T-cell therapy?**
 
-1. **Patient trajectory:** What happens from referral and collection through infusion, acute toxicity, discharge, recovery, response, and longer-term follow-up?
-2. **Capacity and utilization:** Which portions of a CAR T episode drive inpatient days, ICU transfer, emergency care, readmission, or prolonged monitoring?
-3. **Toxicity and recovery:** How do CRS, ICANS, cytopenias, infections, organ dysfunction, and functional recovery evolve over time?
-4. **Manufacturing-to-outcome linkage:** How can CMC and product attributes be represented alongside clinical outcomes without conflating product quality research with clinical decision support?
-5. **Rural access:** How do travel distance, referral timing, local monitoring, telehealth, and transitions back to regional care affect the treatment pathway?
-6. **Data continuity:** Which clinically meaningful signals are lost when patients move between outpatient oncology, inpatient units, ICU-level care, home monitoring, and regional facilities?
-7. **Reproducibility:** Can a patient-level trajectory be reconstructed from source data with explicit provenance, definitions, missingness, and versioned transformations?
+The primary unit of analysis is the **therapy episode**, aligned to treatment-relative time with `day 0 = infusion`.
 
-## Core longitudinal episode model
+## Thesis scope
 
-CART-TRACE should organize research data around a treatment episode rather than a single encounter.
+### Included
 
-`referral -> eligibility/workup -> leukapheresis -> manufacturing interval -> lymphodepletion -> infusion -> acute monitoring -> toxicity/recovery -> discharge -> early follow-up -> response -> survivorship/relapse`
+- encounter timing;
+- admission and discharge;
+- care location;
+- level-of-care state;
+- transfer and escalation/de-escalation events;
+- length of stay;
+- high-acuity exposure;
+- early acute-care reuse;
+- selected routinely collected clinical observations when useful for contextualizing care intensity;
+- provenance, missingness, and deterministic transformation rules.
 
-Each phase should support four linked data layers:
+### Excluded from the thesis core
 
-- **Clinical:** diagnoses, labs, medications, vitals, procedures, adverse events, encounters, disease response.
-- **Product / CMC:** collection characteristics, manufacturing milestones, release attributes, cell dose, viability, potency or other available product-level variables.
-- **Patient-generated:** symptoms, wearable/device measurements, home observations, patient-reported outcomes, where available and governed.
-- **System:** care location, level of care, transfer, length of stay, readmission, travel/access measures, telehealth, and regional handoffs.
+- CMC/manufacturing attributes;
+- product release analytics;
+- patient-generated health data;
+- remote monitoring;
+- treatment recommendation;
+- real-time prediction or clinical alerting.
+
+These may be considered later as separate research programs if the thesis foundation proves useful.
+
+## Core episode model
+
+Initial research window:
+
+`day -7 -> infusion day 0 -> acute hospitalization -> discharge -> day +30`
+
+The window is a development default rather than a fixed clinical claim and may be revised based on advisor input and governed data availability.
+
+The canonical episode should preserve:
+
+1. patient/episode identifier;
+2. infusion timestamp;
+3. encounter boundaries;
+4. care-state intervals;
+5. transitions between care states;
+6. discharge and acute-care return;
+7. source and transformation provenance;
+8. explicit missing or uncertain states.
+
+## Care-state vocabulary
+
+The initial controlled vocabulary should be small and operationally interpretable for research:
+
+- `outpatient`
+- `routine_inpatient`
+- `higher_observation`
+- `icu`
+- `discharged`
+- `acute_care_return`
+- `unknown`
+
+Institution-specific units should map into these research states rather than becoming hard-coded assumptions in the public framework.
 
 ## Phased development
 
-### Phase 0 - Research foundation
+### Phase 0 - Scope and governance
 
-**Goal:** establish a credible, reproducible, non-operational research scaffold.
+**Goal:** maintain a credible public research boundary.
 
 Deliverables:
-- repository scope and governance statement;
-- explicit synthetic/de-identified-data policy;
-- canonical CAR T episode timeline;
-- data dictionary template;
-- provenance and missingness conventions;
-- reproducible environment and tests;
-- literature and regulatory source registry.
+- thesis question and aims;
+- synthetic/de-identified-data policy;
+- no-PHI/no-production-credentials rule;
+- explicit distinction between research characterization and bedside decision support.
 
 Exit criteria:
-- no PHI or production credentials in the repository;
-- one synthetic patient can be represented end-to-end;
-- every derived variable has a documented definition and provenance field.
+- public examples contain synthetic data only;
+- all repository-facing claims are descriptive or methodological;
+- thesis scope is clearly separated from post-thesis opportunities.
 
-### Phase 1 - Common data model
+### Phase 1 - Episode and transition schema
 
-**Goal:** create a patient-episode schema capable of joining clinical, product, and system data.
+**Goal:** define the research objects needed to represent a CAR T hospital episode.
 
-Minimum entities:
-- `patient`
+Minimum objects:
 - `therapy_episode`
 - `encounter`
-- `observation`
-- `laboratory_result`
-- `medication_exposure`
-- `toxicity_event`
-- `disease_response`
-- `cell_product`
-- `manufacturing_event`
-- `patient_generated_observation`
+- `care_state_interval`
 - `care_transition`
+- `acute_care_return`
 - `provenance`
 
 Design requirements:
-- timestamp plus treatment-relative time (`day 0 = infusion`);
-- source-system and transformation provenance;
-- explicit units and reference ranges;
-- missingness reason where known;
-- support for multiple CAR T episodes per patient;
-- no assumption that a variable is clinically actionable merely because it is available.
+- absolute timestamp and treatment-relative time;
+- deterministic state mapping;
+- explicit source record identifiers;
+- missingness/uncertainty representation;
+- support for multiple encounters within an episode.
 
 Exit criteria:
-- validated synthetic fixtures for typical and complicated treatment courses;
-- schema validation tests;
-- deterministic conversion from raw synthetic inputs to canonical tables.
+- schema validation succeeds for all synthetic fixtures;
+- one end-to-end synthetic episode can be represented without ambiguity.
 
-### Phase 2 - Trajectory reconstruction
+### Phase 2 - Synthetic cohort
 
-**Goal:** turn event tables into research-grade longitudinal trajectories.
+**Goal:** build realistic synthetic trajectories to drive development and testing.
 
-Initial features:
-- treatment-relative timeline;
-- daily laboratory and vital summaries with raw-value traceability;
-- CRS and ICANS event windows as recorded/abstracted, not algorithmically diagnosed;
-- care-location trajectory (outpatient, inpatient, ICU-level care, home/regional follow-up);
-- discharge and readmission windows;
-- missing-data visualization;
-- manufacturing interval and product release milestones.
+Required fixtures:
+1. routine recovery;
+2. prolonged routine inpatient care;
+3. transient escalation and de-escalation;
+4. ICU escalation;
+5. discharge followed by early readmission;
+6. incomplete or conflicting location records.
+
+Exit criteria:
+- every fixture has an expected transition sequence;
+- edge cases are documented;
+- no synthetic fixture depends on institutional identifiers or internal workflow names.
+
+### Phase 3 - Transition reconstruction
+
+**Goal:** transform event-level records into patient-level care-state intervals and transitions.
+
+Core functions:
+- anchor events to infusion day;
+- sort and normalize encounter/location events;
+- resolve overlaps according to documented rules;
+- derive state intervals;
+- derive transition events;
+- preserve provenance and uncertainty.
 
 Primary outputs:
-- machine-readable trajectory tables;
-- patient-level research timeline plots;
-- cohort-level episode summaries;
-- provenance report for every generated trajectory.
+- patient-level transition table;
+- patient-level care-state intervals;
+- treatment-relative timeline;
+- validation report comparing derived output with expected synthetic states.
 
-### Phase 3 - Hospital operations research layer
+### Phase 4 - Utilization metrics
 
-**Goal:** study service needs associated with cellular therapy without building an operational command system.
+**Goal:** quantify hospital use from reconstructed trajectories.
 
-Research measures:
-- inpatient days per episode;
-- ICU transfer and ICU days;
-- time from referral to collection and infusion;
-- discharge destination;
-- 7/30/90-day acute-care utilization;
-- unplanned readmissions;
-- outpatient visit burden;
-- regional-to-tertiary care transitions;
-- travel burden and rural access proxies;
-- monitoring intensity by treatment-relative day.
+Initial measures:
+- total inpatient days;
+- days by care state;
+- number of transfers;
+- time to first escalation;
+- duration of high-acuity exposure;
+- time from last escalation to discharge;
+- 7-day acute-care reuse;
+- 30-day acute-care reuse;
+- unplanned readmission where the source data support that distinction.
 
-Hospital-facing questions:
-- when in the CAR T timeline is high-acuity capacity most frequently required?
-- which transitions create fragmented data or duplicated work?
-- what monitoring could plausibly occur closer to home and which questions require prospective study?
-- which data should follow the patient across physical care settings?
+These are descriptive research measures, not thresholds for clinical action.
+
+### Phase 5 - Cohort characterization
+
+**Goal:** characterize recurrent hospital care patterns across episodes.
+
+Candidate descriptive patterns:
+- uncomplicated routine recovery;
+- prolonged routine care;
+- transient escalation;
+- sustained high-acuity care;
+- discharge with early acute-care return.
+
+Methods should prioritize interpretability and sensitivity analysis. Prediction is not required.
 
 Exit criteria:
-- reproducible cohort reports using synthetic or governed research data;
-- analyses clearly separated from real-time operational recommendations.
+- cohort summaries are reproducible;
+- derived phenotypes can be traced back to patient-level sequences;
+- uncertainty and missingness are visible rather than silently imputed away.
 
-### Phase 4 - CMC-to-clinical research linkage
+### Phase 6 - Governed hospital-data study
 
-**Goal:** provide a structured research interface between cell-product characteristics and longitudinal outcomes.
+**Goal:** evaluate the framework on appropriately approved institutional data, if available.
 
-Candidate variables, subject to availability and governance:
-- collection cell counts/characteristics;
-- manufacturing duration and milestones;
-- final viable cell dose;
-- viability;
-- CAR expression/transduction measures;
-- vector-related characterization where available;
-- phenotype/composition measures;
-- release/potency assay outputs;
-- out-of-specification or exception flags represented only through approved research fields.
+Possible validation steps:
+- compare reconstructed transitions to source encounter/location records;
+- quantify disagreement and missingness;
+- manually adjudicate a small approved sample;
+- assess whether the framework yields hospital-relevant descriptive information about utilization and transitions.
 
-Candidate outcomes:
-- expansion/persistence measurements where available;
-- CRS and ICANS burden;
-- cytopenia and infection trajectories;
-- hospital/ICU utilization;
-- response depth and timing;
-- relapse and survival endpoints.
+This phase requires applicable institutional approvals and is not assumed by the public repository.
 
-Guardrail: CART-TRACE should support association, characterization, and hypothesis generation. It should not infer product release suitability or recommend treatment from research correlations.
+## Thesis deliverables
 
-### Phase 5 - Patient-generated signals and recovery
+A defensible MS thesis should be able to produce:
 
-**Goal:** study the interval between conventional encounters.
-
-Potential research inputs:
-- patient-reported symptoms;
-- temperature and heart rate;
-- activity/sleep summaries;
-- blood pressure or oxygen saturation when clinically collected;
-- validated device outputs;
-- care-team contacts and escalation events.
-
-Research priorities:
-- signal quality and missingness;
-- adherence and acceptability;
-- concordance with clinical events;
-- recovery phenotypes after discharge;
-- feasibility of rural/home follow-up models.
-
-Any prospective collection belongs behind IRB, privacy, security, device-validation, and clinical-governance review.
-
-### Phase 6 - Prospective translational studies
-
-**Goal:** use findings from earlier phases to formulate testable prospective protocols.
-
-Examples:
-- feasibility study of longitudinal post-infusion patient-generated data;
-- prospective characterization of recovery trajectories;
-- study of rural transitions and local follow-up after cellular therapy;
-- validation of specific trajectory features against prespecified outcomes;
-- implementation-science study of data continuity across new and existing care environments.
-
-This phase should produce protocols and evidence, not autonomous clinical decision support.
-
-## Research architecture principles
-
-- **Patient-level first:** preserve the individual trajectory before cohort aggregation.
-- **Time-relative:** align events to clinically meaningful anchors, especially infusion day.
-- **Source-preserving:** derived data must be traceable to original research inputs.
-- **FHIR/OMOP aware, not dependent:** map where useful, but keep the research model understandable on its own.
-- **Synthetic-first development:** examples and tests should run without institutional data.
-- **Privacy by design:** no PHI, secrets, or identifying free text in the public repository.
-- **Reproducibility over prediction:** definitions, provenance, validation, and rerunnable pipelines precede modeling.
-- **No bedside claims:** research outputs must not be presented as clinical alarms, diagnoses, or treatment recommendations.
+1. a documented episode and care-state model;
+2. reproducible transition-reconstruction code;
+3. synthetic validation fixtures and tests;
+4. utilization metrics derived from care-state sequences;
+5. interpretable patient-level and cohort-level visualizations;
+6. a validation and missingness analysis;
+7. a written discussion of implications for hospital capacity and care-transition research without making operational recommendations.
 
 ## Suggested repository structure
 
 ```text
 CART-TRACE/
   README.md
+  THESIS.md
   ROADMAP.md
   docs/
+    care_state_vocabulary.md
     data_dictionary.md
     governance.md
     episode_model.md
-    hospital_questions.md
   schemas/
-    patient.schema.json
     therapy_episode.schema.json
-    observation.schema.json
-    cell_product.schema.json
+    care_state_interval.schema.json
+    care_transition.schema.json
   src/cart_trace/
-    ingest/
     normalize/
     timeline/
-    phenotypes/
+    transitions/
+    utilization/
     provenance/
     reports/
   tests/
-  examples/
-    synthetic/
+    fixtures/
+      synthetic/
   notebooks/
     01_episode_reconstruction.ipynb
     02_utilization_trajectories.ipynb
-    03_cmc_outcomes.ipynb
 ```
-
-## Initial success metrics
-
-CART-TRACE should be considered useful when it can reproducibly answer, from appropriately governed research data:
-
-1. Where was the patient in the treatment pathway on any treatment-relative day?
-2. What clinical, product, and patient-generated measurements were available at that point?
-3. Which toxicities, responses, and utilization events occurred, and when?
-4. What data are missing, and is the reason for missingness represented?
-5. Can every plotted or modeled feature be traced to a source field and transformation?
-6. Can researchers compare cohorts without losing the underlying patient-level sequence?
 
 ## Near-term build order
 
-1. Governance and synthetic-data policy.
-2. Episode/time model.
-3. Core schema and data dictionary.
-4. Synthetic CAR T cohort generator/fixtures.
-5. Timeline reconstruction library.
-6. Utilization and care-transition metrics.
-7. CMC/product linkage schema.
-8. Patient-generated signal interface.
-9. Reproducible cohort reporting.
-10. Prospective-study protocol templates.
+1. Care-state vocabulary.
+2. Therapy-episode schema.
+3. Care-state interval schema.
+4. Treatment-relative time utilities.
+5. Synthetic fixtures.
+6. Transition reconstruction.
+7. Utilization metrics.
+8. Validation tests.
+9. Cohort reporting.
+
+## Post-thesis opportunities
+
+The following directions are deliberately deferred:
+
+- rural access and distance-to-center analyses;
+- patient-generated health signals;
+- remote recovery monitoring;
+- prospective implementation studies;
+- advanced cellular-therapy product/manufacturing research;
+- predictive or decision-support models.
+
+They should only be pursued as separate questions after the hospital care-trajectory foundation is established.
+
+## Success criterion
+
+CART-TRACE succeeds as an MS thesis framework if it can transform heterogeneous hospital records surrounding CAR T-cell therapy into a transparent, reproducible, patient-level sequence of care states and transitions that supports meaningful cohort-level characterization of hospital utilization.
