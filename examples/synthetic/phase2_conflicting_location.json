@@ -31,6 +31,7 @@
     {"episode_id":"SYN-EP-CONFLICT-001","transition_id":"TR-CONFLICT-003","transition_timestamp":"2026-03-15T12:00:00Z","relative_time_hours":122.0,"from_state":"routine_inpatient","to_state":"discharged","transition_type":"discharge","source_type":"derived_state_change","source_record_ids":["SRC-CONFLICT-001"],"provenance_id":"PROV-CONFLICT-TR-003","derived":true,"derivation_version":"0.2.0","uncertain":false,"uncertainty_reason":null}
   ],
   "expected_uncertainty": {"conflict_interval_start":"2026-03-12T08:00:00Z","conflict_interval_end":"2026-03-12T16:00:00Z","state":"unknown","reason":"equal-priority conflicting canonical states"},
-  "expected_metrics": {"total_inpatient_hours":null,"routine_inpatient_hours":null,"intermediate_care_hours":null,"intensive_care_hours":null,"transition_count":3,"time_to_first_escalation_hours":null,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false,"missingness_reason":"unknown interval prevents complete state-specific duration calculation"},
+  "metric_window_relative_hours": {"start":0.0,"end":720.0,"boundary":"[start,end)"},
+  "expected_metrics": {"total_inpatient_hours":null,"routine_inpatient_hours":null,"intermediate_care_hours":null,"intensive_care_hours":null,"high_acuity_hours":null,"transition_count":3,"time_to_first_escalation_hours":null,"time_to_discharge_hours":122.0,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false,"unknown_state_hours":8.0,"missingness_reason":"unknown interval prevents complete state-specific duration calculation"},
   "requirements_exercised": ["VALID-001","VALID-002","PROV-003","PROV-004","RECON-004","METRIC-008"]
 }
