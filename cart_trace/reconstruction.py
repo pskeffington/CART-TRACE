@@ -26,6 +26,7 @@ CANONICAL_STATES = {
 INPATIENT_STATES = {"routine_inpatient", "intermediate_care", "intensive_care"}
 ACUITY_RANK = {"routine_inpatient": 1, "intermediate_care": 2, "intensive_care": 3}
 DERIVATION_VERSION = "0.2.0"
+TRANSFORMATION_NAME = "cart_trace_reconstruction"
 
 
 @dataclass(frozen=True)
@@ -184,13 +185,7 @@ def reconstruct_intervals(
     encounters: Sequence[Mapping[str, Any]],
     config: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
-    """Reconstruct canonical half-open care-state intervals for one episode.
-
-    Finite source records are resolved by a boundary sweep. Gaps following an
-    inpatient state are represented as ``discharged`` until the next encounter
-    or study-window end. A lone open-ended record is retained explicitly with a
-    null end rather than being assigned an invented duration.
-    """
+    """Reconstruct canonical half-open care-state intervals for one episode."""
     if not encounters:
         return []
     infusion = parse_timestamp(episode["infusion_timestamp"])
@@ -302,11 +297,50 @@ def derive_transitions(episode: Mapping[str, Any], intervals: Sequence[Mapping[s
     return transitions
 
 
+def build_reconstruction_audit(
+    episode: Mapping[str, Any],
+    intervals: Sequence[Mapping[str, Any]],
+    transitions: Sequence[Mapping[str, Any]],
+    config: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Create schema-conformant provenance records for all derived artifacts."""
+    source_system = str(episode.get("source_type") or "synthetic_fixture")
+    mapping_version = str(config["mapping_version"])
+    audit: list[dict[str, Any]] = []
+
+    for artifact in [*intervals, *transitions]:
+        artifact_id = artifact.get("interval_id") or artifact.get("transition_id")
+        source_ids = list(artifact.get("source_record_ids") or [])
+        if not source_ids:
+            raise ValueError(f"derived artifact {artifact_id!r} has no source_record_ids")
+        uncertain = bool(artifact.get("uncertain"))
+        audit.append({
+            "provenance_id": f"AUDIT-{artifact_id}",
+            "source_system": source_system,
+            "source_domain": artifact.get("source_type"),
+            "source_record_ids": source_ids,
+            "transformation_name": TRANSFORMATION_NAME,
+            "transformation_version": DERIVATION_VERSION,
+            "derived_at": None,
+            "uncertainty_flag": uncertain,
+            "missingness_reason": artifact.get("uncertainty_reason") or artifact.get("open_end_reason"),
+            "notes": f"mapping_version={mapping_version}",
+        })
+    return audit
+
+
+def stable_serialize(value: Any) -> str:
+    """Serialize canonical output deterministically for reproducibility checks."""
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
+
+
 def reconstruct_episode(
     episode: Mapping[str, Any],
     encounters: Sequence[Mapping[str, Any]],
     config: Mapping[str, Any],
-) -> dict[str, list[dict[str, Any]]]:
-    """Return canonical intervals and transitions for one therapy episode."""
+) -> dict[str, Any]:
+    """Return canonical intervals, transitions, and provenance audit records."""
     intervals = reconstruct_intervals(episode, encounters, config)
-    return {"intervals": intervals, "transitions": derive_transitions(episode, intervals)}
+    transitions = derive_transitions(episode, intervals)
+    audit = build_reconstruction_audit(episode, intervals, transitions, config)
+    return {"intervals": intervals, "transitions": transitions, "audit": audit}
