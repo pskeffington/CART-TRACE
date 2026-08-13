@@ -17,7 +17,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = ["cart_trace"]
+packages = ["cart_trace", "scripts"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
