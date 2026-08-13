@@ -35,6 +35,7 @@ def parse_timestamp(value: str):
 
 
 MANIFEST = load_json(FIXTURES / "fixture_manifest.json")
+BOUNDARY_CASES = load_json(FIXTURES / "phase2_boundary_cases.json")["cases"]
 
 FIXTURE_FILES = {
     "routine_recovery": FIXTURES / "phase2_routine_recovery.json",
@@ -229,3 +230,67 @@ def test_conflict_fixture_prespecifies_unknown_for_equal_priority_disagreement()
     conflict = next(i for i in data["expected_intervals"] if i["state"] == "unknown")
     assert conflict["mapping_method"] == "equal_priority_conflict_to_unknown"
     assert set(conflict["source_record_ids"]) == {"SRC-CONFLICT-002", "SRC-CONFLICT-003"}
+
+
+def _boundary(case_id):
+    return next(case for case in BOUNDARY_CASES if case["case_id"] == case_id)
+
+
+def test_boundary_duplicate_same_state_collapses_without_false_transition():
+    case = _boundary("DUPLICATE-SAME-STATE-001")
+    enc_validator = validator("encounter_input.schema.json")
+    for record in case["encounters"]:
+        enc_validator.validate(record)
+    interval = case["expected_intervals"][0]
+    validator("care_state_interval.schema.json").validate(interval)
+    assert interval["state"] == "routine_inpatient"
+    assert set(interval["source_record_ids"]) == {"SRC-DUP-001", "SRC-DUP-002"}
+    assert case["expected_transitions"] == []
+
+
+def test_boundary_missing_end_remains_open_with_explicit_reason():
+    case = _boundary("MISSING-END-001")
+    enc_validator = validator("encounter_input.schema.json")
+    enc_validator.validate(case["encounters"][0])
+    interval = case["expected_intervals"][0]
+    validator("care_state_interval.schema.json").validate(interval)
+    assert interval["end_timestamp"] is None
+    assert interval["end_relative_hours"] is None
+    assert interval["uncertain"] is True
+    assert interval["open_end_reason"] == "source_end_missing"
+    assert case["expected_metric_behavior"] == "duration_not_calculable_without_defensible_end"
+
+
+def test_boundary_study_window_end_is_excluded_under_half_open_rule():
+    case = _boundary("STUDY-WINDOW-END-001")
+    assert case["boundary_convention"] == "[window_start, window_end)"
+    assert case["event_relative_hours"] == case["window_end_relative_hours"]
+    assert case["expected_included"] is False
+
+
+def test_boundary_adjacent_intervals_share_boundary_without_overlap():
+    case = _boundary("ADJACENT-INTERVALS-001")
+    intervals = case["expected_intervals"]
+    transition = case["expected_transitions"][0]
+    interval_validator = validator("care_state_interval.schema.json")
+    transition_validator = validator("care_transition.schema.json")
+    for interval in intervals:
+        interval_validator.validate(interval)
+    transition_validator.validate(transition)
+    assert intervals[0]["end_timestamp"] == intervals[1]["start_timestamp"]
+    assert intervals[0]["end_relative_hours"] == intervals[1]["start_relative_hours"]
+    assert transition["transition_timestamp"] == intervals[0]["end_timestamp"]
+
+
+def test_boundary_same_day_return_is_event_not_state():
+    case = _boundary("SAME-DAY-RETURN-001")
+    interval_validator = validator("care_state_interval.schema.json")
+    transition_validator = validator("care_transition.schema.json")
+    for interval in case["expected_intervals"]:
+        interval_validator.validate(interval)
+    transition = case["expected_transitions"][0]
+    transition_validator.validate(transition)
+    assert [i["state"] for i in case["expected_intervals"]] == ["discharged", "emergency"]
+    assert transition["transition_type"] == "acute_care_return"
+    assert transition["to_state"] == "emergency"
+    assert case["expected_hours_from_discharge_to_return"] == 8.0
