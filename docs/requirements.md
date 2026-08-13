@@ -1,6 +1,6 @@
 # CART-TRACE Requirements
 
-This document converts the MS HSE thesis question into explicit, testable requirements. Requirements are intentionally limited to a research system for retrospective characterization of CAR T-cell hospital care trajectories.
+This document converts the MS Health Data Science capstone question into explicit, testable requirements. Requirements are intentionally limited to a research system for retrospective reconstruction and characterization of CAR T-cell hospital care trajectories.
 
 ## Requirement classes
 
@@ -20,22 +20,16 @@ This document converts the MS HSE thesis question into explicit, testable requir
 ### SCOPE-001 — Episode-centered analysis
 CART-TRACE shall use the CAR T-cell therapy episode as the primary unit of analysis rather than treating encounters as independent observations.
 
-**Acceptance evidence:** one synthetic episode containing multiple encounters is represented as a single therapy episode.
-
 ### SCOPE-002 — Descriptive research boundary
-CART-TRACE shall characterize observed care trajectories and utilization without recommending transfer, escalation, discharge, treatment, or other patient-management actions.
+CART-TRACE shall characterize observed care trajectories and utilization without recommending transfer, escalation, discharge, eligibility, treatment, or other patient-management actions.
 
-**Acceptance evidence:** public documentation, code interfaces, and reports contain no clinical action output.
-
-### SCOPE-003 — Thesis-limited domains
-The thesis implementation shall exclude CMC/manufacturing analysis, patient-generated health data, remote monitoring, and predictive clinical decision support.
-
-**Acceptance evidence:** these domains are absent from required input schemas and core thesis outputs.
+### SCOPE-003 — Capstone-limited domains
+The capstone implementation shall exclude CMC/manufacturing analysis, patient-generated health data, remote monitoring, eligibility adjudication, treatment-readiness gating, treatment selection, and predictive clinical decision support.
 
 ## Data requirements
 
 ### DATA-001 — Infusion anchor
-Each analyzable episode shall contain an infusion timestamp or documented infusion date sufficient to establish `day 0`.
+Each analyzable episode shall contain an infusion timestamp or documented infusion date sufficient to establish treatment-relative time zero.
 
 ### DATA-002 — Encounter boundaries
 Source inputs shall support encounter start/end times or equivalent boundaries needed to determine inpatient and acute-care exposure.
@@ -52,41 +46,58 @@ The pipeline shall accept episodes with missing or conflicting location informat
 ## Canonical model requirements
 
 ### MODEL-001 — Therapy episode
-A canonical `therapy_episode` object shall identify the episode, infusion anchor, study window, and source/provenance context.
+A canonical `therapy_episode` object shall identify the episode, optional synthetic/research patient identifier, infusion anchor, explicit timestamp study-window bounds, relative-hour bounds, source type, and provenance context.
 
 ### MODEL-002 — Care-state intervals
-Care states shall be represented as intervals with start time, end time, normalized state, and provenance.
+Care states shall be represented as `[start, end)` intervals with `interval_id`, absolute timestamps, continuous treatment-relative hours, canonical state, source type, contributing source-record identifiers, mapping method, provenance, uncertainty, and explicit open-end reason when applicable.
 
 ### MODEL-003 — Care transitions
-A transition shall be emitted only when normalized care state changes.
+A transition shall be emitted only when normalized care state changes and shall include `transition_id`, timestamp, treatment-relative hours, from/to states, transition type, source identifiers, and provenance.
 
-### MODEL-004 — Controlled vocabulary
-The canonical vocabulary shall include at minimum:
+### MODEL-004 — Controlled state vocabulary
+The canonical state vocabulary shall be exactly:
 
 - `outpatient`
+- `emergency`
 - `routine_inpatient`
-- `higher_observation`
-- `icu`
+- `intermediate_care`
+- `intensive_care`
 - `discharged`
-- `acute_care_return`
 - `unknown`
 
-### MODEL-005 — Institution-independent model
+`acute_care_return` shall not be represented as a care state.
+
+### MODEL-005 — Controlled transition vocabulary
+Transition type shall be one of:
+
+- `admission`
+- `transfer`
+- `escalation`
+- `deescalation`
+- `discharge`
+- `acute_care_return`
+- `other`
+- `unknown`
+
+### MODEL-006 — Institution-independent model
 Local unit names shall be mapped through documented configuration or preprocessing and shall not become canonical state labels.
 
 ## Temporal requirements
 
 ### TIME-001 — Absolute and relative time
-Derived records shall preserve absolute timestamps while also providing treatment-relative time anchored to infusion.
+Derived records shall preserve absolute timestamps while also providing continuous treatment-relative hours anchored to infusion.
 
 ### TIME-002 — Deterministic relative-time rule
-The method for converting timestamps to treatment-relative days/hours shall be explicitly defined, versioned, and tested at day boundaries.
+Relative time shall be calculated as `(event_timestamp - infusion_timestamp).total_seconds() / 3600`; days, if displayed, are derived as hours divided by 24 and shall not replace the canonical hour-relative value.
 
 ### TIME-003 — Ordered intervals
-Within an episode, derived intervals shall be temporally ordered and shall not silently overlap.
+Within an episode, derived intervals shall be temporally ordered, use half-open `[start, end)` boundaries, and shall not silently overlap.
 
 ### TIME-004 — Study-window handling
-Records outside the configured study window shall be excluded from thesis metrics but may remain available as source provenance where governance permits.
+Records outside the configured study window shall be excluded from capstone metrics but may remain available as source provenance where governance permits.
+
+### TIME-005 — Open/censored ends
+A null interval end shall be allowed only with an explicit reason; arbitrary end-time imputation is prohibited.
 
 ## Provenance and uncertainty requirements
 
@@ -100,7 +111,7 @@ Derived outputs shall record the transformation/version identifier used to produ
 Conflicting or insufficient records shall generate an uncertainty indicator or `unknown` state rather than silent imputation.
 
 ### PROV-004 — Missingness accounting
-Cohort reports shall quantify missingness relevant to care-state reconstruction.
+Capstone reports shall quantify missingness relevant to care-state reconstruction.
 
 ## Reconstruction requirements
 
@@ -114,30 +125,33 @@ When source events share timestamps, the pipeline shall use a documented determi
 Repeated source records that map to the same care state shall not create false transitions.
 
 ### RECON-004 — Overlap resolution
-Overlapping encounter/location records shall be handled using documented precedence and conflict rules.
+Overlapping encounter/location records shall be handled using documented precedence and conflict rules while preserving contributing source identifiers.
 
 ### RECON-005 — Discharge semantics
 Discharge shall end inpatient occupancy but shall not be interpreted as clinical recovery.
 
 ### RECON-006 — Acute-care return semantics
-Post-discharge emergency, observation, or inpatient care within the configured follow-up period shall be identifiable as acute-care reuse while preserving source encounter type when available.
+Post-discharge emergency or inpatient acute care within the configured follow-up period shall retain its actual destination state and be identifiable using `transition_type = acute_care_return` when the configured return-window definition is satisfied.
+
+### RECON-007 — Inpatient acuity rank
+For inpatient comparisons only, `routine_inpatient = 1`, `intermediate_care = 2`, and `intensive_care = 3`. Emergency care shall not receive an inpatient acuity rank.
 
 ## Utilization metric requirements
 
 ### METRIC-001 — Total inpatient exposure
-The system shall compute total inpatient time/days within the study window.
+The system shall compute total inpatient time within the configured study window.
 
 ### METRIC-002 — State-specific exposure
-The system shall compute time spent in routine inpatient, higher-observation, and ICU states.
+The system shall compute time spent in `routine_inpatient`, `intermediate_care`, and `intensive_care` states.
 
 ### METRIC-003 — Transition burden
 The system shall count normalized care-state changes and identify escalation/de-escalation timing.
 
 ### METRIC-004 — Time to first escalation
-Where escalation occurs, the system shall compute time from infusion to first higher-observation or ICU transition.
+Where escalation occurs, the system shall compute time from infusion to the first transition to a higher inpatient acuity rank.
 
 ### METRIC-005 — High-acuity duration
-The system shall compute duration in higher-observation and ICU states, separately and/or combined according to a documented definition.
+The system shall compute `intermediate_care` and `intensive_care` duration separately; any combined high-acuity metric shall have a documented definition.
 
 ### METRIC-006 — Discharge timing
 The system shall compute treatment-relative time to discharge for episodes with a documented discharge.
@@ -151,19 +165,19 @@ Metrics that cannot be calculated because of missing data shall be explicitly mi
 ## Validation requirements
 
 ### VALID-001 — Synthetic fixture coverage
-Synthetic fixtures shall include routine recovery, prolonged hospitalization, transient escalation, ICU escalation, early acute-care return, and conflicting/missing records.
+Synthetic fixtures shall include routine recovery, prolonged hospitalization, transient escalation, intensive-care escalation, early acute-care return, and conflicting/missing records.
 
 ### VALID-002 — Expected outputs
-Each synthetic fixture shall have prespecified expected intervals, transitions, and utilization metrics.
+Each synthetic fixture shall have prespecified expected intervals, transitions, uncertainty behavior, and utilization metrics.
 
 ### VALID-003 — Schema validation
 Synthetic inputs/outputs shall validate against applicable JSON schemas.
 
 ### VALID-004 — Boundary tests
-Tests shall cover infusion-day boundaries, identical timestamps, adjacent intervals, missing end times, overlapping records, and study-window boundaries.
+Tests shall cover infusion boundaries, identical timestamps, adjacent intervals, missing end times, overlaps, study-window boundaries, and acute-care return semantics.
 
 ### VALID-005 — Reconstruction accuracy
-Before institutional analysis, reconstruction logic shall reproduce all prespecified synthetic trajectories exactly or produce documented expected uncertainty states.
+Before institutional analysis, reconstruction logic shall reproduce all prespecified deterministic synthetic trajectories exactly and conflict fixtures shall produce their prespecified uncertainty states.
 
 ### VALID-006 — Governed-data validation
 If approved institutional data are available, a validation subset shall compare reconstructed care states/transitions with source records and document disagreement/adjudication.
@@ -180,7 +194,7 @@ The system shall produce reproducible cohort-level summaries of utilization meas
 Research output shall include a missingness/uncertainty summary.
 
 ### REPORT-004 — No clinical recommendation layer
-Reports shall not present descriptive phenotypes or utilization patterns as patient-management recommendations.
+Reports shall not present descriptive trajectories or utilization patterns as patient-management recommendations.
 
 ## Governance requirements
 
@@ -194,15 +208,15 @@ Public repository content shall contain no PHI, institutional credentials, produ
 Use of real hospital data shall occur only after required institutional research, privacy, security, and data-use approvals.
 
 ### GOV-004 — Minimum necessary research data
-Institutional data extraction shall be limited to fields required by the approved research question and validation plan.
+Institutional data extraction shall be limited to fields required by the approved capstone question and validation plan.
 
-## Definition of thesis-ready implementation
+## Definition of capstone-ready implementation
 
-The implementation is thesis-ready when:
+The implementation is capstone-ready when:
 
-1. all Phase 0 and Phase 1 mandatory requirements are met;
+1. canonical semantics are frozen and machine-readable artifacts are internally consistent;
 2. all required synthetic fixtures pass schema and expected-output tests;
 3. trajectory reconstruction is deterministic and provenance-preserving;
 4. utilization metrics have explicit formulas and missing-data behavior;
 5. patient-level and cohort-level reports can be reproduced from a clean environment;
-6. all claims remain descriptive unless a separate prospective validation study justifies otherwise.
+6. all claims remain descriptive unless a separate prospective study justifies otherwise.
