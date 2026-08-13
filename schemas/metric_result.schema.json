@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/metric_result.schema.json",
+  "title": "CART-TRACE Phase 4 Metric Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "episode_id",
+    "metric_version",
+    "analysis_window_relative_hours",
+    "observation_end_relative_hours",
+    "values",
+    "status",
+    "source_interval_ids",
+    "source_transition_ids",
+    "source_record_ids"
+  ],
+  "properties": {
+    "episode_id": {"type": "string", "minLength": 1},
+    "metric_version": {"type": "string", "minLength": 1},
+    "analysis_window_relative_hours": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end", "boundary"],
+      "properties": {
+        "start": {"type": "number"},
+        "end": {"type": "number"},
+        "boundary": {"const": "[start,end)"}
+      }
+    },
+    "observation_end_relative_hours": {"type": "number"},
+    "values": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_inpatient_hours",
+        "routine_inpatient_hours",
+        "intermediate_care_hours",
+        "intensive_care_hours",
+        "high_acuity_hours",
+        "transition_count",
+        "time_to_first_escalation_hours",
+        "time_to_discharge_hours",
+        "acute_care_reuse_7d",
+        "acute_care_reuse_30d",
+        "hours_from_discharge_to_return",
+        "unknown_state_hours"
+      ],
+      "properties": {
+        "total_inpatient_hours": {"type": ["number", "null"], "minimum": 0},
+        "routine_inpatient_hours": {"type": ["number", "null"], "minimum": 0},
+        "intermediate_care_hours": {"type": ["number", "null"], "minimum": 0},
+        "intensive_care_hours": {"type": ["number", "null"], "minimum": 0},
+        "high_acuity_hours": {"type": ["number", "null"], "minimum": 0},
+        "transition_count": {"type": "integer", "minimum": 0},
+        "time_to_first_escalation_hours": {"type": ["number", "null"], "minimum": 0},
+        "time_to_discharge_hours": {"type": ["number", "null"], "minimum": 0},
+        "acute_care_reuse_7d": {"type": ["boolean", "null"]},
+        "acute_care_reuse_30d": {"type": ["boolean", "null"]},
+        "hours_from_discharge_to_return": {"type": ["number", "null"], "minimum": 0},
+        "unknown_state_hours": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "status": {
+      "type": "object",
+      "additionalProperties": {"enum": ["observed", "observed_zero", "not_applicable", "not_calculable", "incomplete_followup"]}
+    },
+    "missingness_reason": {"type": ["string", "null"]},
+    "source_interval_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "source_transition_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "source_record_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "provenance_id": {"type": ["string", "null"]}
+  }
+}
