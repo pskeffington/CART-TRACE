@@ -196,6 +196,37 @@ Real-data availability strengthens the capstone but does not determine whether t
 
 ---
 
+## 21-month capstone execution horizon
+
+The remaining schedule is organized around three linked claims: **computational validity**, **representation validity**, and **analytic utility**. The first is established primarily through the frozen synthetic gates. Later work should increasingly emphasize governed-data validation, descriptive analysis, and scholarly completion rather than expanding core software architecture.
+
+| Months | Primary objective | Completion products |
+|---|---|---|
+| 1–4 | Computational foundation | canonical model, synthetic oracle, reconstruction, metric contract, Gates 1–4 |
+| 5–7 | Scholarly prototype freeze | generated synthetic tables/figures, reproducibility package, manuscript Methods/Results scaffold |
+| 6–10 | Governance and data readiness | cohort specification, source-field inventory, local mapping protocol, validation/adjudication plan |
+| 9–14 | Governed-data application, if feasible | source profiling, mapping coverage, reconstructability, uncertainty and follow-up characterization |
+| 12–16 | Empirical validation | source-concordance review, discrepancy analysis, mapping review, sensitivity analyses, metric availability |
+| 15–18 | Primary descriptive analysis | patient trajectories, utilization distributions, escalation/de-escalation, discharge and return summaries |
+| 18–20 | Scholarly synthesis | final Methods, Results, Discussion, tables, figures, limitations, reproducibility statement |
+| 21 | Final freeze and capstone completion | reproducibility audit, repository release, presentation/submission package |
+
+Periods intentionally overlap. Governance preparation can begin while the synthetic scholarly prototype is finalized, and writing should continue throughout empirical work rather than being deferred to the final months.
+
+### Work-session completion rule
+
+Each focused work session should define one primary task and one concrete completion artifact. A session is complete when the task supports a named capstone milestone, the artifact is committed or otherwise controlled, frozen semantics are not changed implicitly, validation evidence is added when logic changes, CI is checked before milestone claims, traceability is preserved, synthetic and governed findings remain separated, and the next highest-value task is recorded.
+
+### Monthly alignment review
+
+Review whether current work still supports the primary capstone question; whether it strengthens computational validity, representation validity, or analytic utility; whether uncertainty, denominators, and follow-up limitations are visible; whether outputs remain traceable to controlled inputs; whether governed work is separated from public synthetic artifacts; whether engineering effort is decreasing as the method stabilizes; and whether adequate time remains for validation, writing, revision, and final presentation.
+
+### Scope guardrail
+
+Core-aligned extensions include source mapping, data-quality and reconstructability assessment, source-concordance validation, uncertainty analysis, descriptive trajectory characterization, sensitivity analyses, and publication-quality communication. Prediction, eligibility/readiness logic, prospective decision support, operational forecasting, broad multi-institution platform development, and causal treatment-effect estimation remain outside the required capstone scope unless explicitly re-scoped.
+
+---
+
 ## Evidence chain
 
 Every major capstone result should remain traceable through:
