@@ -2,9 +2,11 @@
 
 **Proposed transition:** Phase 2 — Synthetic cohort -> Phase 3 — Transition reconstruction
 
-**Current decision:** CONDITIONAL / CI PENDING
+**Current decision:** NOT YET PASSED
 
-Phase 2 now contains six normalized trajectory classes, requirement coverage, expected utilization measures, negative/error fixtures, and automated fixture validation. The only remaining formal blocker is successful CI execution of the updated Phase 2 test suite.
+Gate 1 has now passed on the corrected canonical semantics. Phase 2 contains six canonical trajectory fixtures, expected intervals/transitions, expected metrics, uncertainty behavior, negative/error cases, and automated validation. GitHub Actions run `31652533891` successfully executed the current full test suite against commit `6d2ce3e1592cec52ab3e2d92f14ebd3a421eea1b`.
+
+That successful run removes CI as the prior blocker. Gate 2 remains open because the stricter current gate definition requires a final oracle-completeness review and explicit coverage of several boundary cases before the truth set is frozen for Phase 3.
 
 ## Evidence checklist
 
@@ -13,86 +15,74 @@ Phase 2 now contains six normalized trajectory classes, requirement coverage, ex
 | Six trajectory classes represented | Complete | `examples/synthetic/fixture_manifest.json` |
 | Routine recovery fixture | Complete | `examples/synthetic/phase2_routine_recovery.json` |
 | Prolonged routine inpatient fixture | Complete | `examples/synthetic/phase2_prolonged_routine.json` |
-| Transient escalation fixture | Complete | `examples/synthetic/phase2_transient_escalation.json` |
-| ICU escalation fixture | Complete / normalized | `examples/synthetic/phase2_icu_escalation.json` |
-| Early acute-care return fixture | Complete | `examples/synthetic/phase2_early_return.json` |
-| Conflicting/missing location fixture | Complete | `examples/synthetic/phase2_conflicting_location.json` |
+| Transient escalation/de-escalation fixture | Complete | `examples/synthetic/phase2_transient_escalation.json` |
+| Intensive-care escalation fixture | Complete | `examples/synthetic/phase2_icu_escalation.json` |
+| Early acute-care-return fixture | Complete | `examples/synthetic/phase2_early_return.json` |
+| Conflicting/missing-location fixture | Complete | `examples/synthetic/phase2_conflicting_location.json` |
 | Requirement coverage in manifest | Complete | `examples/synthetic/fixture_manifest.json` |
-| Expected utilization metrics | Complete for 6/6 fixtures | fixture files |
-| Canonical interval/transition schema conformity | Complete by test contract | `tests/test_phase2_fixtures.py` |
-| Invalid fixtures for negative/error testing | Complete | `examples/synthetic/invalid_phase2_cases.json` |
-| Fixture coverage and negative tests | Complete | `tests/test_phase2_fixtures.py` |
-| CI execution of Phase 2 tests | Pending | workflow evidence required |
+| Canonical expected intervals/transitions | Complete for 6/6 fixtures | fixture files |
+| Canonical expected utilization metrics | Complete for 6/6 fixtures | fixture files |
+| Negative/error fixtures | Present | `examples/synthetic/invalid_phase2_cases.json` |
+| Automated Phase 2 tests | Passing in CI | `tests/test_phase2_fixtures.py`, run `31652533891` |
+| Identical-timestamp behavior | Partial | semantic/error cases exist; oracle coverage review required |
+| Adjacent interval boundary | Partial | represented in trajectories; explicit assertion should be added |
+| Duplicate same-state source event | Missing explicit fixture/test | required before freeze |
+| Missing/open end time | Missing explicit fixture/test | required before freeze |
+| Study-window boundary event | Missing explicit fixture/test | required before freeze |
+| Same-day discharge/acute-care return boundary | Partial | return semantics covered; same-day boundary fixture still required |
+| Equal-priority conflicting location sources | Complete | conflict fixture + tests |
+| Unknown interval between known states | Complete | conflict fixture |
 
-## Truth-set coverage
+## Current canonical truth-set coverage
 
-The synthetic cohort represents the core trajectory patterns needed for reconstruction development:
+The synthetic cohort now represents:
 
 - routine inpatient recovery;
 - prolonged routine inpatient care;
-- transient escalation and de-escalation;
-- ICU escalation and de-escalation;
-- discharge followed by early acute-care return;
-- incomplete/conflicting care-location evidence with explicit `unknown`/uncertainty behavior.
+- transient `routine_inpatient -> intermediate_care -> routine_inpatient` escalation/de-escalation;
+- `intensive_care` escalation/de-escalation;
+- discharge followed by `emergency` care with `transition_type = acute_care_return`;
+- equal-priority conflicting care-location evidence represented as `unknown` with explicit uncertainty.
 
-The ICU trajectory is now represented in the same Phase 2 contract as the other fixtures, including schema-conformant expected intervals/transitions and prespecified utilization metrics.
+All six fixtures use the Gate 1 hour-relative episode/interval/transition contract.
 
-## Negative/error coverage
+## Negative/error coverage already present
 
-`examples/synthetic/invalid_phase2_cases.json` now exercises:
+`examples/synthetic/invalid_phase2_cases.json` currently exercises:
 
 - invalid canonical state labels;
 - missing infusion anchor;
 - malformed timestamps;
 - reversed interval semantics;
-- equal-priority overlapping records requiring the frozen deterministic tie-break behavior.
+- equal-priority overlapping records requiring deterministic/conflict behavior.
 
-The negative set distinguishes schema-level failure from semantic/reconstruction-level behavior so Phase 3 code can be tested against both categories.
+## Remaining oracle-closure work
 
-## Automated oracle contract
+Before Gate 2 passes, add or explicitly test:
 
-`tests/test_phase2_fixtures.py` now checks:
+1. a duplicate same-state source-event case demonstrating no false transition;
+2. a missing/open end-time case demonstrating explicit censor/open-end behavior;
+3. a study-window boundary case demonstrating clipping/exclusion semantics;
+4. an explicit adjacent-interval assertion at a shared timestamp;
+5. a same-day discharge/acute-care-return boundary case;
+6. a final requirement-to-fixture coverage check showing that every mandatory Phase 3 reconstruction behavior has an oracle case.
 
-1. all required trajectory classes are present;
-2. manifest artifact paths resolve to actual fixture files;
-3. fixture IDs are unique;
-4. every fixture has requirement coverage;
-5. episode and encounter inputs validate;
-6. expected state sequences match the manifest;
-7. all expected intervals/transitions conform to canonical schemas;
-8. every fixture exposes expected utilization metrics;
-9. conflict, early-return, routine, and ICU-specific expected behavior is explicit;
-10. negative schema cases fail validation as expected;
-11. semantic-invalid interval and tie-break cases remain machine-testable.
-
-## Remaining blocker
-
-### CI execution
-
-Gate 2 -> 3 should pass only after the updated Phase 2 test suite executes successfully in the repository CI environment.
-
-No Phase 3 reconstruction code should be considered authoritative until this truth set is frozen by successful CI evidence.
+These are oracle-completeness issues, not changes to the Gate 1 canonical semantics.
 
 ## Candidate freeze set after passage
 
-If Gate 2 passes, the following become controlled Phase 2 truth-set artifacts:
+When Gate 2 passes, the controlled Phase 2 oracle will include:
 
 - `examples/synthetic/fixture_manifest.json`;
-- the six Phase 2 trajectory fixtures;
+- the six core Phase 2 trajectory fixtures;
 - `examples/synthetic/invalid_phase2_cases.json`;
+- added boundary/edge-case oracle records;
 - expected interval and transition sequences;
 - expected uncertainty behavior;
-- expected utilization measures used as downstream test oracles.
+- expected utilization values used downstream.
 
-Any change to expected trajectory semantics after passage requires gate-impact review and corresponding reconstruction-test updates.
+Changes after passage require explicit Gate 2 impact review and corresponding Phase 3 regression updates.
 
 ## Gate passage rule
 
-Gate 2 -> 3 may pass when:
-
-1. all six fixtures contain source-like inputs plus prespecified canonical intervals, transitions, uncertainty behavior, and expected metrics;
-2. every expected interval/transition object conforms to its schema;
-3. fixture requirement coverage is complete and non-empty;
-4. negative/error fixtures cover schema and semantic/reconstruction failure behavior;
-5. the updated automated fixture tests execute successfully in CI;
-6. Phase 3 reconstruction can implement directly against the frozen truth set without inventing missing semantics.
+Gate 2 -> 3 may pass when the six trajectory fixtures and required boundary/error cases collectively allow Phase 3 reconstruction to be judged without inventing missing semantics, and the complete oracle suite executes successfully in CI.
