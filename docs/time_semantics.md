@@ -1,21 +1,24 @@
 # CART-TRACE Time Semantics
 
-This document freezes the initial temporal conventions needed to close Gate 1 -> 2.
+This document defines the temporal conventions used by the canonical episode, interval, and transition models.
 
 ## Infusion anchor
 
 The CAR T-cell infusion timestamp is the primary temporal anchor and defines treatment-relative time zero.
 
-If only an infusion date is available in governed data, the episode is not automatically excluded, but precision loss must be represented explicitly and analyses requiring sub-day timing must not claim greater precision than the source supports.
+If only an infusion date is available in governed data, precision loss must be represented explicitly. Analyses requiring sub-day timing must not claim greater precision than the source supports.
 
-## Treatment-relative time
+## Canonical treatment-relative time
 
 For an event at timestamp `t` and infusion timestamp `t0`:
 
-- relative hours = `(t - t0)` expressed in elapsed hours;
-- relative days = elapsed hours divided by 24.
+`relative_hours = (t - t0).total_seconds() / 3600`
 
-The canonical representation should preserve the continuous elapsed-time value. Integer treatment-day labels, when displayed, are derived presentation fields and must not replace the underlying elapsed time.
+Treatment-relative hours are continuous and may be negative before infusion. No flooring is applied to the canonical value.
+
+Treatment-relative days, when useful for presentation, are derived as:
+
+`relative_days = relative_hours / 24`
 
 Examples:
 
@@ -23,17 +26,7 @@ Examples:
 - infusion timestamp: `0 h`, `0 d`
 - 36 hours after infusion: `36 h`, `1.5 d`
 
-## Day labels
-
-If a discrete day label is required for tables or figures, CART-TRACE should use a documented floor-based convention on elapsed days unless a study protocol specifies another convention.
-
-Under the initial convention:
-
-- `0.0 <= relative_days < 1.0` is Day 0;
-- `1.0 <= relative_days < 2.0` is Day +1;
-- `-1.0 <= relative_days < 0.0` is Day -1.
-
-The floor-based day label is a convenience for grouping; all duration calculations use timestamps or continuous relative time.
+Integer treatment-day labels are presentation fields only and must not replace the underlying continuous time representation.
 
 ## Interval boundary convention
 
@@ -41,76 +34,77 @@ Care-state intervals use half-open boundaries:
 
 `[start, end)`
 
-A state is active at `start` and ceases to be active at `end`. Adjacent intervals may therefore share the same boundary timestamp without overlap.
+A state is active at `start` and ceases to be active at `end`. Adjacent intervals may share the same boundary timestamp without overlap or double-counting.
 
 Example:
 
 `routine_inpatient [08:00, 14:00)`
 
-`icu [14:00, 22:00)`
+`intensive_care [14:00, 22:00)`
 
-This represents an instantaneous transition at 14:00 without double-counting exposure.
+This represents an instantaneous transition at 14:00.
 
-## Missing end times
+## Missing or censored end times
 
-An encounter or state with no end time must not be assigned an arbitrary duration. Handling options are:
+An interval with no defensible end must not be assigned an arbitrary duration. The canonical interval may retain `end_timestamp = null` and `end_relative_hours = null` only when an explicit `open_end_reason` is recorded.
 
-1. close the interval at a later authoritative event if the reconstruction rule explicitly supports that inference;
-2. truncate at the configured study-window boundary with an uncertainty indicator;
-3. leave duration-derived metrics missing when a defensible end cannot be established.
+Permitted handling includes:
 
-The selected rule must be traceable in provenance.
+1. closing the interval at a later authoritative event when a documented reconstruction rule supports the inference;
+2. clipping to a configured study-window boundary while explicitly recording censoring/truncation provenance;
+3. leaving duration-derived metrics missing when no defensible end exists.
 
 ## Simultaneous events and tie-breaking
 
-Events sharing the same timestamp require deterministic ordering. The initial ordering principle is:
+Events sharing a timestamp require deterministic handling. The ordering principle is:
 
 1. explicit end/discharge events close the prior interval;
-2. explicit location/care-state start events establish the new state;
-3. otherwise apply configured source precedence;
-4. if authoritative sources remain irreconcilable, produce `unknown` or an uncertainty flag rather than selecting arbitrarily.
+2. explicit location/care-state starts establish candidate new states;
+3. configured source precedence resolves unequal-priority conflicts;
+4. equally authoritative irreconcilable evidence produces `unknown` with uncertainty rather than an arbitrary state choice.
 
-Implementation tests must verify this behavior.
+Implementation tests must verify these semantics.
 
 ## Overlap semantics
 
-Canonical care-state intervals must not silently overlap. When source encounters overlap:
+Canonical care-state intervals must not silently overlap. When source encounters or location records overlap:
 
 - normalize each source record;
-- apply documented precedence rules;
+- apply documented mapping and precedence rules;
 - preserve all contributing source identifiers;
-- emit uncertainty when the overlap cannot be resolved confidently.
+- emit `unknown`/uncertainty when equally authoritative evidence remains irreconcilable.
 
-Overlap resolution is a reconstruction rule, not an assertion that one source record was clinically incorrect.
+Overlap resolution is a reconstruction rule, not an assertion that a source record was clinically incorrect.
 
 ## Study window
 
-The initial thesis development window is approximately Day -7 through Day +30 relative to infusion.
+The development model can retain a limited pre-infusion context window, typically approximately Day -7, while the primary capstone analysis focuses on the first 30 days after infusion.
 
-The exact configured boundaries must be explicit in the therapy episode. Source events outside the analysis window are excluded from thesis utilization calculations, although they may be retained in governed source context where permitted.
+The exact episode bounds are stored as:
+
+- `window_start_timestamp`
+- `window_end_timestamp`
+- `window_start_relative_hours`
+- `window_end_relative_hours`
+
+Source events outside the configured analysis window are excluded from capstone utilization calculations, although they may remain available as governed source context where permitted.
 
 ## Duration calculations
 
-Duration metrics are calculated from elapsed timestamp differences, not by counting calendar dates or discrete treatment-day labels.
+Duration metrics are calculated from elapsed timestamp differences or their exact continuous-hour equivalents, not by counting calendar dates or discrete day labels.
 
-For a set of non-overlapping intervals, total exposure is the sum of interval durations after clipping to the configured analysis window.
+For non-overlapping intervals, exposure is the sum of interval durations after any explicitly documented study-window clipping.
 
 ## Time-zone handling
 
-Timestamps should be normalized to a consistent timezone or offset-aware representation before elapsed-time computation. Naive and offset-aware timestamps must not be mixed silently.
+Timestamps must be normalized to a consistent timezone or offset-aware representation before elapsed-time computation. Naive and offset-aware timestamps must not be mixed silently.
 
-The public synthetic cohort should use explicit UTC offsets or UTC timestamps to make tests deterministic.
+Public synthetic fixtures use explicit UTC timestamps to make tests deterministic.
 
 ## Precision and uncertainty
 
-CART-TRACE must not manufacture timestamp precision. If source data are date-only, rounded, or otherwise imprecise, the canonical representation should record that limitation. Analyses dependent on precise escalation timing may require exclusion or sensitivity analysis for such episodes.
+CART-TRACE must not manufacture timestamp precision. Date-only, rounded, or otherwise imprecise source data must retain that limitation in provenance or uncertainty metadata. Analyses dependent on precise escalation timing may require exclusion or sensitivity analysis for such episodes.
 
 ## Change control
 
-After Gate 1 -> 2 passes, changes to infusion anchoring, relative-day convention, interval boundary semantics, or tie-breaking rules require:
-
-- documentation of the change;
-- version increment;
-- review of affected synthetic truth sets;
-- regression testing;
-- explicit gate-impact review.
+After Gate 1 passage, changes to infusion anchoring, hour-relative calculation, interval boundaries, open-end behavior, or tie-breaking rules require documentation, version impact review, affected fixture regeneration, regression testing, and explicit Gate 1 impact review.
