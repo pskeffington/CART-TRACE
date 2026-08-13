@@ -1,0 +1,67 @@
+{
+  "version": "0.1.0",
+  "description": "Prespecified Phase 2 boundary-case oracle supplementing the six required trajectory fixtures.",
+  "cases": [
+    {
+      "case_id": "DUPLICATE-SAME-STATE-001",
+      "requirement": "RECON-003",
+      "description": "Duplicate source records mapping to the same canonical state must not create a false transition.",
+      "encounters": [
+        {"source_record_id":"SRC-DUP-001","episode_id":"SYN-BOUNDARY-DUP","encounter_start":"2026-04-01T10:00:00Z","encounter_end":"2026-04-01T18:00:00Z","source_care_label":"synthetic_standard_floor","priority":10},
+        {"source_record_id":"SRC-DUP-002","episode_id":"SYN-BOUNDARY-DUP","encounter_start":"2026-04-01T10:00:00Z","encounter_end":"2026-04-01T18:00:00Z","source_care_label":"synthetic_standard_floor","priority":10}
+      ],
+      "expected_intervals": [
+        {"episode_id":"SYN-BOUNDARY-DUP","interval_id":"INT-DUP-001","state":"routine_inpatient","start_timestamp":"2026-04-01T10:00:00Z","end_timestamp":"2026-04-01T18:00:00Z","start_relative_hours":0.0,"end_relative_hours":8.0,"source_type":"encounter_location","source_record_ids":["SRC-DUP-001","SRC-DUP-002"],"mapping_method":"duplicate_same_state_collapse","provenance_id":"PROV-DUP-001","uncertain":false,"uncertainty_reason":null,"open_end_reason":null}
+      ],
+      "expected_transitions": []
+    },
+    {
+      "case_id": "MISSING-END-001",
+      "requirement": "VALID-004",
+      "description": "A source encounter with no defensible end remains open/censored rather than receiving an invented duration.",
+      "encounters": [
+        {"source_record_id":"SRC-OPEN-001","episode_id":"SYN-BOUNDARY-OPEN","encounter_start":"2026-04-02T12:00:00Z","encounter_end":null,"source_care_label":"synthetic_standard_floor","priority":10}
+      ],
+      "expected_intervals": [
+        {"episode_id":"SYN-BOUNDARY-OPEN","interval_id":"INT-OPEN-001","state":"routine_inpatient","start_timestamp":"2026-04-02T12:00:00Z","end_timestamp":null,"start_relative_hours":26.0,"end_relative_hours":null,"source_type":"encounter_location","source_record_ids":["SRC-OPEN-001"],"mapping_method":"direct_label_map","provenance_id":"PROV-OPEN-001","uncertain":true,"uncertainty_reason":"source end timestamp missing","open_end_reason":"source_end_missing"}
+      ],
+      "expected_transitions": [],
+      "expected_metric_behavior": "duration_not_calculable_without_defensible_end"
+    },
+    {
+      "case_id": "STUDY-WINDOW-END-001",
+      "requirement": "TIME-004",
+      "description": "An event beginning exactly at the half-open study-window end is outside the analytic window.",
+      "window_start_relative_hours": 0.0,
+      "window_end_relative_hours": 720.0,
+      "event_relative_hours": 720.0,
+      "expected_included": false,
+      "boundary_convention": "[window_start, window_end)"
+    },
+    {
+      "case_id": "ADJACENT-INTERVALS-001",
+      "requirement": "VALID-004",
+      "description": "Adjacent canonical intervals share a boundary timestamp without overlap or double counting.",
+      "expected_intervals": [
+        {"episode_id":"SYN-BOUNDARY-ADJ","interval_id":"INT-ADJ-001","state":"routine_inpatient","start_timestamp":"2026-04-03T10:00:00Z","end_timestamp":"2026-04-03T16:00:00Z","start_relative_hours":0.0,"end_relative_hours":6.0,"source_type":"encounter_location","source_record_ids":["SRC-ADJ-001"],"mapping_method":"direct_label_map","provenance_id":"PROV-ADJ-001","uncertain":false,"uncertainty_reason":null,"open_end_reason":null},
+        {"episode_id":"SYN-BOUNDARY-ADJ","interval_id":"INT-ADJ-002","state":"intermediate_care","start_timestamp":"2026-04-03T16:00:00Z","end_timestamp":"2026-04-03T22:00:00Z","start_relative_hours":6.0,"end_relative_hours":12.0,"source_type":"encounter_location","source_record_ids":["SRC-ADJ-002"],"mapping_method":"direct_label_map","provenance_id":"PROV-ADJ-002","uncertain":false,"uncertainty_reason":null,"open_end_reason":null}
+      ],
+      "expected_transitions": [
+        {"episode_id":"SYN-BOUNDARY-ADJ","transition_id":"TR-ADJ-001","transition_timestamp":"2026-04-03T16:00:00Z","relative_time_hours":6.0,"from_state":"routine_inpatient","to_state":"intermediate_care","transition_type":"escalation","source_type":"derived_state_change","source_record_ids":["SRC-ADJ-001","SRC-ADJ-002"],"provenance_id":"PROV-ADJ-TR-001","derived":true,"derivation_version":"0.2.0","uncertain":false,"uncertainty_reason":null}
+      ]
+    },
+    {
+      "case_id": "SAME-DAY-RETURN-001",
+      "requirement": "METRIC-007",
+      "description": "Same-day post-discharge emergency return remains an emergency state and is classified by transition type as acute_care_return.",
+      "expected_intervals": [
+        {"episode_id":"SYN-BOUNDARY-RETURN","interval_id":"INT-RETURN-001","state":"discharged","start_timestamp":"2026-04-04T10:00:00Z","end_timestamp":"2026-04-04T18:00:00Z","start_relative_hours":72.0,"end_relative_hours":80.0,"source_type":"derived_disposition","source_record_ids":["SRC-RETURN-DISCHARGE"],"mapping_method":"derived_after_encounter_end","provenance_id":"PROV-RETURN-001","uncertain":false,"uncertainty_reason":null,"open_end_reason":null},
+        {"episode_id":"SYN-BOUNDARY-RETURN","interval_id":"INT-RETURN-002","state":"emergency","start_timestamp":"2026-04-04T18:00:00Z","end_timestamp":"2026-04-04T22:00:00Z","start_relative_hours":80.0,"end_relative_hours":84.0,"source_type":"encounter_location","source_record_ids":["SRC-RETURN-ED"],"mapping_method":"direct_label_map","provenance_id":"PROV-RETURN-002","uncertain":false,"uncertainty_reason":null,"open_end_reason":null}
+      ],
+      "expected_transitions": [
+        {"episode_id":"SYN-BOUNDARY-RETURN","transition_id":"TR-RETURN-001","transition_timestamp":"2026-04-04T18:00:00Z","relative_time_hours":80.0,"from_state":"discharged","to_state":"emergency","transition_type":"acute_care_return","source_type":"derived_state_change","source_record_ids":["SRC-RETURN-ED"],"provenance_id":"PROV-RETURN-TR-001","derived":true,"derivation_version":"0.2.0","uncertain":false,"uncertainty_reason":null}
+      ],
+      "expected_hours_from_discharge_to_return": 8.0
+    }
+  ]
+}
