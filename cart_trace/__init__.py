@@ -1,6 +1,6 @@
 """CART-TRACE deterministic trajectory reconstruction and metrics API."""
 
-from .metrics import compute_utilization_metrics
+from .metrics import build_metric_result, compute_utilization_metrics
 from .reconstruction import (
     MappingRule,
     build_reconstruction_audit,
@@ -17,6 +17,7 @@ from .reconstruction import (
 
 __all__ = [
     "MappingRule",
+    "build_metric_result",
     "build_reconstruction_audit",
     "canonical_state_for_record",
     "compute_utilization_metrics",
