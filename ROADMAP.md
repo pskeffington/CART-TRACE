@@ -2,387 +2,252 @@
 
 ## Research purpose
 
-CART-TRACE is a synthetic-first, non-operational research framework for reconstructing hospital care trajectories surrounding CAR T-cell therapy.
+CART-TRACE is a synthetic-first, non-operational research framework for reconstructing hospital care trajectories following CAR T-cell therapy.
 
-The current MS HSE thesis asks:
+The MS Health Data Science capstone asks:
 
-> **How can longitudinal clinical data be used to characterize hospital resource utilization and transitions in level of care following CAR T-cell therapy?**
+> **Can longitudinal encounter and location data surrounding CAR T-cell infusion be transformed into a reproducible representation of hospital level-of-care trajectories during the first 30 days after infusion?**
 
-The primary unit of analysis is the **therapy episode**, aligned to treatment-relative time with `day 0 = infusion`.
-
-This roadmap is controlled by four supporting specifications:
-
-- [Requirements](docs/requirements.md) — testable system and research requirements;
-- [Phase gates](docs/phase_gates.md) — evidence required before advancing phases;
-- [Data requirements](docs/data_requirements.md) — minimum hospital data and source-to-canonical mapping expectations;
-- [Validation plan](docs/validation_plan.md) — staged verification from schemas through governed source-record validation.
+The primary unit of analysis is the **therapy episode**, aligned to continuous treatment-relative time with `infusion timestamp = 0 hours`.
 
 ## Development status
 
-- [x] Thesis question, aims, and success criterion defined
+- [x] Capstone question, scope, aims, and success criterion defined
 - [x] Public research/non-operational boundary documented
-- [x] Governance/data-use document completed
-- [x] Controlled care-state vocabulary defined
-- [x] Therapy-episode schema created
-- [x] Care-state interval schema created
-- [x] Care-transition schema created
-- [x] Provenance schema completed
-- [x] Encounter input contract completed
-- [x] Treatment-relative time and interval semantics frozen
+- [x] Governance/data-use boundary documented
+- [x] Canonical care-state vocabulary defined
+- [x] Therapy-episode, interval, transition, encounter, provenance, and metric-result schemas created
+- [x] Hour-relative time and `[start, end)` interval semantics frozen
 - [x] Machine-readable mapping and precedence rules defined
-- [x] Complete hand-worked Gate 1 episode validated
-- [x] Gate 1 -> 2 passed with CI evidence
-- [x] Six-class synthetic cohort implemented
-- [x] Phase 2 fixture coverage tests implemented
-- [x] Normalized ICU escalation fixture with expected metrics implemented
-- [x] Negative/error fixture set implemented
-- [ ] Phase 2 CI evidence recorded and Gate 2 -> 3 passed
-- [ ] Transition reconstruction implemented
-- [ ] Utilization metrics implemented as production research functions
-- [ ] Cohort characterization implemented
-- [ ] Governed hospital-data validation initiated
+- [x] Gate 1 canonical model passed with CI evidence
+- [x] Six-class synthetic truth set implemented
+- [x] Negative/error and boundary cases implemented
+- [x] Gate 2 synthetic oracle passed with CI evidence
+- [x] Deterministic Phase 3 reconstruction implemented
+- [x] Gate 3 reconstruction fidelity passed with CI evidence
+- [x] Utilization metric definitions frozen
+- [x] Utilization metric library implemented
+- [x] Follow-up, zero/missing, uncertainty, and provenance semantics implemented
+- [x] Gate 4 metric validity passed with CI evidence
+- [x] Phase 5 reporting helpers implemented
+- [x] Reproducible synthetic output generator implemented and CI-validated
+- [x] Manuscript Methods/Results scaffold and table/figure inventory defined
+- [ ] Patient-level capstone trajectory figures finalized
+- [ ] Cohort-style synthetic characterization tables finalized
+- [ ] Capstone validation/methods tables rendered from generated outputs
+- [ ] Governed hospital-data validation initiated, if feasible
 
-**Current phase:** Phase 2 — Synthetic cohort  
-**Current gate:** Gate 2 -> 3 — synthetic truth set must be complete, schema-conformant, and CI-validated before reconstruction semantics are frozen.
+**Current phase:** Phase 5 — capstone characterization and communication  
+**Current gate:** Phase 5 outputs must remain traceable to the frozen reconstruction and metric contracts; governed clinical-data application remains a separate approval-dependent phase.
 
-## Thesis scope
+## Canonical care states
 
-### Included
+- `outpatient`
+- `emergency`
+- `routine_inpatient`
+- `intermediate_care`
+- `intensive_care`
+- `discharged`
+- `unknown`
 
-- encounter timing;
-- admission and discharge;
-- care location;
-- level-of-care state;
-- transfer and escalation/de-escalation events;
-- length of stay;
-- high-acuity exposure;
-- early acute-care reuse;
-- selected routinely collected observations when useful for contextualizing care intensity;
-- provenance, missingness, and deterministic transformation rules.
+`acute_care_return` is a transition type, not a state.
 
-### Excluded from the thesis core
+## Core temporal model
 
-- CMC/manufacturing attributes;
-- product release analytics;
-- patient-generated health data;
-- remote monitoring;
-- treatment recommendation;
-- real-time prediction or clinical alerting.
+Primary capstone analytic window:
 
-These remain post-thesis research opportunities.
+`infusion timestamp = 0 -> +720 hours (Day +30)`
 
-## Core episode model
-
-Initial development window:
-
-`day -7 -> infusion day 0 -> acute hospitalization -> discharge -> day +30`
-
-The canonical episode preserves patient/episode identity, infusion timestamp, encounter boundaries, care-state intervals, transitions, discharge/acute-care return, provenance, and explicit uncertainty.
+Primary utilization uses `[0,720)`. Limited pre-infusion context may be retained only to establish encounter continuity. Continuous relative hours remain canonical; day labels are derived presentation fields only.
 
 ## Phase 0 — Scope and governance
 
 **Status: complete**
 
-Goal: establish a credible public research boundary and lock the thesis question before implementation expands.
+The capstone is limited to retrospective, descriptive reconstruction and characterization of post-infusion hospital care. Candidate identification, eligibility adjudication, treatment-readiness gating, product selection, leukapheresis/bridging decisions, toxicity prediction, prospective alerts, CMC/manufacturing analytics, and patient-generated health data are outside the core project.
 
-### Completed
-- [x] Define thesis question and aims
-- [x] Define thesis success criterion
-- [x] Establish synthetic-first development policy
-- [x] Establish no-PHI/no-production-credentials rule
-- [x] Separate descriptive research from bedside decision support
-- [x] Separate thesis scope from post-thesis extensions
-- [x] Define minimum-necessary data principle
-- [x] Define institutional approval gate for real-data use
-- [x] Add `docs/governance.md`
-- [x] Document research-data lifecycle expectations
-- [x] Document public/private artifact separation
-- [x] Document minimum institutional approval assumptions without embedding institution-specific policy
-
-**Gate 0 -> 1 status: PASSED.**
+**Gate 0 -> 1: PASSED.**
 
 ---
 
-## Phase 1 — Episode and transition schema
+## Phase 1 — Canonical episode/state/transition model
 
-**Status: complete / semantics frozen**
+**Status: complete / frozen**
 
-Goal: define the canonical research objects and semantics needed to represent a CAR T hospital episode without relying on institution-specific workflow names.
+Completed artifacts include the canonical vocabulary, episode/interval/transition/provenance schemas, encounter-input contract, source mapping, continuous hour-relative time semantics, half-open intervals, conflict behavior, Gate 1 hand-worked episode, and schema/semantic tests.
 
-### Completed
-- [x] Controlled care-state vocabulary
-- [x] Episode-model documentation
-- [x] `therapy_episode` schema
-- [x] `care_state_interval` schema
-- [x] `care_transition` schema
-- [x] `provenance` schema
-- [x] Minimal encounter input schema/contract
-- [x] Treatment-relative time convention
-- [x] Half-open interval-boundary semantics
-- [x] Deterministic identical-timestamp behavior
-- [x] Machine-readable overlap/conflict precedence rules
-- [x] Hand-worked multi-encounter episode
-- [x] Schema-conformant expected intervals and transitions
-- [x] Provenance truth records
-- [x] Automated schema/consistency tests
-- [x] Reproducible CI execution
+**Gate 1 -> 2: PASSED.** See `docs/gates/gate_1_to_2_candidate.md`.
 
-**Gate 1 -> 2 status: PASSED.** See `docs/gates/gate_1_to_2_candidate.md` for the evidence record.
-
-Changes to frozen Phase 1 semantics require explicit gate-impact review and corresponding fixture/test updates.
+Changes to frozen Phase 1 semantics require versioning, fixture/test regeneration, and explicit gate-impact review.
 
 ---
 
-## Phase 2 — Synthetic cohort
+## Phase 2 — Synthetic oracle
 
-**Status: active / gate closure pending CI**
+**Status: complete / frozen**
 
-Goal: create a deterministic truth set that functions as the oracle for reconstruction and metric testing.
+The oracle includes six representative trajectories:
 
-### Required trajectory fixtures
 - [x] routine recovery
 - [x] prolonged routine inpatient care
-- [x] transient escalation and de-escalation
-- [x] ICU escalation
-- [x] discharge followed by early acute-care return
-- [x] incomplete/conflicting location records
+- [x] transient intermediate-care escalation/de-escalation
+- [x] intensive-care escalation/de-escalation
+- [x] discharge followed by early emergency acute-care return
+- [x] conflicting/missing location evidence producing explicit `unknown`
 
-### Fixture contract
-- [x] source-like encounter/location inputs
-- [x] expected normalized state intervals
-- [x] expected transition sequence
-- [x] expected uncertainty behavior
-- [x] expected utilization metrics
-- [x] requirement IDs exercised by each fixture
-- [x] edge-case annotations in the manifest
+Boundary/error coverage includes invalid canonical state, missing infusion anchor, malformed timestamp, reversed interval, equal-priority conflicts, duplicate same-state inputs, missing/open end time, study-window boundary behavior, adjacent intervals, and same-day discharge-to-emergency return.
 
-### Validation and failure behavior
-- [x] requirement-coverage tests authored
-- [x] manifest-to-artifact consistency tests authored
-- [x] expected interval/transition schema tests authored
-- [x] invalid care-state test case
-- [x] malformed timestamp test case
-- [x] missing infusion-anchor test case
-- [x] reversed interval test case
-- [x] deterministic equal-priority overlap case
-- [ ] additional boundary fixtures may be added during Phase 3 if they expose previously undocumented reconstruction ambiguity
-
-### Gate 2 -> 3 evidence required
-- [x] six trajectory classes implemented
-- [x] expected outputs prespecified
-- [x] fixture requirement coverage complete
-- [x] ICU fixture normalized to the Phase 2 contract
-- [x] expected metrics available for all six fixtures
-- [x] invalid/error fixtures available
-- [x] automated Phase 2 tests authored
-- [ ] successful CI execution of the current Phase 2 truth set
-- [ ] Gate 2 evidence record changed from conditional to PASS
-
-**Gate 2 -> 3 status: CONDITIONAL / CI PENDING.** See `docs/gates/gate_2_to_3_candidate.md`.
+**Gate 2 -> 3: PASSED.** See `docs/gates/gate_2_to_3_candidate.md`.
 
 ---
 
-## Phase 3 — Transition reconstruction
+## Phase 3 — Deterministic reconstruction
 
-**Status: next phase / not yet authorized for semantic freeze**
+**Status: complete / frozen**
 
-Goal: convert event-level records into deterministic patient-level care-state intervals and transitions that exactly reproduce the frozen synthetic truth set.
+The reconstruction implementation includes offset-aware timestamp parsing, continuous treatment-relative hours, versioned source-label mapping, deterministic ordering, overlap resolution, explicit `unknown`, duplicate suppression, non-overlapping `[start,end)` intervals, open-end handling, typed transitions, provenance, stable serialization, exact oracle agreement, and deterministic repeatability.
 
-### Implementation requirements
-- [ ] infusion anchoring and continuous treatment-relative hours
-- [ ] timezone normalization
-- [ ] deterministic event sorting
-- [ ] identical-timestamp tie-breaking
-- [ ] source-label-to-canonical-state mapping interface
-- [ ] duplicate same-state suppression
-- [ ] overlap/conflict resolution
-- [ ] interval derivation using `[start, end)` semantics
-- [ ] transition derivation only on canonical state changes
-- [ ] discharge semantics
-- [ ] acute-care-return semantics
-- [ ] provenance propagation
-- [ ] uncertainty propagation
-- [ ] stable canonical serialization
+GitHub Actions run `31657957588` completed successfully for commit `536724c4cf996b3192f917d11c909a2ea0eb16fd`.
 
-### Validation requirements
-- [ ] exact reconstruction of deterministic synthetic fixtures
-- [ ] prespecified `unknown`/uncertainty behavior for conflict fixtures
-- [ ] repeated runs produce equivalent outputs
-- [ ] no false transitions from duplicate same-state records
-- [ ] negative inputs fail or resolve exactly as specified by the Phase 2 oracle
-
-### Gate 3 -> 4 acceptance target
-- [ ] 100% agreement with prespecified synthetic intervals/transitions for deterministic fixtures
-- [ ] all conflict fixtures produce prespecified uncertainty behavior
-- [ ] clean reruns are reproducible
-
-**Gate status: NOT STARTED.**
+**Gate 3 -> 4: PASSED.** See `docs/gates/gate_3_to_4_candidate.md`.
 
 ---
 
-## Phase 4 — Hospital utilization metrics
+## Phase 4 — Post-infusion hospital utilization measures
 
-**Status: not started**
+**Status: complete / frozen**
 
-Goal: derive transparent, thesis-relevant measures of hospital resource utilization from reconstructed trajectories.
+Primary metric semantics:
 
-### Required metrics
-- [ ] total inpatient duration/days
-- [ ] routine inpatient duration
-- [ ] higher-observation duration
-- [ ] ICU duration
-- [ ] combined high-acuity duration where prespecified
-- [ ] number of normalized care-state transitions
-- [ ] time from infusion to first escalation
-- [ ] time from final escalation to discharge
-- [ ] treatment-relative time to discharge
-- [ ] 7-day acute-care reuse
-- [ ] 30-day acute-care reuse
-- [ ] unplanned readmission where source data support the distinction
+- analytic window `[0,720)` hours after infusion;
+- pre-infusion continuity context excluded from utilization totals;
+- total inpatient, routine, intermediate, intensive, and high-acuity duration;
+- transition count;
+- time to first escalation;
+- time to discharge;
+- 7-day and 30-day post-discharge acute-care return;
+- unknown-state burden;
+- explicit observed/zero/not-applicable/not-calculable/incomplete-follow-up statuses;
+- negative return requires complete post-discharge ascertainment horizon;
+- positive documented return remains observed even if later follow-up is incomplete;
+- metric-result schema and interval/transition/source-record provenance.
 
-### Required metric semantics
-- [ ] partial-day calculation rule
-- [ ] inclusive/exclusive interval rule
-- [ ] zero-versus-missing rule
-- [ ] insufficient-follow-up behavior
-- [ ] unknown-state handling
-- [ ] study-window censoring behavior
-- [ ] provenance for every metric
+GitHub Actions run `31659472624` completed successfully for commit `b5ecb78071f2b194ede887fbb2d3dbd260068416`.
 
-### Gate 4 -> 5 evidence required
-- [ ] formulas/algorithms documented
-- [ ] hand-calculated expected fixture values
-- [ ] unit tests for each metric
-- [ ] window-boundary sensitivity checks
+**Gate 4 -> 5: PASSED.** See `docs/gates/gate_4_to_5_candidate.md`.
 
-**Gate status: NOT STARTED.**
+Changes to frozen Phase 4 semantics require versioning, affected fixture regeneration, regression testing, and explicit Gate 4 impact review.
 
 ---
 
-## Phase 5 — Cohort characterization
+## Phase 5 — Capstone characterization and communication
 
-**Status: not started**
+**Status: active / reporting infrastructure validated**
 
-Goal: describe recurrent hospital care patterns across episodes without converting them into predictive or clinical labels.
+Goal: turn validated canonical trajectories and metric results into transparent scholarly outputs without changing the frozen data semantics.
 
-### Candidate descriptive patterns
-- [ ] uncomplicated routine recovery
-- [ ] prolonged routine care
-- [ ] transient escalation
-- [ ] sustained high-acuity care
-- [ ] discharge with early acute-care return
+### Completed Phase 5 infrastructure
 
-### Analysis requirements
-- [ ] prespecified feature set derived from Phase 4
-- [ ] interpretable grouping strategy
-- [ ] rationale for any distance/similarity measure
-- [ ] sensitivity analyses
-- [ ] uncertainty-aware analysis
-- [ ] patient-level traceability from group to trajectory
-- [ ] descriptive language only
+- [x] deterministic patient-level trajectory reporting rows;
+- [x] denominator-aware cohort metric summaries;
+- [x] reconstruction fidelity summaries;
+- [x] expected-versus-actual metric validation rows;
+- [x] missingness/uncertainty summaries;
+- [x] reproducible generator for six controlled Phase 5 JSON output classes;
+- [x] CI validation of generated outputs;
+- [x] formal main-text and supplementary table/figure inventory;
+- [x] manuscript-style Methods scaffold;
+- [x] manuscript-style synthetic Results scaffold;
+- [x] limitations and governed-data transfer scaffold.
 
-### Required outputs
-- [ ] cohort flow diagram
-- [ ] utilization summary table
-- [ ] patient-level trajectory examples
-- [ ] cohort trajectory visualization
-- [ ] missingness/uncertainty report
-- [ ] sensitivity-analysis appendix/output
+GitHub Actions run `31664640817` completed successfully for commit `4aaeb2b4ca963a3907d60b7be47cdf5591d25f01`, validating the current Phase 5 branch after the manuscript scaffold and output-generator packaging fixes.
 
-**Gate status: NOT STARTED.**
+### Remaining presentation outputs
+
+- [ ] render patient-level synthetic trajectory figures using treatment-relative time;
+- [ ] render cohort-style synthetic utilization summary table from generated output;
+- [ ] render reconstruction fidelity and metric validation tables from generated output;
+- [ ] render missingness/uncertainty table from generated output;
+- [ ] render methods/data-flow figure showing source -> staging -> canonical trajectory -> validation -> metrics -> outputs;
+- [ ] integrate generated tables/figures into the manuscript scaffold without manually duplicating numeric results.
+
+### Characterization principles
+
+- descriptive rather than predictive;
+- distinguish observed zero from unavailable/not-calculable results;
+- report denominator and metric availability explicitly;
+- show uncertainty/unknown-state burden rather than hiding excluded episodes;
+- retain treatment-relative timing in patient-level displays;
+- do not infer clinical severity from care location alone;
+- do not claim capacity forecasting or prospective decision support;
+- keep synthetic demonstration results distinct from future governed clinical findings.
+
+Recurring trajectory groups may be explored descriptively if a future governed sample supports them. Clustering and prediction are not required for capstone success.
 
 ---
 
-## Phase 6 — Governed hospital-data study
+## Phase 6 — Governed clinical-data application
 
 **Status: future / approval dependent**
 
-Goal: evaluate the framework using appropriately approved institutional data and determine whether the synthetic-first methods transfer to real hospital records.
+If approved institutional data are available, the frozen method may be applied in an approved environment with a local source-to-canonical mapping, data-quality assessment, and validation/adjudication plan. No PHI, production endpoint, credential, or institution-specific identifying artifact belongs in the public repository.
 
-### Readiness requirements
-- [ ] finalized data dictionary
-- [ ] minimum necessary field list
-- [ ] local source-to-canonical mapping plan
-- [ ] date/time and timezone conventions
-- [ ] approved research/privacy/data-use pathway
-- [ ] protected analytic environment
-- [ ] validation sample/adjudication plan
-- [ ] approved cohort definition
-- [ ] follow-up availability assessed for reuse metrics
-
-### Validation activities
-- [ ] compare reconstructed encounter boundaries to source records
-- [ ] compare reconstructed care-state intervals to source records
-- [ ] compare transitions to source records
-- [ ] quantify timestamp disagreements
-- [ ] quantify `unknown`-state burden
-- [ ] classify discrepancies using validation error taxonomy
-- [ ] adjudicate approved subset
-- [ ] version mapping/reconstruction changes
-
-Numerical real-data acceptance thresholds should be prespecified with the thesis committee after source-data characteristics and feasible validation sample size are known. The public repository should not invent universal clinical-performance thresholds.
-
-**Gate status: APPROVAL DEPENDENT.**
+Real-data availability strengthens the capstone but does not determine whether the core computational contribution is complete.
 
 ---
 
-## Cross-phase requirement tracking
+## 21-month capstone execution horizon
 
-The implementation maintains the traceability chain:
+The remaining schedule is organized around three linked claims: **computational validity**, **representation validity**, and **analytic utility**. The first is established primarily through the frozen synthetic gates. Later work should increasingly emphasize governed-data validation, descriptive analysis, and scholarly completion rather than expanding core software architecture.
 
-`thesis aim -> requirement ID -> schema/function -> synthetic fixture -> automated test -> thesis table/figure/result`
+| Months | Primary objective | Completion products |
+|---|---|---|
+| 1–4 | Computational foundation | canonical model, synthetic oracle, reconstruction, metric contract, Gates 1–4 |
+| 5–7 | Scholarly prototype freeze | generated synthetic tables/figures, reproducibility package, manuscript Methods/Results scaffold |
+| 6–10 | Governance and data readiness | cohort specification, source-field inventory, local mapping protocol, validation/adjudication plan |
+| 9–14 | Governed-data application, if feasible | source profiling, mapping coverage, reconstructability, uncertainty and follow-up characterization |
+| 12–16 | Empirical validation | source-concordance review, discrepancy analysis, mapping review, sensitivity analyses, metric availability |
+| 15–18 | Primary descriptive analysis | patient trajectories, utilization distributions, escalation/de-escalation, discharge and return summaries |
+| 18–20 | Scholarly synthesis | final Methods, Results, Discussion, tables, figures, limitations, reproducibility statement |
+| 21 | Final freeze and capstone completion | reproducibility audit, repository release, presentation/submission package |
 
-### Required artifacts
-- [x] `THESIS.md`
-- [x] `ROADMAP.md`
-- [x] `docs/requirements.md`
-- [x] `docs/phase_gates.md`
-- [x] `docs/data_requirements.md`
-- [x] `docs/validation_plan.md`
-- [x] `docs/care_state_vocabulary.md`
-- [x] `docs/episode_model.md`
-- [x] `docs/governance.md`
-- [x] provenance schema
-- [x] encounter input schema/contract
-- [ ] `docs/data_dictionary.md`
-- [ ] `docs/metric_definitions.md`
-- [ ] `docs/requirements_traceability.md`
+Periods intentionally overlap. Governance preparation can begin while the synthetic scholarly prototype is finalized, and writing should continue throughout empirical work rather than being deferred to the final months.
 
-## Thesis deliverables
+### Work-session completion rule
 
-- [x] thesis question and aims
-- [x] documented care-state vocabulary and episode model
-- [x] canonical schemas and governance boundary
-- [x] testable requirements and formal phase-gate plan
-- [x] minimum data requirements and staged validation plan
-- [x] synthetic validation cohort substantially complete
-- [ ] reproducible transition-reconstruction code
-- [ ] utilization metric library
-- [ ] interpretable patient-level visualizations
-- [ ] cohort-level characterization
-- [ ] validation/missingness analysis
-- [ ] written discussion of implications for hospital capacity and care-transition research
+Each focused work session should define one primary task and one concrete completion artifact. A session is complete when the task supports a named capstone milestone, the artifact is committed or otherwise controlled, frozen semantics are not changed implicitly, validation evidence is added when logic changes, CI is checked before milestone claims, traceability is preserved, synthetic and governed findings remain separated, and the next highest-value task is recorded.
 
-## Immediate next build sequence
+### Monthly alignment review
 
-1. [ ] Obtain and record a green CI run for the current Phase 2 fixture/test set.
-2. [ ] Mark Gate 2 -> 3 PASS and freeze the synthetic truth set.
-3. [ ] Implement the Phase 3 reconstruction module against that frozen oracle.
-4. [ ] Require exact interval/transition agreement for deterministic fixtures.
-5. [ ] Add explicit tests for reproducibility, duplicate suppression, conflict handling, and provenance propagation.
-6. [ ] Pass Gate 3 -> 4 before treating utilization metrics as derived research outputs.
+Review whether current work still supports the primary capstone question; whether it strengthens computational validity, representation validity, or analytic utility; whether uncertainty, denominators, and follow-up limitations are visible; whether outputs remain traceable to controlled inputs; whether governed work is separated from public synthetic artifacts; whether engineering effort is decreasing as the method stabilizes; and whether adequate time remains for validation, writing, revision, and final presentation.
 
-## Post-thesis opportunities
+### Scope guardrail
 
-Deferred until the hospital trajectory foundation is established:
+Core-aligned extensions include source mapping, data-quality and reconstructability assessment, source-concordance validation, uncertainty analysis, descriptive trajectory characterization, sensitivity analyses, and publication-quality communication. Prediction, eligibility/readiness logic, prospective decision support, operational forecasting, broad multi-institution platform development, and causal treatment-effect estimation remain outside the required capstone scope unless explicitly re-scoped.
 
-- rural access and distance-to-center analyses;
-- patient-generated health signals;
-- remote recovery monitoring;
-- prospective implementation studies;
-- cellular-therapy manufacturing/product research;
-- predictive or decision-support models.
+---
+
+## Evidence chain
+
+Every major capstone result should remain traceable through:
+
+`capstone question -> requirement -> schema/function -> synthetic fixture -> automated test -> analytic output -> capstone table/figure`
+
+## Immediate build sequence
+
+1. [x] Merge the canonical Gate 1/Phase 2 foundation to `main`.
+2. [x] Pass and freeze Gate 2 using the complete synthetic boundary oracle.
+3. [x] Implement and validate deterministic Phase 3 reconstruction.
+4. [x] Pass Gate 3 -> 4 with exact oracle, provenance, and reproducibility evidence.
+5. [x] Freeze Phase 4 metric definitions and post-infusion clipping rules.
+6. [x] Recalculate fixture expected values for `[0,720)`.
+7. [x] Implement versioned metric functions with provenance and missingness/follow-up behavior.
+8. [x] Pass Gate 4 -> 5 with exact metric-oracle and schema evidence.
+9. [x] Implement CI-validated Phase 5 reporting and output-generation infrastructure.
+10. [x] Define manuscript structure and controlled table/figure inventory.
+11. [ ] Render manuscript tables and figures from generated machine-readable outputs.
+12. [ ] Complete final validation, limitations, and reproducibility reporting for the scholarly product.
 
 ## Success criterion
 
-CART-TRACE succeeds as an MS thesis framework if it can transform heterogeneous hospital records surrounding CAR T-cell therapy into a transparent, reproducible, patient-level sequence of care states and transitions that supports meaningful cohort-level characterization of hospital utilization.
+CART-TRACE succeeds as an MS Health Data Science capstone if it demonstrates a transparent, auditable, and reproducible method for transforming heterogeneous longitudinal hospital records surrounding CAR T-cell infusion into patient-level care-state trajectories and transitions that support defensible descriptive characterization of post-infusion hospital utilization.

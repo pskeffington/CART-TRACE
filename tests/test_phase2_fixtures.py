@@ -150,6 +150,7 @@ def test_fixture_has_expected_metrics(name, path):
     data = load_json(path)
     metrics = data.get("expected_metrics")
     assert isinstance(metrics, dict) and metrics, f"{name} fixture lacks expected metrics"
+    assert data["metric_window_relative_hours"] == {"start": 0.0, "end": 720.0, "boundary": "[start,end)"}
     assert "higher_observation_hours" not in metrics
     assert "icu_hours" not in metrics
 
@@ -171,20 +172,25 @@ def test_early_return_fixture_encodes_reuse_and_transition_type():
     assert transition["to_state"] == "emergency"
 
 
-def test_routine_fixture_encodes_no_escalation_or_reuse():
+def test_routine_fixture_encodes_no_escalation_and_followup_aware_reuse():
     data = load_json(FIXTURE_FILES["routine_recovery"])
     metrics = data["expected_metrics"]
+    status = data["expected_metric_status"]
+    assert metrics["total_inpatient_hours"] == 98.0
     assert metrics["time_to_first_escalation_hours"] is None
     assert metrics["acute_care_reuse_7d"] is False
-    assert metrics["acute_care_reuse_30d"] is False
+    assert status["acute_care_reuse_7d"] == "observed_zero"
+    assert metrics["acute_care_reuse_30d"] is None
+    assert status["acute_care_reuse_30d"] == "incomplete_followup"
 
 
 def test_icu_fixture_encodes_expected_high_acuity_exposure():
     data = load_json(FIXTURE_FILES["icu_escalation"])
     metrics = data["expected_metrics"]
-    assert metrics["total_inpatient_hours"] == 78.0
-    assert metrics["routine_inpatient_hours"] == 66.0
+    assert metrics["total_inpatient_hours"] == 76.0
+    assert metrics["routine_inpatient_hours"] == 64.0
     assert metrics["intensive_care_hours"] == 12.0
+    assert metrics["high_acuity_hours"] == 12.0
     assert metrics["time_to_first_escalation_hours"] == 32.0
     assert metrics["acute_care_reuse_7d"] is True
 

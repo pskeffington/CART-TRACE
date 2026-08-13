@@ -1,0 +1,124 @@
+{
+  "metric_contract_version": "0.1.0",
+  "analysis_window_relative_hours": {"start": 0.0, "end": 720.0, "boundary": "[start,end)"},
+  "metric_status_values": ["observed", "observed_zero", "not_applicable", "not_calculable", "incomplete_followup"],
+  "common_rules": {
+    "clip_intervals_to_analysis_window": true,
+    "exclude_pre_infusion_time_from_primary_utilization": true,
+    "do_not_coerce_unknown_to_zero": true,
+    "require_source_traceability": true,
+    "open_end_without_defensible_close_invalidates_duration_metrics": true
+  },
+  "metrics": [
+    {
+      "metric_id": "total_inpatient_hours",
+      "requirement_id": "METRIC-001",
+      "unit": "hours",
+      "definition": "Sum of clipped duration in routine_inpatient, intermediate_care, and intensive_care states within [0,720) hours after infusion.",
+      "states": ["routine_inpatient", "intermediate_care", "intensive_care"],
+      "requires_complete_interval_ends": true,
+      "unknown_policy": "not_calculable_if_unknown_overlaps_inpatient_exposure_question",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "routine_inpatient_hours",
+      "requirement_id": "METRIC-002",
+      "unit": "hours",
+      "definition": "Sum of clipped routine_inpatient interval duration within [0,720) hours after infusion.",
+      "states": ["routine_inpatient"],
+      "requires_complete_interval_ends": true,
+      "unknown_policy": "not_calculable_if_unknown_could_change_state_specific_duration",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "intermediate_care_hours",
+      "requirement_id": "METRIC-002",
+      "unit": "hours",
+      "definition": "Sum of clipped intermediate_care interval duration within [0,720) hours after infusion.",
+      "states": ["intermediate_care"],
+      "requires_complete_interval_ends": true,
+      "unknown_policy": "not_calculable_if_unknown_could_change_state_specific_duration",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "intensive_care_hours",
+      "requirement_id": "METRIC-002",
+      "unit": "hours",
+      "definition": "Sum of clipped intensive_care interval duration within [0,720) hours after infusion.",
+      "states": ["intensive_care"],
+      "requires_complete_interval_ends": true,
+      "unknown_policy": "not_calculable_if_unknown_could_change_state_specific_duration",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "high_acuity_hours",
+      "requirement_id": "METRIC-005",
+      "unit": "hours",
+      "definition": "Sum of clipped intermediate_care plus intensive_care duration within [0,720) hours after infusion.",
+      "states": ["intermediate_care", "intensive_care"],
+      "requires_complete_interval_ends": true,
+      "unknown_policy": "not_calculable_if_unknown_could_change_high_acuity_duration",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "transition_count",
+      "requirement_id": "METRIC-003",
+      "unit": "count",
+      "definition": "Number of canonical state-change transitions with transition time in [0,720) hours after infusion.",
+      "states": [],
+      "requires_complete_interval_ends": false,
+      "unknown_policy": "count_prespecified_unknown_transitions_but_flag_episode_uncertainty",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "time_to_first_escalation_hours",
+      "requirement_id": "METRIC-004",
+      "unit": "hours",
+      "definition": "Elapsed hours from infusion to first transition_type escalation occurring in [0,720).",
+      "states": [],
+      "requires_complete_interval_ends": false,
+      "unknown_policy": "not_calculable_if_unknown_precedes_or_spans_possible_first_escalation",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "time_to_discharge_hours",
+      "requirement_id": "METRIC-006",
+      "unit": "hours",
+      "definition": "Elapsed hours from infusion to first post-infusion discharge transition ending the index inpatient episode.",
+      "states": [],
+      "requires_complete_interval_ends": false,
+      "unknown_policy": "not_calculable_if_discharge_boundary_is_uncertain",
+      "followup_requirement_hours": 0.0
+    },
+    {
+      "metric_id": "acute_care_return_7d",
+      "requirement_id": "METRIC-007",
+      "unit": "boolean",
+      "definition": "Whether an acute_care_return transition occurs within 168 hours after the qualifying discharge.",
+      "states": [],
+      "requires_complete_interval_ends": false,
+      "unknown_policy": "not_calculable_if_return_ascertainment_is_ambiguous",
+      "followup_requirement_hours": 168.0
+    },
+    {
+      "metric_id": "acute_care_return_30d",
+      "requirement_id": "METRIC-007",
+      "unit": "boolean",
+      "definition": "Whether an acute_care_return transition occurs within 720 hours after the qualifying discharge, subject to available follow-up.",
+      "states": [],
+      "requires_complete_interval_ends": false,
+      "unknown_policy": "not_calculable_if_return_ascertainment_is_ambiguous",
+      "followup_requirement_hours": 720.0
+    },
+    {
+      "metric_id": "unknown_state_hours",
+      "requirement_id": "METRIC-008",
+      "unit": "hours",
+      "definition": "Sum of clipped unknown-state duration within [0,720) hours after infusion.",
+      "states": ["unknown"],
+      "requires_complete_interval_ends": true,
+      "unknown_policy": "directly_quantified",
+      "followup_requirement_hours": 0.0
+    }
+  ]
+}
