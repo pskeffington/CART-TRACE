@@ -172,13 +172,16 @@ def test_early_return_fixture_encodes_reuse_and_transition_type():
     assert transition["to_state"] == "emergency"
 
 
-def test_routine_fixture_encodes_no_escalation_or_reuse():
+def test_routine_fixture_encodes_no_escalation_and_followup_aware_reuse():
     data = load_json(FIXTURE_FILES["routine_recovery"])
     metrics = data["expected_metrics"]
+    status = data["expected_metric_status"]
     assert metrics["total_inpatient_hours"] == 98.0
     assert metrics["time_to_first_escalation_hours"] is None
     assert metrics["acute_care_reuse_7d"] is False
-    assert metrics["acute_care_reuse_30d"] is False
+    assert status["acute_care_reuse_7d"] == "observed_zero"
+    assert metrics["acute_care_reuse_30d"] is None
+    assert status["acute_care_reuse_30d"] == "incomplete_followup"
 
 
 def test_icu_fixture_encodes_expected_high_acuity_exposure():
