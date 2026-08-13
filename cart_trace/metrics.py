@@ -8,7 +8,7 @@ ANALYSIS_START_HOURS = 0.0
 ANALYSIS_END_HOURS = 720.0
 INPATIENT_STATES = {"routine_inpatient", "intermediate_care", "intensive_care"}
 HIGH_ACUITY_STATES = {"intermediate_care", "intensive_care"}
-METRIC_VERSION = "0.3.0"
+METRIC_VERSION = "0.4.0"
 METRIC_VALUE_KEYS = (
     "total_inpatient_hours",
     "routine_inpatient_hours",
@@ -45,6 +45,30 @@ def _unknown_overlap(intervals: Sequence[Mapping[str, Any]]) -> bool:
     return False
 
 
+def _unknown_before_or_spanning(
+    intervals: Sequence[Mapping[str, Any]], boundary: float | None
+) -> bool:
+    """Return whether unknown care could obscure an event before a boundary.
+
+    When ``boundary`` is ``None``, any unknown interval in the primary analysis
+    window can obscure whether an unobserved event occurred.
+    """
+    for interval in intervals:
+        if interval.get("state") != "unknown":
+            continue
+        raw_start = interval.get("start_relative_hours")
+        raw_end = interval.get("end_relative_hours")
+        if raw_start is None or raw_end is None:
+            return True
+        start = max(float(raw_start), ANALYSIS_START_HOURS)
+        end = min(float(raw_end), ANALYSIS_END_HOURS)
+        if end <= start:
+            continue
+        if boundary is None or start <= boundary:
+            return True
+    return False
+
+
 def _state_hours(intervals: Sequence[Mapping[str, Any]], states: set[str]) -> float | None:
     total = 0.0
     for interval in intervals:
@@ -72,11 +96,16 @@ def _return_metric(
     return_times: Sequence[float],
     horizon_hours: float,
     observation_end_relative_hours: float,
+    *,
+    not_calculable: bool = False,
 ) -> tuple[bool | None, str]:
     if first_discharge is None:
         return None, "not_applicable"
+    if not_calculable:
+        return None, "not_calculable"
     qualifying = [
-        value for value in return_times
+        value
+        for value in return_times
         if first_discharge <= value <= first_discharge + horizon_hours
     ]
     if qualifying:
@@ -93,7 +122,13 @@ def compute_utilization_metrics(
     *,
     observation_end_relative_hours: float = ANALYSIS_END_HOURS,
 ) -> dict[str, Any]:
-    """Compute Phase 4 metrics from canonical trajectory objects."""
+    """Compute Phase 4 metrics from canonical trajectory objects.
+
+    Primary utilization and transition-count metrics use the infusion-relative
+    ``[0,720)`` window. Discharge-relative acute-care-return ascertainment uses
+    the full supplied transition stream so documented returns after infusion
+    Day +30 can still qualify for 7-day or 30-day post-discharge outcomes.
+    """
     unknown_present = _unknown_overlap(intervals)
 
     routine = None if unknown_present else _state_hours(intervals, {"routine_inpatient"})
@@ -106,36 +141,80 @@ def compute_utilization_metrics(
     in_window_transitions = [
         transition
         for transition in transitions
-        if ANALYSIS_START_HOURS <= float(transition["relative_time_hours"]) < ANALYSIS_END_HOURS
+        if ANALYSIS_START_HOURS
+        <= float(transition["relative_time_hours"])
+        < ANALYSIS_END_HOURS
     ]
-    escalation_times = [
-        float(t["relative_time_hours"])
-        for t in in_window_transitions
-        if t.get("transition_type") == "escalation"
+    escalation_transitions = [
+        t for t in in_window_transitions if t.get("transition_type") == "escalation"
     ]
-    discharge_times = [
-        float(t["relative_time_hours"])
-        for t in in_window_transitions
-        if t.get("transition_type") == "discharge"
+    discharge_transitions = [
+        t for t in in_window_transitions if t.get("transition_type") == "discharge"
     ]
-    return_times = [
-        float(t["relative_time_hours"])
-        for t in in_window_transitions
+    return_transitions = [
+        t
+        for t in transitions
         if t.get("transition_type") == "acute_care_return"
+        and float(t["relative_time_hours"]) >= ANALYSIS_START_HOURS
     ]
 
-    first_discharge = min(discharge_times) if discharge_times else None
-    first_return = min(return_times) if return_times else None
-    hours_from_discharge_to_return = (
-        first_return - first_discharge
-        if first_discharge is not None and first_return is not None and first_return >= first_discharge
+    first_escalation_transition = (
+        min(escalation_transitions, key=lambda t: float(t["relative_time_hours"]))
+        if escalation_transitions
         else None
     )
+    first_escalation = (
+        float(first_escalation_transition["relative_time_hours"])
+        if first_escalation_transition is not None
+        else None
+    )
+    escalation_uncertain = bool(
+        (first_escalation_transition or {}).get("uncertain")
+        or _unknown_before_or_spanning(intervals, first_escalation)
+    )
+
+    first_discharge_transition = (
+        min(discharge_transitions, key=lambda t: float(t["relative_time_hours"]))
+        if discharge_transitions
+        else None
+    )
+    first_discharge = (
+        float(first_discharge_transition["relative_time_hours"])
+        if first_discharge_transition is not None
+        else None
+    )
+    discharge_uncertain = bool((first_discharge_transition or {}).get("uncertain"))
+
+    return_times = sorted(float(t["relative_time_hours"]) for t in return_transitions)
+    first_return = next(
+        (
+            value
+            for value in return_times
+            if first_discharge is not None and value >= first_discharge
+        ),
+        None,
+    )
+    hours_from_discharge_to_return = (
+        first_return - first_discharge
+        if first_discharge is not None
+        and first_return is not None
+        and not discharge_uncertain
+        else None
+    )
+
     return_7d, return_7d_status = _return_metric(
-        first_discharge, return_times, 168.0, observation_end_relative_hours
+        first_discharge,
+        return_times,
+        168.0,
+        observation_end_relative_hours,
+        not_calculable=discharge_uncertain,
     )
     return_30d, return_30d_status = _return_metric(
-        first_discharge, return_times, 720.0, observation_end_relative_hours
+        first_discharge,
+        return_times,
+        720.0,
+        observation_end_relative_hours,
+        not_calculable=discharge_uncertain,
     )
 
     metrics = {
@@ -146,8 +225,8 @@ def compute_utilization_metrics(
         "intensive_care_hours": intensive,
         "high_acuity_hours": high_acuity,
         "transition_count": len(in_window_transitions),
-        "time_to_first_escalation_hours": min(escalation_times) if escalation_times else None,
-        "time_to_discharge_hours": first_discharge,
+        "time_to_first_escalation_hours": None if escalation_uncertain else first_escalation,
+        "time_to_discharge_hours": None if discharge_uncertain else first_discharge,
         "acute_care_reuse_7d": return_7d,
         "acute_care_reuse_30d": return_30d,
         "hours_from_discharge_to_return": hours_from_discharge_to_return,
@@ -155,6 +234,10 @@ def compute_utilization_metrics(
         "missingness_reason": (
             "unknown interval prevents complete state-specific duration calculation"
             if unknown_present
+            else "uncertain discharge boundary prevents discharge-relative metric calculation"
+            if discharge_uncertain
+            else "unknown interval prevents defensible first-escalation timing"
+            if escalation_uncertain
             else None
         ),
     }
@@ -165,11 +248,17 @@ def compute_utilization_metrics(
         "intensive_care_hours": _status_for_scalar(intensive, not_calculable=unknown_present),
         "high_acuity_hours": _status_for_scalar(high_acuity, not_calculable=unknown_present),
         "transition_count": _status_for_scalar(len(in_window_transitions)),
-        "time_to_first_escalation_hours": _status_for_scalar(metrics["time_to_first_escalation_hours"]),
-        "time_to_discharge_hours": _status_for_scalar(first_discharge),
+        "time_to_first_escalation_hours": _status_for_scalar(
+            metrics["time_to_first_escalation_hours"], not_calculable=escalation_uncertain
+        ),
+        "time_to_discharge_hours": _status_for_scalar(
+            metrics["time_to_discharge_hours"], not_calculable=discharge_uncertain
+        ),
         "acute_care_reuse_7d": return_7d_status,
         "acute_care_reuse_30d": return_30d_status,
-        "hours_from_discharge_to_return": _status_for_scalar(hours_from_discharge_to_return),
+        "hours_from_discharge_to_return": _status_for_scalar(
+            hours_from_discharge_to_return, not_calculable=discharge_uncertain
+        ),
         "unknown_state_hours": _status_for_scalar(unknown_hours),
     }
     return metrics
@@ -195,11 +284,13 @@ def build_metric_result(
     source_transition_ids = sorted(
         {str(item["transition_id"]) for item in transitions if item.get("transition_id")}
     )
-    source_record_ids = sorted({
-        str(record_id)
-        for item in [*intervals, *transitions]
-        for record_id in (item.get("source_record_ids") or [])
-    })
+    source_record_ids = sorted(
+        {
+            str(record_id)
+            for item in [*intervals, *transitions]
+            for record_id in (item.get("source_record_ids") or [])
+        }
+    )
     return {
         "episode_id": episode_id,
         "metric_version": METRIC_VERSION,
