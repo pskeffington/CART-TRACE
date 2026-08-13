@@ -32,6 +32,7 @@
   ],
   "expected_uncertainty": {"conflict_interval_start":"2026-03-12T08:00:00Z","conflict_interval_end":"2026-03-12T16:00:00Z","state":"unknown","reason":"equal-priority conflicting canonical states"},
   "metric_window_relative_hours": {"start":0.0,"end":720.0,"boundary":"[start,end)"},
-  "expected_metrics": {"total_inpatient_hours":null,"routine_inpatient_hours":null,"intermediate_care_hours":null,"intensive_care_hours":null,"high_acuity_hours":null,"transition_count":3,"time_to_first_escalation_hours":null,"time_to_discharge_hours":122.0,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false,"unknown_state_hours":8.0,"missingness_reason":"unknown interval prevents complete state-specific duration calculation"},
+  "expected_metrics": {"total_inpatient_hours":null,"routine_inpatient_hours":null,"intermediate_care_hours":null,"intensive_care_hours":null,"high_acuity_hours":null,"transition_count":3,"time_to_first_escalation_hours":null,"time_to_discharge_hours":122.0,"acute_care_reuse_7d":false,"acute_care_reuse_30d":null,"unknown_state_hours":8.0,"missingness_reason":"unknown interval prevents complete state-specific duration calculation"},
+  "expected_metric_status": {"total_inpatient_hours":"not_calculable","routine_inpatient_hours":"not_calculable","intermediate_care_hours":"not_calculable","intensive_care_hours":"not_calculable","high_acuity_hours":"not_calculable","acute_care_reuse_7d":"observed_zero","acute_care_reuse_30d":"incomplete_followup"},
   "requirements_exercised": ["VALID-001","VALID-002","PROV-003","PROV-004","RECON-004","METRIC-008"]
 }
