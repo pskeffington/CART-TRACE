@@ -1,90 +1,131 @@
 # Gate 1 -> 2 Evidence Record
 
-**Transition:** Phase 1 — Episode and transition schema -> Phase 2 — Synthetic cohort
+**Transition:** Phase 1 — Canonical episode/state/transition model -> Phase 2 — Synthetic cohort
 
 **Decision:** PASS
 
-Gate 1 is passed. The canonical schemas, governance boundary, time semantics, machine-readable mapping rules, schema-conformant truth sets, provenance records, and automated validation tests are present. GitHub Actions run `31648451451` completed successfully for commit `942b9864b5454537c091d3a4a322d60b36e75048` using the `Validate Gate 1` workflow.
+Gate 1 is passed on the canonical semantics defined by the current schemas, fixtures, tests, and documentation. The earlier Gate 1 evidence based on legacy state names is superseded by this record.
+
+## Passage evidence
+
+GitHub Actions workflow **Validate Gate 1**, run `31652533891`, completed successfully against commit `6d2ce3e1592cec52ab3e2d92f14ebd3a421eea1b` after the machine-readable Gate 1 model and all six Phase 2 fixtures had been migrated to the canonical semantics.
+
+The successful workflow executed both the dedicated Gate 1 schema tests and the full repository test suite. This is the first Gate 1 passage evidence in this branch that validates the corrected canonical model rather than the legacy ontology.
+
+Subsequent documentation-only commits aligned the vocabulary, episode model, time semantics, requirements, and phase-gate descriptions with the already-tested machine-readable contract.
+
+## Canonical semantics frozen by this gate
+
+### Care states
+
+The exact canonical state set is:
+
+- `outpatient`
+- `emergency`
+- `routine_inpatient`
+- `intermediate_care`
+- `intensive_care`
+- `discharged`
+- `unknown`
+
+Legacy values `higher_observation`, `icu`, `inpatient_routine`, and `acute_care_return` as a state are not canonical values.
+
+### Transition types
+
+The controlled transition-type set is:
+
+- `admission`
+- `transfer`
+- `escalation`
+- `deescalation`
+- `discharge`
+- `acute_care_return`
+- `other`
+- `unknown`
+
+`acute_care_return` is a transition/event classification. A return encounter retains its actual destination state, such as `emergency`.
+
+### Time and interval semantics
+
+- infusion timestamp defines treatment-relative time 0;
+- canonical relative time is continuous hours;
+- relative hours are calculated as `(event_timestamp - infusion_timestamp).total_seconds() / 3600`;
+- days are derived presentation values only;
+- care-state intervals use `[start, end)` boundaries;
+- null interval ends require an explicit open/censoring reason;
+- overlapping authoritative records are resolved by documented precedence or emitted as `unknown` with explicit uncertainty when irreconcilable.
+
+### Inpatient acuity ranking
+
+For inpatient comparisons only:
+
+- `routine_inpatient` = 1
+- `intermediate_care` = 2
+- `intensive_care` = 3
+
+Emergency care is not assigned an inpatient acuity rank.
 
 ## Evidence checklist
 
 | Gate requirement | Status | Evidence |
 |---|---|---|
 | Controlled care-state vocabulary | Complete | `docs/care_state_vocabulary.md` |
+| Controlled transition vocabulary | Complete | `schemas/care_transition.schema.json`, vocabulary documentation |
 | Therapy-episode schema | Complete | `schemas/therapy_episode.schema.json` |
 | Care-state interval schema | Complete | `schemas/care_state_interval.schema.json` |
 | Care-transition schema | Complete | `schemas/care_transition.schema.json` |
 | Encounter input specification | Complete | `schemas/encounter_input.schema.json` |
 | Provenance specification | Complete | `schemas/provenance.schema.json` |
-| Treatment-relative time convention | Complete | `docs/time_semantics.md` |
-| Interval-boundary convention | Complete | `docs/time_semantics.md` |
-| Identical-timestamp tie-breaking | Complete | `docs/time_semantics.md`, `config/synthetic_care_state_mapping.json` |
-| Overlap/conflict precedence | Machine-readable | `config/synthetic_care_state_mapping.json` |
+| Continuous treatment-relative time convention | Complete | `docs/time_semantics.md` |
+| Half-open interval convention | Complete | `docs/time_semantics.md` |
+| Mapping and overlap/conflict rules | Complete | `config/synthetic_care_state_mapping.json` |
 | Governance boundary | Complete | `docs/governance.md` |
 | Multi-encounter hand-worked episode | Complete | `examples/synthetic/gate1_multi_encounter_episode.json` |
-| Schema-conformant expected intervals | Complete | `examples/synthetic/gate1_expected_intervals.json` |
-| Schema-conformant expected transitions | Complete | `examples/synthetic/gate1_expected_transitions.json` |
+| Canonical expected intervals | Complete | `examples/synthetic/gate1_expected_intervals.json` |
+| Canonical expected transitions | Complete | `examples/synthetic/gate1_expected_transitions.json` |
 | Provenance truth records | Complete | `examples/synthetic/gate1_provenance.json` |
-| Automated validation tests | Complete | `tests/test_gate1_schemas.py` |
-| Reproducible test environment | Complete | `pyproject.toml` |
-| CI execution | PASS | GitHub Actions run `31648451451` |
+| Exact-vocabulary regression tests | Complete | `tests/test_gate1_schemas.py` |
+| Phase 2 fixtures compatible with Gate 1 semantics | Complete | six `examples/synthetic/phase2_*.json` fixtures |
+| Negative/error cases compatible with Gate 1 semantics | Complete | `examples/synthetic/invalid_phase2_cases.json` |
+| Full CI execution | PASS | GitHub Actions run `31652533891` |
 
-## Requirements addressed
+## Gate-review correction history
 
-This gate closes the Phase 1 requirements associated with:
+An earlier version of this evidence record incorrectly treated a green CI run over legacy semantics as sufficient for Gate 1 passage. Review subsequently identified material semantic debt: `higher_observation` and `icu` remained canonical states, `emergency` was absent, `acute_care_return` was incorrectly represented as a state, and interval/transition objects still used day-relative legacy fields.
 
-- `SCOPE-001` through `SCOPE-003`
-- `DATA-001` through `DATA-005`
-- `MODEL-001` through `MODEL-005`
-- `TIME-001` through `TIME-004`
-- `PROV-001` through `PROV-004`
-- `GOV-001` through `GOV-004`
-
-## Semantic defect corrected during gate review
-
-Gate review identified an inconsistency in `care_transition.schema.json`: the transition schema used `inpatient_routine` while the canonical vocabulary and interval schema used `routine_inpatient`.
-
-The transition schema was corrected before gate passage. This defect is retained in the gate record because it demonstrates the value of semantic freeze review before downstream fixture and reconstruction work.
+Gate 1 was therefore reopened and the machine-readable model, truth sets, Phase 2 fixtures, negative fixtures, tests, and documentation were migrated before passage was re-established. The historical CI run `31648451451` is retained only as development history and is not the evidence supporting the current gate decision.
 
 ## Hand-worked episode evidence
 
-The Gate 1 synthetic episode demonstrates:
+The canonical Gate 1 episode demonstrates:
 
 - a single therapy episode containing multiple encounters;
-- infusion anchoring at Day 0;
-- a broad routine-inpatient encounter;
-- an embedded higher-priority ICU record;
-- deterministic ICU precedence during overlap;
-- return from ICU to routine inpatient care;
+- infusion anchoring with continuous relative hours;
+- routine inpatient care;
+- embedded higher-priority `intensive_care` exposure;
+- de-escalation back to routine inpatient care;
 - discharge;
-- later acute-care return;
+- later emergency care;
+- `acute_care_return` as the discharged-to-emergency transition type;
 - half-open interval boundaries;
 - source-record and derived-artifact provenance.
 
-The expected trajectory is represented as schema-conformant interval and transition truth sets suitable for direct comparison with future reconstruction code.
+## Change control
 
-## Frozen Phase 1 semantics
+The following are frozen by Gate 1 and require explicit gate-impact review if changed:
 
-The following artifacts and semantics are now controlled by Gate 1:
-
-- canonical care-state vocabulary;
-- infusion-relative time convention;
+- canonical state vocabulary;
+- transition-type vocabulary;
+- infusion-relative hour calculation;
 - half-open interval semantics;
+- open-end/censoring semantics;
 - encounter minimum input contract;
-- provenance contract;
-- synthetic mapping/precedence semantics;
-- Gate 1 expected interval and transition objects.
+- source-to-canonical mapping and conflict behavior;
+- provenance requirements;
+- Gate 1 expected interval and transition truth objects.
 
-Changes to these items require explicit gate-impact review and corresponding fixture/test updates.
+A semantic change requires version review, regeneration of affected synthetic fixtures, regression tests, and renewed Gate 1 evidence.
 
-## Authorized next phase
+## Authorized next work
 
-Phase 2 — Synthetic cohort is authorized.
-
-Phase 2 should now focus on:
-
-1. completing the six required trajectory truth sets;
-2. ensuring every fixture has expected intervals, transitions, uncertainty behavior, and utilization metrics;
-3. adding requirement-coverage tests for the fixture manifest;
-4. adding invalid/edge-case fixtures for schema and reconstruction failure behavior;
-5. preparing Gate 2 -> 3 evidence only when the fixture set functions as a complete oracle for reconstruction testing.
+Phase 2 synthetic-oracle closure is authorized. Gate 2 -> 3 must still be evaluated independently before Phase 3 reconstruction becomes the authoritative next development phase.
