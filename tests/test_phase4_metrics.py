@@ -2,13 +2,18 @@ import json
 from pathlib import Path
 
 import pytest
+from jsonschema import Draft202012Validator
 
-from cart_trace.metrics import compute_utilization_metrics
+from cart_trace.metrics import build_metric_result, compute_utilization_metrics
 from cart_trace.reconstruction import load_mapping_config, reconstruct_episode
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "examples" / "synthetic"
+SCHEMAS = ROOT / "schemas"
 CONFIG = load_mapping_config(ROOT / "config" / "synthetic_care_state_mapping.json")
+METRIC_RESULT_VALIDATOR = Draft202012Validator(
+    json.loads((SCHEMAS / "metric_result.schema.json").read_text())
+)
 
 FIXTURE_PATHS = [
     FIXTURES / "phase2_routine_recovery.json",
@@ -112,3 +117,46 @@ def test_positive_return_does_not_require_complete_negative_ascertainment_horizo
     assert metrics["acute_care_reuse_7d"] is True
     assert metrics["acute_care_reuse_30d"] is True
     assert metrics["metric_status"]["acute_care_reuse_30d"] == "observed"
+
+
+@pytest.mark.parametrize("path", FIXTURE_PATHS)
+def test_metric_result_envelope_is_schema_conformant_and_auditable(path):
+    data = load_json(path)
+    reconstructed = reconstruct_episode(data["episode"], data["encounters"], CONFIG)
+    result = build_metric_result(
+        data["episode"]["episode_id"],
+        reconstructed["intervals"],
+        reconstructed["transitions"],
+        observation_end_relative_hours=720.0,
+        provenance_id=f"METRIC-PROV-{data['fixture_id']}",
+    )
+    METRIC_RESULT_VALIDATOR.validate(result)
+    assert result["analysis_window_relative_hours"] == {
+        "start": 0.0,
+        "end": 720.0,
+        "boundary": "[start,end)",
+    }
+    assert result["source_interval_ids"] == sorted(
+        interval["interval_id"] for interval in reconstructed["intervals"]
+    )
+    assert result["source_transition_ids"] == sorted(
+        transition["transition_id"] for transition in reconstructed["transitions"]
+    )
+    expected_source_records = sorted({
+        record_id
+        for item in [*reconstructed["intervals"], *reconstructed["transitions"]]
+        for record_id in item["source_record_ids"]
+    })
+    assert result["source_record_ids"] == expected_source_records
+
+
+def test_metric_result_status_matches_scalar_metric_status():
+    data = load_json(FIXTURES / "phase2_routine_recovery.json")
+    reconstructed = reconstruct_episode(data["episode"], data["encounters"], CONFIG)
+    scalar = compute_utilization_metrics(reconstructed["intervals"], reconstructed["transitions"])
+    result = build_metric_result(
+        data["episode"]["episode_id"], reconstructed["intervals"], reconstructed["transitions"]
+    )
+    assert result["status"] == scalar["metric_status"]
+    assert result["values"]["total_inpatient_hours"] == 98.0
+    assert result["status"]["acute_care_reuse_30d"] == "incomplete_followup"
