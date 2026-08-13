@@ -1,10 +1,17 @@
 import json
 from pathlib import Path
 
-from scripts.generate_phase5_outputs import COHORT_METRICS, FIXTURE_FILES
+import pytest
+
+from scripts.generate_phase5_outputs import COHORT_METRICS, FIXTURE_FILES, main
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIR = ROOT / "examples" / "outputs"
+
+
+@pytest.fixture(scope="session", autouse=True)
+def generate_outputs():
+    main()
 
 
 def load_json(name: str):
@@ -32,7 +39,11 @@ def test_patient_trajectory_output_covers_all_six_fixtures():
 def test_metric_result_output_covers_all_six_fixtures():
     data = load_json("phase5_metric_results.json")
     assert len(data) == 6
-    assert all(item["analysis_window_relative_hours"] == {"start": 0.0, "end": 720.0, "boundary": "[start,end)"} for item in data)
+    assert all(
+        item["analysis_window_relative_hours"]
+        == {"start": 0.0, "end": 720.0, "boundary": "[start,end)"}
+        for item in data
+    )
 
 
 def test_cohort_summary_has_expected_metrics_and_denominators():
