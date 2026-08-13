@@ -48,6 +48,9 @@ def test_phase4_metrics_match_post_infusion_fixture_oracle(path):
         assert key in expected, f"{path.name} lacks expected metric {key}"
         assert actual[key] == expected[key], f"{path.name}: mismatch for {key}"
 
+    for key, expected_status in data.get("expected_metric_status", {}).items():
+        assert actual["metric_status"][key] == expected_status
+
 
 def test_preinfusion_context_is_clipped_from_primary_duration():
     data = load_json(FIXTURES / "phase2_routine_recovery.json")
@@ -66,6 +69,7 @@ def test_conflict_preserves_unknown_burden_and_invalidates_duration_metrics():
     assert metrics["total_inpatient_hours"] is None
     assert metrics["routine_inpatient_hours"] is None
     assert metrics["high_acuity_hours"] is None
+    assert metrics["metric_status"]["total_inpatient_hours"] == "not_calculable"
     assert metrics["missingness_reason"] == "unknown interval prevents complete state-specific duration calculation"
 
 
@@ -76,3 +80,35 @@ def test_early_return_uses_discharge_relative_elapsed_time():
     assert metrics["hours_from_discharge_to_return"] == 93.0
     assert metrics["acute_care_reuse_7d"] is True
     assert metrics["acute_care_reuse_30d"] is True
+    assert metrics["metric_status"]["acute_care_reuse_7d"] == "observed"
+    assert metrics["metric_status"]["acute_care_reuse_30d"] == "observed"
+
+
+def test_negative_return_requires_complete_horizon_after_discharge():
+    data = load_json(FIXTURES / "phase2_routine_recovery.json")
+    reconstructed = reconstruct_episode(data["episode"], data["encounters"], CONFIG)
+
+    limited = compute_utilization_metrics(
+        reconstructed["intervals"], reconstructed["transitions"], observation_end_relative_hours=720.0
+    )
+    assert limited["acute_care_reuse_7d"] is False
+    assert limited["metric_status"]["acute_care_reuse_7d"] == "observed_zero"
+    assert limited["acute_care_reuse_30d"] is None
+    assert limited["metric_status"]["acute_care_reuse_30d"] == "incomplete_followup"
+
+    complete = compute_utilization_metrics(
+        reconstructed["intervals"], reconstructed["transitions"], observation_end_relative_hours=818.0
+    )
+    assert complete["acute_care_reuse_30d"] is False
+    assert complete["metric_status"]["acute_care_reuse_30d"] == "observed_zero"
+
+
+def test_positive_return_does_not_require_complete_negative_ascertainment_horizon():
+    data = load_json(FIXTURES / "phase2_early_return.json")
+    reconstructed = reconstruct_episode(data["episode"], data["encounters"], CONFIG)
+    metrics = compute_utilization_metrics(
+        reconstructed["intervals"], reconstructed["transitions"], observation_end_relative_hours=200.0
+    )
+    assert metrics["acute_care_reuse_7d"] is True
+    assert metrics["acute_care_reuse_30d"] is True
+    assert metrics["metric_status"]["acute_care_reuse_30d"] == "observed"
