@@ -29,9 +29,12 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Utilization metric library implemented
 - [x] Follow-up, zero/missing, uncertainty, and provenance semantics implemented
 - [x] Gate 4 metric validity passed with CI evidence
-- [ ] Patient-level capstone trajectory outputs implemented
-- [ ] Cohort-style synthetic characterization implemented
-- [ ] Capstone validation/methods tables finalized
+- [x] Phase 5 reporting helpers implemented
+- [x] Reproducible synthetic output generator implemented and CI-validated
+- [x] Manuscript Methods/Results scaffold and table/figure inventory defined
+- [ ] Patient-level capstone trajectory figures finalized
+- [ ] Cohort-style synthetic characterization tables finalized
+- [ ] Capstone validation/methods tables rendered from generated outputs
 - [ ] Governed hospital-data validation initiated, if feasible
 
 **Current phase:** Phase 5 — capstone characterization and communication  
@@ -139,21 +142,34 @@ Changes to frozen Phase 4 semantics require versioning, affected fixture regener
 
 ## Phase 5 — Capstone characterization and communication
 
-**Status: active**
+**Status: active / reporting infrastructure validated**
 
 Goal: turn validated canonical trajectories and metric results into transparent scholarly outputs without changing the frozen data semantics.
 
-### Priority outputs
+### Completed Phase 5 infrastructure
 
-- [ ] patient-level synthetic trajectory figures using treatment-relative time;
-- [ ] cohort-style synthetic utilization summary table;
-- [ ] reconstruction fidelity table;
-- [ ] metric validation table;
-- [ ] missingness/uncertainty summary;
-- [ ] methods/data-flow figure showing source -> staging -> canonical trajectory -> validation -> metrics -> outputs;
-- [ ] manuscript-style Methods scaffold;
-- [ ] manuscript-style synthetic Results scaffold;
-- [ ] limitations and governed-data transfer section.
+- [x] deterministic patient-level trajectory reporting rows;
+- [x] denominator-aware cohort metric summaries;
+- [x] reconstruction fidelity summaries;
+- [x] expected-versus-actual metric validation rows;
+- [x] missingness/uncertainty summaries;
+- [x] reproducible generator for six controlled Phase 5 JSON output classes;
+- [x] CI validation of generated outputs;
+- [x] formal main-text and supplementary table/figure inventory;
+- [x] manuscript-style Methods scaffold;
+- [x] manuscript-style synthetic Results scaffold;
+- [x] limitations and governed-data transfer scaffold.
+
+GitHub Actions run `31664640817` completed successfully for commit `4aaeb2b4ca963a3907d60b7be47cdf5591d25f01`, validating the current Phase 5 branch after the manuscript scaffold and output-generator packaging fixes.
+
+### Remaining presentation outputs
+
+- [ ] render patient-level synthetic trajectory figures using treatment-relative time;
+- [ ] render cohort-style synthetic utilization summary table from generated output;
+- [ ] render reconstruction fidelity and metric validation tables from generated output;
+- [ ] render missingness/uncertainty table from generated output;
+- [ ] render methods/data-flow figure showing source -> staging -> canonical trajectory -> validation -> metrics -> outputs;
+- [ ] integrate generated tables/figures into the manuscript scaffold without manually duplicating numeric results.
 
 ### Characterization principles
 
@@ -196,8 +212,10 @@ Every major capstone result should remain traceable through:
 6. [x] Recalculate fixture expected values for `[0,720)`.
 7. [x] Implement versioned metric functions with provenance and missingness/follow-up behavior.
 8. [x] Pass Gate 4 -> 5 with exact metric-oracle and schema evidence.
-9. [ ] Build synthetic patient-level and cohort-level capstone outputs.
-10. [ ] Assemble validation, methods, limitations, and reproducibility reporting for the final scholarly product.
+9. [x] Implement CI-validated Phase 5 reporting and output-generation infrastructure.
+10. [x] Define manuscript structure and controlled table/figure inventory.
+11. [ ] Render manuscript tables and figures from generated machine-readable outputs.
+12. [ ] Complete final validation, limitations, and reproducibility reporting for the scholarly product.
 
 ## Success criterion
 
