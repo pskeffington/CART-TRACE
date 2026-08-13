@@ -28,6 +28,48 @@ The health-data problem is therefore not simply to count encounters. It is to re
 
 The capstone evaluates whether this reconstruction can be performed deterministically and reproducibly enough to support defensible patient-level and cohort-level utilization analyses.
 
+## Formal clinical data structuring framework
+
+CART-TRACE treats clinical-data structuring as part of the scientific method rather than as an unreported preprocessing step. The formal framework is documented in `docs/clinical_data_structuring_framework.md` and uses five layers:
+
+`source clinical data -> staging representation -> canonical trajectory representation -> validation/review -> analytic representation`
+
+The layers are intentionally separated so that no analytic result depends on an opaque transformation.
+
+### Layer 1 — Source clinical data
+
+Source encounter, admission/discharge, location, emergency, transfer, and infusion records remain distinguishable from derived research objects. Original timestamps, source labels, source encounter categories, and research/source record identifiers are preserved.
+
+### Layer 2 — Staging representation
+
+Source records are normalized into deterministic intermediate records by standardizing offset-aware timestamps, calculating continuous treatment-relative hours, preserving source vocabulary, attaching versioned mapping metadata, and applying stable source-record ordering. Staging does not itself assert a final care trajectory.
+
+### Layer 3 — Canonical trajectory representation
+
+Staged records are transformed into institution-independent therapy episodes, half-open care-state intervals, typed transitions, provenance, and explicit uncertainty. Canonical states are `outpatient`, `emergency`, `routine_inpatient`, `intermediate_care`, `intensive_care`, `discharged`, and `unknown`. Acute-care return remains a transition type rather than a state.
+
+### Layer 4 — Validation and review
+
+The structured representation is evaluated across distinct dimensions:
+
+- structural conformance;
+- completeness for the intended research question;
+- temporal plausibility;
+- semantic validity of source-to-canonical mapping;
+- reconstruction fidelity;
+- reproducibility;
+- analytic fitness for each downstream measure.
+
+Schema validity alone is therefore insufficient evidence that a trajectory is valid for analysis.
+
+### Layer 5 — Analytic representation
+
+Only validated canonical trajectories contribute to post-infusion utilization measures. Metrics must specify analytic-window clipping, uncertainty behavior, zero-versus-missing behavior, follow-up sufficiency, and provenance before being treated as capstone results.
+
+### Episode-level quality status
+
+In future governed-data application, CART-TRACE should classify episodes as `reconstructable`, `reconstructable_with_uncertainty`, or `not_reconstructable`, with machine-readable reasons. Metric-level exclusion is preferred when only a subset of measures is unsupported; an episode should not be discarded globally if other measures remain defensible.
+
 ## Scope boundary
 
 ### Included in the capstone core
@@ -40,6 +82,7 @@ The capstone evaluates whether this reconstruction can be performed deterministi
 - interval reconstruction using explicit boundary semantics;
 - provenance and source-record traceability;
 - explicit missingness and uncertainty;
+- formal data-quality review and reconstruction validation;
 - post-infusion hospital utilization measures;
 - synthetic truth-set validation;
 - governed retrospective clinical-data validation if approvals and data access are available.
@@ -66,9 +109,9 @@ The primary unit of analysis is the **CAR T-cell therapy episode**, not the indi
 
 Primary post-infusion analytic window:
 
-`infusion timestamp = time 0 -> day +30`
+`[0, 720)` hours relative to infusion.
 
-A limited pre-infusion window may be retained only when necessary to establish encounter continuity around infusion. It is not an eligibility or treatment-readiness study period.
+A limited pre-infusion window may be retained only when necessary to establish encounter continuity around infusion. It is not an eligibility or treatment-readiness study period and is excluded from primary post-infusion utilization totals unless a metric explicitly states otherwise.
 
 ## Canonical care-state model
 
@@ -93,23 +136,27 @@ Develop a deterministic method that converts source-like longitudinal hospital r
 Primary products:
 
 - therapy-episode representation;
+- staged source-record representation;
 - canonical care-state intervals;
 - transition records;
 - treatment-relative timestamps;
 - source-record provenance;
 - explicit uncertainty and missingness indicators.
 
-### Aim 2 — Validate reconstruction fidelity and reproducibility
+### Aim 2 — Validate reconstruction fidelity, data fitness, and reproducibility
 
 Evaluate the method against prespecified synthetic truth sets before applying it to governed clinical data.
 
 Validation targets include:
 
+- structural schema conformance;
+- treatment-relative temporal correctness;
 - exact agreement with deterministic expected intervals and transitions;
 - prespecified behavior for conflicting or incomplete records;
 - reproducible results across repeated runs;
 - no false transitions caused by duplicate same-state records;
-- traceability of each derived state to source evidence.
+- traceability of each derived state to source evidence;
+- explicit determination of whether a reconstructed episode is fit for a given downstream metric.
 
 If governed institutional data are available, a separate retrospective validation layer may compare reconstructed outputs with source encounter/location records and an approved adjudication sample.
 
@@ -134,18 +181,22 @@ Any recurrent trajectory grouping is exploratory and subordinate to reconstructi
 
 ## Methodological contribution
 
-The primary academic contribution is a **deterministic temporal/state reconstruction framework for longitudinal hospital data**.
+The primary academic contribution is a **deterministic clinical-data structuring, temporal reconstruction, and validation framework for longitudinal hospital data**.
 
 The project emphasizes:
 
+- preservation of source evidence before canonicalization;
+- explicit source-to-staging-to-canonical transformation layers;
 - treatment-relative temporal alignment;
 - explicit state definitions;
 - half-open interval semantics;
 - deterministic conflict and tie-breaking rules;
-- source-to-canonical mapping;
+- versioned source-to-canonical mapping;
 - provenance;
 - missingness and uncertainty;
+- fit-for-purpose data-quality review;
 - synthetic truth-set testing;
+- reconstruction fidelity;
 - reproducibility;
 - interpretable clinical-data outputs.
 
@@ -155,9 +206,9 @@ The hospital-utilization analysis demonstrates the value of the method; it is no
 
 Every major result should be traceable through:
 
-`capstone question -> requirement -> schema/function -> synthetic fixture -> automated test -> analytic output -> capstone table/figure`
+`source record -> staging rule -> canonical object -> validation check -> metric eligibility -> analytic output -> capstone table/figure`
 
-This traceability is part of the capstone deliverable rather than an implementation detail.
+This extends the implementation traceability chain and is part of the capstone deliverable rather than an engineering detail.
 
 ## Development phases
 
@@ -179,7 +230,7 @@ Implement deterministic conversion from source-like records to canonical traject
 
 ### Phase 4 — Utilization measures
 
-Implement transparent post-infusion hospital-utilization measures from reconstructed trajectories.
+Implement transparent post-infusion hospital-utilization measures from reconstructed trajectories. Metric eligibility must follow the clinical data structuring and validation framework, including analytic-window clipping, uncertainty behavior, incomplete follow-up, and zero-versus-missing rules.
 
 ### Phase 5 — Capstone analysis and communication
 
@@ -194,27 +245,28 @@ Apply the frozen method to appropriately approved institutional records and eval
 A complete CART-TRACE capstone should produce:
 
 1. a clearly specified applied health-data question;
-2. a documented canonical data model and transformation method;
-3. reproducible implementation code;
-4. a prespecified synthetic validation cohort;
-5. automated reconstruction and schema tests;
-6. quantitative reconstruction-validation results;
-7. hospital-utilization measures derived from canonical trajectories;
-8. interpretable patient-level and cohort-level visualizations;
-9. a missingness/uncertainty analysis;
-10. a manuscript-style capstone report or equivalent final scholarly product;
-11. a public, synthetic-only reproducibility repository, with governed clinical artifacts kept in approved environments.
+2. a formal clinical data structuring and validation framework;
+3. a documented canonical data model and transformation method;
+4. reproducible implementation code;
+5. a prespecified synthetic validation cohort;
+6. automated reconstruction and schema tests;
+7. quantitative reconstruction-validation results;
+8. hospital-utilization measures derived from validated canonical trajectories;
+9. interpretable patient-level and cohort-level visualizations;
+10. a missingness/uncertainty and data-quality analysis;
+11. a manuscript-style capstone report or equivalent final scholarly product;
+12. a public, synthetic-only reproducibility repository, with governed clinical artifacts kept in approved environments.
 
 ## Minimum viable capstone
 
 CART-TRACE does **not** depend on completing a large predictive model or gaining immediate access to production hospital data.
 
-The minimum viable scholarly contribution is achieved if the project can demonstrate that heterogeneous source-like hospital records surrounding CAR T-cell infusion can be transformed into a transparent, deterministic, reproducible sequence of care states and transitions; that the method reproduces prespecified truth sets; and that those outputs support defensible post-infusion utilization measures.
+The minimum viable scholarly contribution is achieved if the project can demonstrate that heterogeneous source-like hospital records surrounding CAR T-cell infusion can be transformed through explicit staging and canonicalization into a transparent, deterministic, reproducible sequence of care states and transitions; that the method reproduces prespecified truth sets; that data fitness and uncertainty are evaluated explicitly; and that those outputs support defensible post-infusion utilization measures.
 
 Governed real-data validation substantially strengthens the capstone but remains contingent on approvals and data availability.
 
 ## Success criterion
 
-The capstone succeeds if CART-TRACE demonstrates a reproducible and auditable method for reconstructing post-CAR-T hospital care trajectories from longitudinal clinical records and shows that the resulting patient-level representation can support meaningful descriptive characterization of hospital utilization during the first 30 days after infusion.
+The capstone succeeds if CART-TRACE demonstrates a reproducible and auditable method for structuring and reconstructing post-CAR-T hospital care trajectories from longitudinal clinical records and shows that the resulting validated patient-level representation can support meaningful descriptive characterization of hospital utilization during the first 30 days after infusion.
 
 Prediction, clinical eligibility determination, and prospective decision support are not required for success.
