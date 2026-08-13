@@ -24,14 +24,16 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Negative/error cases implemented
 - [x] Explicit Phase 2 boundary oracle implemented
 - [x] Gate 2 synthetic oracle passed with CI evidence
-- [ ] Deterministic Phase 3 reconstruction implemented
-- [ ] Gate 3 reconstruction fidelity passed
+- [x] Deterministic Phase 3 reconstruction implemented
+- [x] Gate 3 reconstruction fidelity passed with CI evidence
+- [ ] Utilization metric definitions frozen
 - [ ] Utilization metric library implemented
+- [ ] Gate 4 metric validity passed
 - [ ] Cohort characterization implemented
 - [ ] Governed hospital-data validation initiated, if feasible
 
-**Current phase:** Phase 3 — deterministic transition reconstruction  
-**Current gate:** Gate 3 -> 4 — reconstruction must exactly reproduce the frozen synthetic oracle before utilization functions are treated as research outputs.
+**Current phase:** Phase 4 — post-infusion hospital utilization measures  
+**Current gate:** Gate 4 -> 5 — metric definitions, missingness/censoring behavior, provenance, and fixture expected-value tests must pass before cohort characterization.
 
 ## Canonical care states
 
@@ -88,20 +90,7 @@ The oracle includes six representative trajectories:
 - [x] discharge followed by early emergency acute-care return
 - [x] conflicting/missing location evidence producing explicit `unknown`
 
-Boundary/error coverage includes:
-
-- [x] invalid canonical state
-- [x] missing infusion anchor
-- [x] malformed timestamp
-- [x] reversed interval
-- [x] equal-priority conflicting states
-- [x] duplicate same-state source records
-- [x] missing/open end time
-- [x] study-window end boundary
-- [x] adjacent intervals sharing a timestamp
-- [x] same-day discharge -> emergency acute-care return
-
-GitHub Actions run `31657333214` completed successfully on the frozen Phase 2 test head.
+Boundary/error coverage includes invalid canonical state, missing infusion anchor, malformed timestamp, reversed interval, equal-priority conflicts, duplicate same-state inputs, missing/open end time, study-window boundary behavior, adjacent intervals, and same-day discharge-to-emergency return.
 
 **Gate 2 -> 3: PASSED.** See `docs/gates/gate_2_to_3_candidate.md`.
 
@@ -109,61 +98,77 @@ GitHub Actions run `31657333214` completed successfully on the frozen Phase 2 te
 
 ## Phase 3 — Deterministic reconstruction
 
-**Status: active**
+**Status: complete / frozen**
 
-Goal: convert source-like encounter/location records into canonical care-state intervals and transitions that reproduce the frozen Phase 2 oracle.
+The reconstruction implementation includes:
 
-### Implementation work
+- [x] offset-aware timestamp parsing
+- [x] continuous treatment-relative hours
+- [x] versioned source-label mapping
+- [x] deterministic source sorting
+- [x] overlap priority resolution
+- [x] equal-priority conflict -> `unknown`
+- [x] duplicate same-state suppression
+- [x] non-overlapping `[start, end)` interval derivation
+- [x] explicit open-end handling
+- [x] typed transition derivation
+- [x] escalation/de-escalation classification
+- [x] discharge and acute-care-return classification
+- [x] source-record propagation
+- [x] reconstruction audit records
+- [x] stable canonical serialization
+- [x] exact six-fixture interval/transition oracle agreement
+- [x] deterministic repeated-run behavior
 
-- [ ] parse and normalize offset-aware timestamps
-- [ ] calculate continuous treatment-relative hours
-- [ ] map source labels to canonical states through versioned configuration
-- [ ] stable-sort source records/events
-- [ ] apply configured priority for overlapping evidence
-- [ ] emit `unknown` for irreconcilable equal-priority canonical disagreement
-- [ ] suppress duplicate same-state records/transitions
-- [ ] derive non-overlapping `[start, end)` intervals
-- [ ] preserve explicit open/censored end semantics
-- [ ] derive transitions only when canonical state changes
-- [ ] classify escalation/de-escalation using inpatient acuity ranks
-- [ ] classify discharge
-- [ ] classify configured post-discharge acute-care return
-- [ ] propagate all contributing source-record IDs and mapping method
-- [ ] provide stable canonical serialization
+GitHub Actions run `31657957588` completed successfully for commit `536724c4cf996b3192f917d11c909a2ea0eb16fd`.
 
-### Gate 3 -> 4 acceptance targets
+**Gate 3 -> 4: PASSED.** See `docs/gates/gate_3_to_4_candidate.md`.
 
-- [ ] 100% interval agreement for deterministic frozen fixtures
-- [ ] 100% transition agreement for deterministic frozen fixtures
-- [ ] conflict fixture produces prespecified `unknown`/uncertainty behavior
-- [ ] duplicate same-state input produces no false transition
-- [ ] boundary cases match frozen Phase 2 behavior
-- [ ] repeated runs produce equivalent canonical outputs
-- [ ] every interval/transition is auditable to source records or an explicit derivation rule
-
-No Phase 4 metric should be treated as a computed capstone result until Gate 3 passes.
+Changes to reconstruction semantics require complete regression against the frozen Phase 2 oracle and explicit Gate 3 impact review.
 
 ---
 
 ## Phase 4 — Post-infusion hospital utilization measures
 
-**Status: not started**
+**Status: active / definitions first**
 
-Planned transparent descriptive measures include:
+Goal: derive transparent descriptive measures from reconstructed trajectories without contaminating the method with undocumented analysis choices.
 
-- total inpatient duration within the defined analytic window;
-- routine inpatient duration;
-- intermediate-care duration;
-- intensive-care duration;
-- combined high-acuity duration where explicitly defined;
-- number and timing of care-state transitions;
-- time from infusion to first escalation;
-- time to discharge;
-- 7-day acute-care return;
-- 30-day acute-care return;
-- unknown/missing-state burden.
+### Primary analytic-window rule
 
-Metric definitions must specify clipping, partial intervals, zero-versus-missing, censoring/follow-up, uncertainty, and provenance before Gate 4 passage.
+Capstone utilization metrics are defined for post-infusion time from `0` through `+720` hours, using a half-open analytic window `[0, 720)`. Pre-infusion intervals may be retained for continuity/reconstruction validation but are clipped out of primary post-infusion utilization measures.
+
+### Planned primary measures
+
+- [ ] total inpatient duration within `[0, 720)`
+- [ ] routine inpatient duration
+- [ ] intermediate-care duration
+- [ ] intensive-care duration
+- [ ] high-acuity duration = intermediate + intensive care, if retained
+- [ ] number of canonical care-state transitions in the analytic window
+- [ ] time from infusion to first escalation
+- [ ] time from infusion to first discharge after treatment
+- [ ] 7-day post-discharge acute-care return
+- [ ] 30-day post-discharge acute-care return
+- [ ] unknown-state duration/burden
+
+### Required metric semantics before implementation freeze
+
+- [ ] exact clipping rule for intervals crossing infusion or Day +30
+- [ ] zero-versus-missing behavior
+- [ ] unknown/uncertain interval handling
+- [ ] open-ended/censored interval behavior
+- [ ] incomplete follow-up behavior for return metrics
+- [ ] treatment of emergency/outpatient time in inpatient-duration metrics
+- [ ] definition/version for combined high-acuity duration
+- [ ] metric-level provenance linking values to interval/transition IDs
+- [ ] expected fixture values recalculated for the post-infusion `[0,720)` window where existing fixtures include pre-infusion time
+
+### Gate 4 -> 5 acceptance target
+
+Every reported metric must have a documented algorithmic definition, version, provenance, zero/missing/censoring behavior, and passing expected-value tests against the frozen synthetic trajectories.
+
+No cohort-level characterization should be treated as a capstone result until Gate 4 passes.
 
 ---
 
@@ -197,11 +202,12 @@ Every major capstone result should remain traceable through:
 
 1. [x] Merge the canonical Gate 1/Phase 2 foundation to `main`.
 2. [x] Pass and freeze Gate 2 using the complete synthetic boundary oracle.
-3. [ ] Implement Phase 3 timestamp, mapping, sorting, and interval-building primitives.
-4. [ ] Reconstruct the six frozen trajectories from source-like inputs rather than reading expected outputs.
-5. [ ] Require exact canonical interval/transition agreement.
-6. [ ] Add stable-output, provenance, duplicate-suppression, open-end, conflict, and boundary regression tests.
-7. [ ] Pass Gate 3 -> 4 before implementing thesis-facing utilization outputs.
+3. [x] Implement and validate deterministic Phase 3 reconstruction.
+4. [x] Pass Gate 3 -> 4 with exact oracle, provenance, and reproducibility evidence.
+5. [ ] Freeze Phase 4 metric definitions and post-infusion clipping rules.
+6. [ ] Recalculate fixture expected values for the `[0,720)` analytic window.
+7. [ ] Implement versioned metric functions with provenance and missingness behavior.
+8. [ ] Pass Gate 4 -> 5 before cohort characterization.
 
 ## Success criterion
 
