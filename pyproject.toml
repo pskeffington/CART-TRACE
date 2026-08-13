@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cart-trace"
-version = "0.1.0"
+version = "0.2.0"
 description = "Synthetic-first research framework for CAR T-cell hospital care trajectories"
 requires-python = ">=3.11"
 dependencies = [
@@ -17,7 +17,7 @@ dev = [
 ]
 
 [tool.setuptools]
-packages = []
+packages = ["cart_trace"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
