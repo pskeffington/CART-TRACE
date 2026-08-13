@@ -8,7 +8,7 @@ ANALYSIS_START_HOURS = 0.0
 ANALYSIS_END_HOURS = 720.0
 INPATIENT_STATES = {"routine_inpatient", "intermediate_care", "intensive_care"}
 HIGH_ACUITY_STATES = {"intermediate_care", "intensive_care"}
-METRIC_VERSION = "0.1.0"
+METRIC_VERSION = "0.2.0"
 
 
 def _clip_duration(interval: Mapping[str, Any], start: float, end: float) -> float | None:
@@ -43,16 +43,57 @@ def _state_hours(intervals: Sequence[Mapping[str, Any]], states: set[str]) -> fl
     return total
 
 
+def _status_for_scalar(value: Any, *, not_calculable: bool = False) -> str:
+    if not_calculable:
+        return "not_calculable"
+    if value in (0, 0.0, False):
+        return "observed_zero"
+    if value is None:
+        return "not_applicable"
+    return "observed"
+
+
+def _return_metric(
+    first_discharge: float | None,
+    return_times: Sequence[float],
+    horizon_hours: float,
+    observation_end_relative_hours: float,
+) -> tuple[bool | None, str]:
+    """Classify post-discharge return with explicit follow-up sufficiency.
+
+    An observed qualifying return establishes a positive result even when the
+    full negative-ascertainment horizon is not available. A negative result is
+    emitted only when observation extends through the complete horizon after
+    the qualifying discharge.
+    """
+    if first_discharge is None:
+        return None, "not_applicable"
+
+    qualifying = [
+        value for value in return_times
+        if first_discharge <= value <= first_discharge + horizon_hours
+    ]
+    if qualifying:
+        return True, "observed"
+
+    required_end = first_discharge + horizon_hours
+    if observation_end_relative_hours >= required_end:
+        return False, "observed_zero"
+    return None, "incomplete_followup"
+
+
 def compute_utilization_metrics(
     intervals: Sequence[Mapping[str, Any]],
     transitions: Sequence[Mapping[str, Any]],
+    *,
+    observation_end_relative_hours: float = ANALYSIS_END_HOURS,
 ) -> dict[str, Any]:
-    """Compute the Phase 4 scalar metric set from canonical trajectory objects.
+    """Compute Phase 4 metrics from canonical trajectory objects.
 
-    Primary duration metrics are clipped to [0,720) hours relative to infusion.
-    Any in-window unknown interval makes state-specific and total inpatient
-    duration non-calculable, while unknown-state duration itself remains
-    directly measurable when its boundaries are known.
+    Primary utilization duration is clipped to [0,720) hours after infusion.
+    Negative acute-care-return results additionally require complete follow-up
+    through the requested horizon after discharge. Positive observed returns
+    remain valid even if later follow-up is incomplete.
     """
     unknown_present = _unknown_overlap(intervals)
 
@@ -93,7 +134,14 @@ def compute_utilization_metrics(
         else None
     )
 
-    return {
+    return_7d, return_7d_status = _return_metric(
+        first_discharge, return_times, 168.0, observation_end_relative_hours
+    )
+    return_30d, return_30d_status = _return_metric(
+        first_discharge, return_times, 720.0, observation_end_relative_hours
+    )
+
+    metrics = {
         "metric_version": METRIC_VERSION,
         "total_inpatient_hours": inpatient,
         "routine_inpatient_hours": routine,
@@ -103,12 +151,8 @@ def compute_utilization_metrics(
         "transition_count": len(in_window_transitions),
         "time_to_first_escalation_hours": min(escalation_times) if escalation_times else None,
         "time_to_discharge_hours": first_discharge,
-        "acute_care_reuse_7d": bool(
-            hours_from_discharge_to_return is not None and hours_from_discharge_to_return <= 168.0
-        ),
-        "acute_care_reuse_30d": bool(
-            hours_from_discharge_to_return is not None and hours_from_discharge_to_return <= 720.0
-        ),
+        "acute_care_reuse_7d": return_7d,
+        "acute_care_reuse_30d": return_30d,
         "hours_from_discharge_to_return": hours_from_discharge_to_return,
         "unknown_state_hours": unknown_hours,
         "missingness_reason": (
@@ -117,3 +161,18 @@ def compute_utilization_metrics(
             else None
         ),
     }
+    metrics["metric_status"] = {
+        "total_inpatient_hours": _status_for_scalar(inpatient, not_calculable=unknown_present),
+        "routine_inpatient_hours": _status_for_scalar(routine, not_calculable=unknown_present),
+        "intermediate_care_hours": _status_for_scalar(intermediate, not_calculable=unknown_present),
+        "intensive_care_hours": _status_for_scalar(intensive, not_calculable=unknown_present),
+        "high_acuity_hours": _status_for_scalar(high_acuity, not_calculable=unknown_present),
+        "transition_count": _status_for_scalar(len(in_window_transitions)),
+        "time_to_first_escalation_hours": _status_for_scalar(metrics["time_to_first_escalation_hours"]),
+        "time_to_discharge_hours": _status_for_scalar(first_discharge),
+        "acute_care_reuse_7d": return_7d_status,
+        "acute_care_reuse_30d": return_30d_status,
+        "hours_from_discharge_to_return": _status_for_scalar(hours_from_discharge_to_return),
+        "unknown_state_hours": _status_for_scalar(unknown_hours),
+    }
+    return metrics
