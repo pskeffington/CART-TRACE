@@ -16,24 +16,26 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Public research/non-operational boundary documented
 - [x] Governance/data-use boundary documented
 - [x] Canonical care-state vocabulary defined
-- [x] Therapy-episode, interval, transition, encounter, and provenance schemas created
+- [x] Therapy-episode, interval, transition, encounter, provenance, and metric-result schemas created
 - [x] Hour-relative time and `[start, end)` interval semantics frozen
 - [x] Machine-readable mapping and precedence rules defined
 - [x] Gate 1 canonical model passed with CI evidence
 - [x] Six-class synthetic truth set implemented
-- [x] Negative/error cases implemented
-- [x] Explicit Phase 2 boundary oracle implemented
+- [x] Negative/error and boundary cases implemented
 - [x] Gate 2 synthetic oracle passed with CI evidence
 - [x] Deterministic Phase 3 reconstruction implemented
 - [x] Gate 3 reconstruction fidelity passed with CI evidence
-- [ ] Utilization metric definitions frozen
-- [ ] Utilization metric library implemented
-- [ ] Gate 4 metric validity passed
-- [ ] Cohort characterization implemented
+- [x] Utilization metric definitions frozen
+- [x] Utilization metric library implemented
+- [x] Follow-up, zero/missing, uncertainty, and provenance semantics implemented
+- [x] Gate 4 metric validity passed with CI evidence
+- [ ] Patient-level capstone trajectory outputs implemented
+- [ ] Cohort-style synthetic characterization implemented
+- [ ] Capstone validation/methods tables finalized
 - [ ] Governed hospital-data validation initiated, if feasible
 
-**Current phase:** Phase 4 — post-infusion hospital utilization measures  
-**Current gate:** Gate 4 -> 5 — metric definitions, missingness/censoring behavior, provenance, and fixture expected-value tests must pass before cohort characterization.
+**Current phase:** Phase 5 — capstone characterization and communication  
+**Current gate:** Phase 5 outputs must remain traceable to the frozen reconstruction and metric contracts; governed clinical-data application remains a separate approval-dependent phase.
 
 ## Canonical care states
 
@@ -53,7 +55,7 @@ Primary capstone analytic window:
 
 `infusion timestamp = 0 -> +720 hours (Day +30)`
 
-A limited pre-infusion context may be represented where needed to establish encounter continuity. Continuous relative hours remain canonical; day labels are derived presentation fields only.
+Primary utilization uses `[0,720)`. Limited pre-infusion context may be retained only to establish encounter continuity. Continuous relative hours remain canonical; day labels are derived presentation fields only.
 
 ## Phase 0 — Scope and governance
 
@@ -100,85 +102,71 @@ Boundary/error coverage includes invalid canonical state, missing infusion ancho
 
 **Status: complete / frozen**
 
-The reconstruction implementation includes:
-
-- [x] offset-aware timestamp parsing
-- [x] continuous treatment-relative hours
-- [x] versioned source-label mapping
-- [x] deterministic source sorting
-- [x] overlap priority resolution
-- [x] equal-priority conflict -> `unknown`
-- [x] duplicate same-state suppression
-- [x] non-overlapping `[start, end)` interval derivation
-- [x] explicit open-end handling
-- [x] typed transition derivation
-- [x] escalation/de-escalation classification
-- [x] discharge and acute-care-return classification
-- [x] source-record propagation
-- [x] reconstruction audit records
-- [x] stable canonical serialization
-- [x] exact six-fixture interval/transition oracle agreement
-- [x] deterministic repeated-run behavior
+The reconstruction implementation includes offset-aware timestamp parsing, continuous treatment-relative hours, versioned source-label mapping, deterministic ordering, overlap resolution, explicit `unknown`, duplicate suppression, non-overlapping `[start,end)` intervals, open-end handling, typed transitions, provenance, stable serialization, exact oracle agreement, and deterministic repeatability.
 
 GitHub Actions run `31657957588` completed successfully for commit `536724c4cf996b3192f917d11c909a2ea0eb16fd`.
 
 **Gate 3 -> 4: PASSED.** See `docs/gates/gate_3_to_4_candidate.md`.
 
-Changes to reconstruction semantics require complete regression against the frozen Phase 2 oracle and explicit Gate 3 impact review.
-
 ---
 
 ## Phase 4 — Post-infusion hospital utilization measures
 
-**Status: active / definitions first**
+**Status: complete / frozen**
 
-Goal: derive transparent descriptive measures from reconstructed trajectories without contaminating the method with undocumented analysis choices.
+Primary metric semantics:
 
-### Primary analytic-window rule
+- analytic window `[0,720)` hours after infusion;
+- pre-infusion continuity context excluded from utilization totals;
+- total inpatient, routine, intermediate, intensive, and high-acuity duration;
+- transition count;
+- time to first escalation;
+- time to discharge;
+- 7-day and 30-day post-discharge acute-care return;
+- unknown-state burden;
+- explicit observed/zero/not-applicable/not-calculable/incomplete-follow-up statuses;
+- negative return requires complete post-discharge ascertainment horizon;
+- positive documented return remains observed even if later follow-up is incomplete;
+- metric-result schema and interval/transition/source-record provenance.
 
-Capstone utilization metrics are defined for post-infusion time from `0` through `+720` hours, using a half-open analytic window `[0, 720)`. Pre-infusion intervals may be retained for continuity/reconstruction validation but are clipped out of primary post-infusion utilization measures.
+GitHub Actions run `31659472624` completed successfully for commit `b5ecb78071f2b194ede887fbb2d3dbd260068416`.
 
-### Planned primary measures
+**Gate 4 -> 5: PASSED.** See `docs/gates/gate_4_to_5_candidate.md`.
 
-- [ ] total inpatient duration within `[0, 720)`
-- [ ] routine inpatient duration
-- [ ] intermediate-care duration
-- [ ] intensive-care duration
-- [ ] high-acuity duration = intermediate + intensive care, if retained
-- [ ] number of canonical care-state transitions in the analytic window
-- [ ] time from infusion to first escalation
-- [ ] time from infusion to first discharge after treatment
-- [ ] 7-day post-discharge acute-care return
-- [ ] 30-day post-discharge acute-care return
-- [ ] unknown-state duration/burden
-
-### Required metric semantics before implementation freeze
-
-- [ ] exact clipping rule for intervals crossing infusion or Day +30
-- [ ] zero-versus-missing behavior
-- [ ] unknown/uncertain interval handling
-- [ ] open-ended/censored interval behavior
-- [ ] incomplete follow-up behavior for return metrics
-- [ ] treatment of emergency/outpatient time in inpatient-duration metrics
-- [ ] definition/version for combined high-acuity duration
-- [ ] metric-level provenance linking values to interval/transition IDs
-- [ ] expected fixture values recalculated for the post-infusion `[0,720)` window where existing fixtures include pre-infusion time
-
-### Gate 4 -> 5 acceptance target
-
-Every reported metric must have a documented algorithmic definition, version, provenance, zero/missing/censoring behavior, and passing expected-value tests against the frozen synthetic trajectories.
-
-No cohort-level characterization should be treated as a capstone result until Gate 4 passes.
+Changes to frozen Phase 4 semantics require versioning, affected fixture regeneration, regression testing, and explicit Gate 4 impact review.
 
 ---
 
 ## Phase 5 — Capstone characterization and communication
 
-**Status: not started**
+**Status: active**
 
-Required outputs are expected to include patient-level trajectory examples, cohort-level utilization summaries, validation/fidelity results, missingness/uncertainty reporting, methods diagrams, reproducible figures/tables, and a manuscript-style capstone report or equivalent scholarly product.
+Goal: turn validated canonical trajectories and metric results into transparent scholarly outputs without changing the frozen data semantics.
 
-Recurring trajectory groups may be explored descriptively if sample size supports them. Clustering and prediction are not required for capstone success.
+### Priority outputs
+
+- [ ] patient-level synthetic trajectory figures using treatment-relative time;
+- [ ] cohort-style synthetic utilization summary table;
+- [ ] reconstruction fidelity table;
+- [ ] metric validation table;
+- [ ] missingness/uncertainty summary;
+- [ ] methods/data-flow figure showing source -> staging -> canonical trajectory -> validation -> metrics -> outputs;
+- [ ] manuscript-style Methods scaffold;
+- [ ] manuscript-style synthetic Results scaffold;
+- [ ] limitations and governed-data transfer section.
+
+### Characterization principles
+
+- descriptive rather than predictive;
+- distinguish observed zero from unavailable/not-calculable results;
+- report denominator and metric availability explicitly;
+- show uncertainty/unknown-state burden rather than hiding excluded episodes;
+- retain treatment-relative timing in patient-level displays;
+- do not infer clinical severity from care location alone;
+- do not claim capacity forecasting or prospective decision support;
+- keep synthetic demonstration results distinct from future governed clinical findings.
+
+Recurring trajectory groups may be explored descriptively if a future governed sample supports them. Clustering and prediction are not required for capstone success.
 
 ---
 
@@ -204,10 +192,12 @@ Every major capstone result should remain traceable through:
 2. [x] Pass and freeze Gate 2 using the complete synthetic boundary oracle.
 3. [x] Implement and validate deterministic Phase 3 reconstruction.
 4. [x] Pass Gate 3 -> 4 with exact oracle, provenance, and reproducibility evidence.
-5. [ ] Freeze Phase 4 metric definitions and post-infusion clipping rules.
-6. [ ] Recalculate fixture expected values for the `[0,720)` analytic window.
-7. [ ] Implement versioned metric functions with provenance and missingness behavior.
-8. [ ] Pass Gate 4 -> 5 before cohort characterization.
+5. [x] Freeze Phase 4 metric definitions and post-infusion clipping rules.
+6. [x] Recalculate fixture expected values for `[0,720)`.
+7. [x] Implement versioned metric functions with provenance and missingness/follow-up behavior.
+8. [x] Pass Gate 4 -> 5 with exact metric-oracle and schema evidence.
+9. [ ] Build synthetic patient-level and cohort-level capstone outputs.
+10. [ ] Assemble validation, methods, limitations, and reproducibility reporting for the final scholarly product.
 
 ## Success criterion
 
