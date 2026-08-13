@@ -1,62 +1,86 @@
 # CART-TRACE
 
-**CART-TRACE** is a research framework for reconstructing longitudinal hospital care trajectories around CAR T-cell therapy.
+**CART-TRACE** is a synthetic-first, non-operational research framework for reconstructing post-infusion hospital care trajectories following CAR T-cell therapy.
 
-The current MS HSE thesis question is:
+The current MS Health Data Science capstone asks:
 
-> **How can longitudinal clinical data be used to characterize hospital resource utilization and transitions in level of care following CAR T-cell therapy?**
+> **Can longitudinal encounter and location data surrounding CAR T-cell infusion be transformed into a reproducible representation of hospital level-of-care trajectories during the first 30 days after infusion?**
 
-## Current research scope
+## Capstone focus
 
-The thesis focuses on the hospital episode surrounding CAR T-cell infusion, with particular attention to:
+The primary unit of analysis is the **CAR T-cell therapy episode**, aligned to continuous treatment-relative time with `infusion timestamp = 0 hours`.
 
-- treatment-relative time (`day 0 = infusion`);
-- inpatient and outpatient encounters;
-- care location and level-of-care transitions;
-- high-acuity escalation and de-escalation;
-- length of stay;
-- discharge timing;
-- 7-day and 30-day acute-care reuse;
-- provenance, missingness, and reproducible transformation rules.
+The core methodological pipeline is:
 
-The primary unit of analysis is the **CAR T-cell therapy episode**, not the individual encounter.
+`source clinical records -> staging representation -> canonical trajectory -> validation/review -> analytic representation`
 
-Initial development uses a synthetic-first window of approximately `day -7` through `day +30`, subject to refinement with advisor input and governed data availability.
+The project focuses on:
 
-## Thesis aims
+- deterministic reconstruction of care-state intervals and transitions;
+- continuous treatment-relative timing;
+- explicit `[start, end)` interval semantics;
+- provenance-preserving source-to-canonical mapping;
+- explicit `unknown`, missingness, and uncertainty behavior;
+- post-infusion hospital utilization measures;
+- synthetic truth-set validation and reproducibility;
+- governed retrospective clinical-data application if approvals and data access are available.
 
-1. **Reconstruct the hospital episode** on a common treatment-relative timeline.
-2. **Characterize utilization trajectories** across care settings and acuity levels.
-3. **Identify recurrent descriptive care phenotypes** without turning those phenotypes into clinical labels or recommendations.
+## Current status
 
-See [THESIS.md](THESIS.md) for the full thesis scaffold.
+CART-TRACE has completed and frozen the canonical episode/state model, synthetic oracle, deterministic reconstruction layer, and post-infusion utilization metric contract. The project is currently in **Phase 5 — capstone characterization and communication**.
+
+Current priorities are:
+
+1. finalize patient-level trajectory figures;
+2. render cohort-style synthetic characterization and validation tables from controlled machine-readable outputs;
+3. complete final validation, limitations, and reproducibility reporting;
+4. prepare governed-data mapping, data-quality, and adjudication workflows for retrospective clinical application if feasible.
+
+See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution horizon, and [THESIS.md](THESIS.md) for the formal scholarly framing.
+
+## Canonical care states
+
+- `outpatient`
+- `emergency`
+- `routine_inpatient`
+- `intermediate_care`
+- `intensive_care`
+- `discharged`
+- `unknown`
+
+`acute_care_return` is represented as a transition type, not a care state.
+
+## Temporal model
+
+The primary capstone analytic window is:
+
+`[0, 720)` hours relative to infusion.
+
+Limited pre-infusion context may be retained only to establish encounter continuity and is excluded from primary post-infusion utilization totals unless a metric explicitly states otherwise. Continuous relative hours are canonical; day labels are presentation fields.
 
 ## Research guardrails
 
-CART-TRACE is a **research project**, not a clinical decision-support system.
+CART-TRACE is a **research methods project**, not a clinical decision-support system.
 
-The public repository will not:
+The public repository does not:
 
 - contain PHI, production credentials, or identifying free text;
-- issue clinical alerts;
-- diagnose CRS, ICANS, or other toxicities from raw signals;
-- recommend transfer, escalation, discharge, or treatment;
-- represent research associations as validated bedside guidance.
+- determine CAR T-cell eligibility or treatment readiness;
+- recommend product selection, transfer, escalation, discharge, or treatment;
+- infer toxicity severity directly from care location;
+- provide prospective alerts or bedside recommendations;
+- treat synthetic validation as evidence of external clinical validity.
 
-Public development is synthetic-first. Any future use of institutional data must occur under appropriate governance and approvals.
+Any institutional clinical-data application must occur under appropriate governance and approvals, with local source mapping and validation kept separate from public synthetic artifacts.
 
-## Repository direction
+## Scope boundary
 
-Near-term implementation is intentionally narrow:
+The capstone is intentionally limited to retrospective, descriptive reconstruction and characterization of post-infusion hospital care. Candidate identification, eligibility adjudication, treatment-readiness gating, leukapheresis/bridging decisions, CMC/manufacturing analytics, patient-generated health data, prediction, and prospective decision support are post-capstone research opportunities rather than current requirements.
 
-`episode schema -> care-state vocabulary -> treatment-relative time -> synthetic episodes -> transition reconstruction -> utilization metrics -> validation`
+## Reproducibility principle
 
-Broader CART-TRACE ideas such as patient-generated signals, rural follow-up, prospective monitoring, or other translational extensions are treated as **post-thesis opportunities**, not requirements for the current MS project.
+Every major result should remain traceable through:
 
-See [ROADMAP.md](ROADMAP.md) for the phased build plan.
+`source record -> staging rule -> canonical object -> validation check -> metric eligibility -> analytic output -> capstone table/figure`
 
-## Guiding principle
-
-**Signals into evidence. Evidence into care.**
-
-For the thesis, that means making the hospital care sequence transparent, reproducible, and measurable before attempting prediction or clinical implementation.
+The repository prioritizes transparent definitions, versioned transformations, explicit uncertainty, synthetic truth sets, automated tests, and reproducible generated outputs.
