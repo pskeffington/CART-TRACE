@@ -7,6 +7,7 @@
     {"episode_id":"SYN-EP-PROLONGED-001","interval_id":"INT-PROLONGED-002","state":"discharged","start_timestamp":"2026-02-21T15:00:00Z","end_timestamp":"2026-03-12T10:00:00Z","start_relative_hours":269.0,"end_relative_hours":720.0,"source_type":"derived_disposition","source_record_ids":["SRC-PROLONGED-001"],"mapping_method":"derived_after_encounter_end","provenance_id":"PROV-PROLONGED-INT-002","uncertain":false,"uncertainty_reason":null,"open_end_reason":null}
   ],
   "expected_transitions": [{"episode_id":"SYN-EP-PROLONGED-001","transition_id":"TR-PROLONGED-001","transition_timestamp":"2026-02-21T15:00:00Z","relative_time_hours":269.0,"from_state":"routine_inpatient","to_state":"discharged","transition_type":"discharge","source_type":"derived_state_change","source_record_ids":["SRC-PROLONGED-001"],"provenance_id":"PROV-PROLONGED-TR-001","derived":true,"derivation_version":"0.2.0","uncertain":false,"uncertainty_reason":null}],
-  "expected_metrics": {"total_inpatient_hours":272.0,"routine_inpatient_hours":272.0,"intermediate_care_hours":0.0,"intensive_care_hours":0.0,"transition_count":1,"time_to_first_escalation_hours":null,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false},
+  "metric_window_relative_hours": {"start":0.0,"end":720.0,"boundary":"[start,end)"},
+  "expected_metrics": {"total_inpatient_hours":269.0,"routine_inpatient_hours":269.0,"intermediate_care_hours":0.0,"intensive_care_hours":0.0,"high_acuity_hours":0.0,"transition_count":1,"time_to_first_escalation_hours":null,"time_to_discharge_hours":269.0,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false,"unknown_state_hours":0.0},
   "requirements_exercised": ["VALID-001","VALID-002","METRIC-001","METRIC-002","METRIC-006"]
 }
