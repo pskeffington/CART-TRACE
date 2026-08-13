@@ -1,0 +1,36 @@
+{
+  "fixture_id": "SYN-FIX-CONFLICT-001",
+  "episode": {
+    "episode_id": "SYN-EP-CONFLICT-001",
+    "patient_research_id": "SYN-P-CONFLICT-001",
+    "infusion_timestamp": "2026-03-10T10:00:00Z",
+    "window_start_timestamp": "2026-03-03T10:00:00Z",
+    "window_end_timestamp": "2026-04-09T10:00:00Z",
+    "window_start_relative_hours": -168.0,
+    "window_end_relative_hours": 720.0,
+    "therapy_label": "synthetic_car_t",
+    "source_type": "synthetic_fixture",
+    "source_record_ids": ["SRC-CONFLICT-001", "SRC-CONFLICT-002", "SRC-CONFLICT-003"],
+    "provenance_id": "PROV-CONFLICT-EP",
+    "notes": "Synthetic equal-priority conflicting-location fixture requiring explicit uncertainty."
+  },
+  "encounters": [
+    {"source_record_id":"SRC-CONFLICT-001","episode_id":"SYN-EP-CONFLICT-001","encounter_id":"ENC-CONFLICT-001","encounter_start":"2026-03-10T08:00:00Z","encounter_end":"2026-03-15T12:00:00Z","source_care_label":"synthetic_standard_floor","encounter_type":"inpatient","source_system":"synthetic_fixture","priority":10,"status":"completed","provenance_id":"PROV-CONFLICT-SRC-001"},
+    {"source_record_id":"SRC-CONFLICT-002","episode_id":"SYN-EP-CONFLICT-001","encounter_id":"ENC-CONFLICT-001","encounter_start":"2026-03-12T08:00:00Z","encounter_end":"2026-03-12T16:00:00Z","source_care_label":"synthetic_stepdown","encounter_type":"inpatient_location","source_system":"synthetic_fixture","priority":20,"status":"completed","provenance_id":"PROV-CONFLICT-SRC-002"},
+    {"source_record_id":"SRC-CONFLICT-003","episode_id":"SYN-EP-CONFLICT-001","encounter_id":"ENC-CONFLICT-001","encounter_start":"2026-03-12T08:00:00Z","encounter_end":"2026-03-12T16:00:00Z","source_care_label":"synthetic_icu","encounter_type":"inpatient_location","source_system":"synthetic_fixture","priority":20,"status":"completed","provenance_id":"PROV-CONFLICT-SRC-003"}
+  ],
+  "expected_intervals": [
+    {"episode_id":"SYN-EP-CONFLICT-001","interval_id":"INT-CONFLICT-001","state":"routine_inpatient","start_timestamp":"2026-03-10T08:00:00Z","end_timestamp":"2026-03-12T08:00:00Z","start_relative_hours":-2.0,"end_relative_hours":46.0,"source_type":"encounter_location","source_record_ids":["SRC-CONFLICT-001"],"mapping_method":"direct_label_map","provenance_id":"PROV-CONFLICT-INT-001","uncertain":false,"uncertainty_reason":null,"open_end_reason":null},
+    {"episode_id":"SYN-EP-CONFLICT-001","interval_id":"INT-CONFLICT-002","state":"unknown","start_timestamp":"2026-03-12T08:00:00Z","end_timestamp":"2026-03-12T16:00:00Z","start_relative_hours":46.0,"end_relative_hours":54.0,"source_type":"encounter_location_conflict","source_record_ids":["SRC-CONFLICT-002","SRC-CONFLICT-003"],"mapping_method":"equal_priority_conflict_to_unknown","provenance_id":"PROV-CONFLICT-INT-002","uncertain":true,"uncertainty_reason":"equal-priority conflicting canonical states","open_end_reason":null},
+    {"episode_id":"SYN-EP-CONFLICT-001","interval_id":"INT-CONFLICT-003","state":"routine_inpatient","start_timestamp":"2026-03-12T16:00:00Z","end_timestamp":"2026-03-15T12:00:00Z","start_relative_hours":54.0,"end_relative_hours":122.0,"source_type":"encounter_location","source_record_ids":["SRC-CONFLICT-001"],"mapping_method":"direct_label_map","provenance_id":"PROV-CONFLICT-INT-003","uncertain":false,"uncertainty_reason":null,"open_end_reason":null},
+    {"episode_id":"SYN-EP-CONFLICT-001","interval_id":"INT-CONFLICT-004","state":"discharged","start_timestamp":"2026-03-15T12:00:00Z","end_timestamp":"2026-04-09T10:00:00Z","start_relative_hours":122.0,"end_relative_hours":720.0,"source_type":"derived_disposition","source_record_ids":["SRC-CONFLICT-001"],"mapping_method":"derived_after_encounter_end","provenance_id":"PROV-CONFLICT-INT-004","uncertain":false,"uncertainty_reason":null,"open_end_reason":null}
+  ],
+  "expected_transitions": [
+    {"episode_id":"SYN-EP-CONFLICT-001","transition_id":"TR-CONFLICT-001","transition_timestamp":"2026-03-12T08:00:00Z","relative_time_hours":46.0,"from_state":"routine_inpatient","to_state":"unknown","transition_type":"unknown","source_type":"derived_state_change","source_record_ids":["SRC-CONFLICT-002","SRC-CONFLICT-003"],"provenance_id":"PROV-CONFLICT-TR-001","derived":true,"derivation_version":"0.2.0","uncertain":true,"uncertainty_reason":"equal-priority conflicting canonical states"},
+    {"episode_id":"SYN-EP-CONFLICT-001","transition_id":"TR-CONFLICT-002","transition_timestamp":"2026-03-12T16:00:00Z","relative_time_hours":54.0,"from_state":"unknown","to_state":"routine_inpatient","transition_type":"unknown","source_type":"derived_state_change","source_record_ids":["SRC-CONFLICT-001","SRC-CONFLICT-002","SRC-CONFLICT-003"],"provenance_id":"PROV-CONFLICT-TR-002","derived":true,"derivation_version":"0.2.0","uncertain":true,"uncertainty_reason":"leaving unresolved conflict interval"},
+    {"episode_id":"SYN-EP-CONFLICT-001","transition_id":"TR-CONFLICT-003","transition_timestamp":"2026-03-15T12:00:00Z","relative_time_hours":122.0,"from_state":"routine_inpatient","to_state":"discharged","transition_type":"discharge","source_type":"derived_state_change","source_record_ids":["SRC-CONFLICT-001"],"provenance_id":"PROV-CONFLICT-TR-003","derived":true,"derivation_version":"0.2.0","uncertain":false,"uncertainty_reason":null}
+  ],
+  "expected_uncertainty": {"conflict_interval_start":"2026-03-12T08:00:00Z","conflict_interval_end":"2026-03-12T16:00:00Z","state":"unknown","reason":"equal-priority conflicting canonical states"},
+  "expected_metrics": {"total_inpatient_hours":null,"routine_inpatient_hours":null,"intermediate_care_hours":null,"intensive_care_hours":null,"transition_count":3,"time_to_first_escalation_hours":null,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false,"missingness_reason":"unknown interval prevents complete state-specific duration calculation"},
+  "requirements_exercised": ["VALID-001","VALID-002","PROV-003","PROV-004","RECON-004","METRIC-008"]
+}

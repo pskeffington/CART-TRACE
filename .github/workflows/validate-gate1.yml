@@ -1,0 +1,42 @@
+name: Validate Gate 1
+
+on:
+  push:
+    branches:
+      - build/core-trajectory-model
+  pull_request:
+    paths:
+      - 'schemas/**'
+      - 'config/**'
+      - 'examples/synthetic/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - '.github/workflows/validate-gate1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate1:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install project and test dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e '.[dev]'
+
+      - name: Run Gate 1 schema tests
+        run: pytest -q tests/test_gate1_schemas.py
+
+      - name: Run full test suite
+        run: pytest -q

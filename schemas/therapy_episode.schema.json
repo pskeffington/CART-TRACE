@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/therapy_episode.schema.json",
+  "title": "CART-TRACE Therapy Episode",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "episode_id",
+    "infusion_timestamp",
+    "window_start_timestamp",
+    "window_end_timestamp",
+    "window_start_relative_hours",
+    "window_end_relative_hours",
+    "source_type"
+  ],
+  "properties": {
+    "episode_id": {"type": "string", "minLength": 1},
+    "patient_research_id": {
+      "type": ["string", "null"],
+      "description": "Synthetic or governed research identifier only; no direct identifiers or PHI in public artifacts."
+    },
+    "infusion_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "CAR T-cell infusion timestamp defining treatment-relative time 0."
+    },
+    "window_start_timestamp": {"type": "string", "format": "date-time"},
+    "window_end_timestamp": {"type": "string", "format": "date-time"},
+    "window_start_relative_hours": {"type": "number"},
+    "window_end_relative_hours": {"type": "number"},
+    "therapy_label": {"type": ["string", "null"]},
+    "source_type": {"type": "string", "minLength": 1},
+    "source_record_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "provenance_id": {"type": ["string", "null"]},
+    "notes": {
+      "type": ["string", "null"],
+      "description": "Synthetic or governed research annotation; identifying free text is prohibited in public examples."
+    }
+  }
+}

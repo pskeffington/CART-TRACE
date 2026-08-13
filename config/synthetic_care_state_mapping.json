@@ -1,0 +1,43 @@
+{
+  "mapping_version": "0.2.0",
+  "description": "Synthetic-only mapping used to exercise canonical care-state reconstruction in public tests.",
+  "rules": [
+    {
+      "source_care_label": "synthetic_standard_floor",
+      "canonical_state": "routine_inpatient",
+      "priority": 10
+    },
+    {
+      "source_care_label": "synthetic_stepdown",
+      "canonical_state": "intermediate_care",
+      "priority": 15
+    },
+    {
+      "source_care_label": "synthetic_intermediate",
+      "canonical_state": "intermediate_care",
+      "priority": 15
+    },
+    {
+      "source_care_label": "synthetic_icu",
+      "canonical_state": "intensive_care",
+      "priority": 20
+    },
+    {
+      "source_care_label": "synthetic_emergency",
+      "canonical_state": "emergency",
+      "priority": 10
+    },
+    {
+      "source_care_label": "synthetic_outpatient",
+      "canonical_state": "outpatient",
+      "priority": 5
+    }
+  ],
+  "precedence": {
+    "higher_numeric_priority_wins": true,
+    "identical_priority_conflict_policy": "unknown",
+    "stable_sort_key": "source_record_id"
+  },
+  "acute_care_return_policy": "A discharged-to-emergency-or-inpatient transition within the configured follow-up window is classified with transition_type 'acute_care_return'; acute_care_return is never a care state.",
+  "unknown_policy": "Unmapped or irreconcilable source records produce canonical state 'unknown' with uncertainty metadata."
+}

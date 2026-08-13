@@ -1,0 +1,70 @@
+{
+  "therapy_episode": {
+    "episode_id": "SYN-EP-001",
+    "patient_research_id": "SYN-P-001",
+    "infusion_timestamp": "2026-01-08T10:00:00Z",
+    "window_start_timestamp": "2026-01-01T10:00:00Z",
+    "window_end_timestamp": "2026-02-07T10:00:00Z",
+    "window_start_relative_hours": -168.0,
+    "window_end_relative_hours": 720.0,
+    "therapy_label": "synthetic_car_t",
+    "source_type": "synthetic_fixture",
+    "source_record_ids": ["SRC-001", "SRC-002", "SRC-003"],
+    "provenance_id": "PROV-EP-001",
+    "notes": "Synthetic multi-encounter episode for canonical representation review."
+  },
+  "encounters": [
+    {
+      "source_record_id": "SRC-001",
+      "episode_id": "SYN-EP-001",
+      "encounter_id": "ENC-001",
+      "encounter_start": "2026-01-08T08:00:00Z",
+      "encounter_end": "2026-01-11T14:00:00Z",
+      "source_care_label": "synthetic_standard_floor",
+      "encounter_type": "inpatient",
+      "source_system": "synthetic_fixture",
+      "priority": 10,
+      "status": "completed",
+      "provenance_id": "PROV-SRC-001"
+    },
+    {
+      "source_record_id": "SRC-002",
+      "episode_id": "SYN-EP-001",
+      "encounter_id": "ENC-001",
+      "encounter_start": "2026-01-09T18:00:00Z",
+      "encounter_end": "2026-01-10T06:00:00Z",
+      "source_care_label": "synthetic_icu",
+      "encounter_type": "inpatient_location",
+      "source_system": "synthetic_fixture",
+      "priority": 20,
+      "status": "completed",
+      "provenance_id": "PROV-SRC-002"
+    },
+    {
+      "source_record_id": "SRC-003",
+      "episode_id": "SYN-EP-001",
+      "encounter_id": "ENC-002",
+      "encounter_start": "2026-01-15T09:00:00Z",
+      "encounter_end": "2026-01-15T17:00:00Z",
+      "source_care_label": "synthetic_emergency",
+      "encounter_type": "emergency",
+      "source_system": "synthetic_fixture",
+      "priority": 10,
+      "status": "completed",
+      "provenance_id": "PROV-SRC-003"
+    }
+  ],
+  "expected_state_sequence": [
+    "routine_inpatient",
+    "intensive_care",
+    "routine_inpatient",
+    "discharged",
+    "emergency"
+  ],
+  "expected_transition_types": [
+    "escalation",
+    "deescalation",
+    "discharge",
+    "acute_care_return"
+  ]
+}

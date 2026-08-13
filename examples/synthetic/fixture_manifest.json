@@ -1,0 +1,12 @@
+{
+  "version": "0.5.0",
+  "description": "Synthetic truth-set manifest for CART-TRACE Phase 2 development using the canonical care-state vocabulary and hour-relative truth-set contract.",
+  "fixtures": [
+    {"fixture_id":"SYN-FIX-001","name":"routine_recovery","status":"implemented","artifact":"examples/synthetic/phase2_routine_recovery.json","requirements":["VALID-001","VALID-002","RECON-001","METRIC-001","METRIC-006"],"expected_patterns":["routine_inpatient","discharged"],"edge_cases":[]},
+    {"fixture_id":"SYN-FIX-002","name":"prolonged_routine_inpatient","status":"implemented","artifact":"examples/synthetic/phase2_prolonged_routine.json","requirements":["VALID-001","VALID-002","METRIC-001","METRIC-006"],"expected_patterns":["routine_inpatient","discharged"],"edge_cases":["long_duration"]},
+    {"fixture_id":"SYN-FIX-003","name":"transient_escalation","status":"implemented","artifact":"examples/synthetic/phase2_transient_escalation.json","requirements":["VALID-001","VALID-002","RECON-004","METRIC-003","METRIC-004","METRIC-005"],"expected_patterns":["routine_inpatient","intermediate_care","routine_inpatient","discharged"],"edge_cases":["nested_higher_priority_interval"]},
+    {"fixture_id":"SYN-FIX-004","name":"icu_escalation","status":"implemented","artifact":"examples/synthetic/phase2_icu_escalation.json","requirements":["VALID-001","VALID-002","RECON-004","METRIC-003","METRIC-004","METRIC-005","METRIC-007"],"expected_patterns":["routine_inpatient","intensive_care","routine_inpatient","discharged","emergency"],"edge_cases":["nested_higher_priority_interval","post_discharge_return"]},
+    {"fixture_id":"SYN-FIX-005","name":"early_acute_care_return","status":"implemented","artifact":"examples/synthetic/phase2_early_return.json","requirements":["VALID-001","VALID-002","RECON-006","METRIC-007"],"expected_patterns":["routine_inpatient","discharged","emergency"],"edge_cases":["post_discharge_return"]},
+    {"fixture_id":"SYN-FIX-006","name":"conflicting_or_missing_location","status":"implemented","artifact":"examples/synthetic/phase2_conflicting_location.json","requirements":["VALID-001","VALID-002","PROV-003","PROV-004","RECON-004","METRIC-008"],"expected_patterns":["routine_inpatient","unknown","routine_inpatient","discharged"],"edge_cases":["equal_priority_conflict","unknown_state","missingness"]}
+  ]
+}

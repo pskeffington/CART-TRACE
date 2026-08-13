@@ -1,0 +1,28 @@
+{
+  "fixture_id": "SYN-FIX-ROUTINE-001",
+  "episode": {
+    "episode_id": "SYN-EP-ROUTINE-001",
+    "patient_research_id": "SYN-P-ROUTINE-001",
+    "infusion_timestamp": "2026-02-01T10:00:00Z",
+    "window_start_timestamp": "2026-01-25T10:00:00Z",
+    "window_end_timestamp": "2026-03-03T10:00:00Z",
+    "window_start_relative_hours": -168.0,
+    "window_end_relative_hours": 720.0,
+    "therapy_label": "synthetic_car_t",
+    "source_type": "synthetic_fixture",
+    "source_record_ids": ["SRC-ROUTINE-001"],
+    "provenance_id": "PROV-ROUTINE-EP",
+    "notes": "Synthetic routine recovery fixture."
+  },
+  "encounters": [
+    {"source_record_id":"SRC-ROUTINE-001","episode_id":"SYN-EP-ROUTINE-001","encounter_id":"ENC-ROUTINE-001","encounter_start":"2026-02-01T08:00:00Z","encounter_end":"2026-02-05T12:00:00Z","source_care_label":"synthetic_standard_floor","encounter_type":"inpatient","source_system":"synthetic_fixture","priority":10,"status":"completed","provenance_id":"PROV-ROUTINE-SRC-001"}
+  ],
+  "expected_intervals": [
+    {"episode_id":"SYN-EP-ROUTINE-001","interval_id":"INT-ROUTINE-001","state":"routine_inpatient","start_timestamp":"2026-02-01T08:00:00Z","end_timestamp":"2026-02-05T12:00:00Z","start_relative_hours":-2.0,"end_relative_hours":98.0,"source_type":"encounter_location","source_record_ids":["SRC-ROUTINE-001"],"mapping_method":"direct_label_map","provenance_id":"PROV-ROUTINE-INT-001","uncertain":false,"uncertainty_reason":null,"open_end_reason":null},
+    {"episode_id":"SYN-EP-ROUTINE-001","interval_id":"INT-ROUTINE-002","state":"discharged","start_timestamp":"2026-02-05T12:00:00Z","end_timestamp":"2026-03-03T10:00:00Z","start_relative_hours":98.0,"end_relative_hours":720.0,"source_type":"derived_disposition","source_record_ids":["SRC-ROUTINE-001"],"mapping_method":"derived_after_encounter_end","provenance_id":"PROV-ROUTINE-INT-002","uncertain":false,"uncertainty_reason":null,"open_end_reason":null}
+  ],
+  "expected_transitions": [
+    {"episode_id":"SYN-EP-ROUTINE-001","transition_id":"TR-ROUTINE-001","transition_timestamp":"2026-02-05T12:00:00Z","relative_time_hours":98.0,"from_state":"routine_inpatient","to_state":"discharged","transition_type":"discharge","source_type":"derived_state_change","source_record_ids":["SRC-ROUTINE-001"],"provenance_id":"PROV-ROUTINE-TR-001","derived":true,"derivation_version":"0.2.0","uncertain":false,"uncertainty_reason":null}
+  ],
+  "expected_metrics": {"total_inpatient_hours":100.0,"routine_inpatient_hours":100.0,"intermediate_care_hours":0.0,"intensive_care_hours":0.0,"transition_count":1,"time_to_first_escalation_hours":null,"acute_care_reuse_7d":false,"acute_care_reuse_30d":false}
+}

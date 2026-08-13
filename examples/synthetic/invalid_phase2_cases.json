@@ -1,0 +1,83 @@
+{
+  "description": "Negative fixtures for Phase 2 schema and semantic validation. These records are intentionally invalid and must never be accepted as canonical truth-set objects.",
+  "cases": [
+    {
+      "case_id": "INVALID-STATE-001",
+      "kind": "care_state_interval",
+      "expected_failure": "schema",
+      "record": {
+        "episode_id": "SYN-INVALID-001",
+        "interval_id": "INT-INVALID-001",
+        "state": "unsupported_ward",
+        "start_timestamp": "2026-02-01T10:00:00Z",
+        "end_timestamp": "2026-02-01T12:00:00Z",
+        "start_relative_hours": 0.0,
+        "end_relative_hours": 2.0,
+        "source_type": "synthetic_invalid",
+        "source_record_ids": ["SRC-INVALID-001"],
+        "mapping_method": "invalid_test",
+        "provenance_id": "PROV-INVALID-001",
+        "uncertain": false,
+        "uncertainty_reason": null,
+        "open_end_reason": null
+      }
+    },
+    {
+      "case_id": "MISSING-ANCHOR-001",
+      "kind": "therapy_episode",
+      "expected_failure": "schema",
+      "record": {
+        "episode_id": "SYN-INVALID-002",
+        "window_start_timestamp": "2026-01-25T10:00:00Z",
+        "window_end_timestamp": "2026-03-03T10:00:00Z",
+        "window_start_relative_hours": -168.0,
+        "window_end_relative_hours": 720.0,
+        "source_type": "synthetic_fixture"
+      }
+    },
+    {
+      "case_id": "MALFORMED-TIMESTAMP-001",
+      "kind": "encounter_input",
+      "expected_failure": "schema",
+      "record": {
+        "source_record_id": "SRC-INVALID-003",
+        "episode_id": "SYN-INVALID-003",
+        "encounter_start": 12345,
+        "encounter_end": "2026-02-01T12:00:00Z",
+        "source_care_label": "synthetic_standard_floor"
+      },
+      "note": "Timestamp has the wrong JSON type so failure is deterministic even when format assertion support differs across validators."
+    },
+    {
+      "case_id": "REVERSED-INTERVAL-001",
+      "kind": "semantic_interval",
+      "expected_failure": "semantic",
+      "record": {
+        "episode_id": "SYN-INVALID-004",
+        "interval_id": "INT-INVALID-004",
+        "state": "routine_inpatient",
+        "start_timestamp": "2026-02-02T12:00:00Z",
+        "end_timestamp": "2026-02-02T10:00:00Z",
+        "start_relative_hours": 26.0,
+        "end_relative_hours": 24.0,
+        "source_type": "encounter_location",
+        "source_record_ids": ["SRC-INVALID-004"],
+        "mapping_method": "direct_label_map",
+        "provenance_id": "PROV-INVALID-004",
+        "uncertain": false,
+        "uncertainty_reason": null,
+        "open_end_reason": null
+      }
+    },
+    {
+      "case_id": "AMBIGUOUS-PRIORITY-001",
+      "kind": "semantic_encounter_pair",
+      "expected_failure": "semantic",
+      "records": [
+        {"source_record_id":"SRC-AMB-001","episode_id":"SYN-INVALID-005","encounter_start":"2026-02-03T10:00:00Z","encounter_end":"2026-02-03T14:00:00Z","source_care_label":"synthetic_standard_floor","priority":10},
+        {"source_record_id":"SRC-AMB-002","episode_id":"SYN-INVALID-005","encounter_start":"2026-02-03T10:00:00Z","encounter_end":"2026-02-03T14:00:00Z","source_care_label":"synthetic_icu","priority":10}
+      ],
+      "note": "The records are individually schema-valid. Reconstruction must resolve equal-priority overlap using the frozen deterministic conflict policy rather than silently choosing by input order."
+    }
+  ]
+}

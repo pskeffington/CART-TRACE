@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/encounter_input.schema.json",
+  "title": "CART-TRACE Minimal Encounter Input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_record_id", "episode_id", "encounter_start", "encounter_end", "source_care_label"],
+  "properties": {
+    "source_record_id": {"type": "string", "minLength": 1},
+    "episode_id": {"type": "string", "minLength": 1},
+    "encounter_id": {"type": ["string", "null"]},
+    "encounter_start": {"type": "string", "format": "date-time"},
+    "encounter_end": {"type": ["string", "null"], "format": "date-time"},
+    "source_care_label": {"type": "string", "minLength": 1, "description": "Local/source care setting label before canonical mapping."},
+    "encounter_type": {"type": ["string", "null"], "description": "Source encounter category, preserved for research context."},
+    "source_system": {"type": ["string", "null"]},
+    "priority": {"type": ["integer", "null"], "minimum": 0, "description": "Optional deterministic precedence rank supplied by mapping configuration."},
+    "status": {"type": ["string", "null"]},
+    "provenance_id": {"type": ["string", "null"]}
+  }
+}
