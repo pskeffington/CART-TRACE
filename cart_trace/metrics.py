@@ -8,7 +8,21 @@ ANALYSIS_START_HOURS = 0.0
 ANALYSIS_END_HOURS = 720.0
 INPATIENT_STATES = {"routine_inpatient", "intermediate_care", "intensive_care"}
 HIGH_ACUITY_STATES = {"intermediate_care", "intensive_care"}
-METRIC_VERSION = "0.2.0"
+METRIC_VERSION = "0.3.0"
+METRIC_VALUE_KEYS = (
+    "total_inpatient_hours",
+    "routine_inpatient_hours",
+    "intermediate_care_hours",
+    "intensive_care_hours",
+    "high_acuity_hours",
+    "transition_count",
+    "time_to_first_escalation_hours",
+    "time_to_discharge_hours",
+    "acute_care_reuse_7d",
+    "acute_care_reuse_30d",
+    "hours_from_discharge_to_return",
+    "unknown_state_hours",
+)
 
 
 def _clip_duration(interval: Mapping[str, Any], start: float, end: float) -> float | None:
@@ -59,23 +73,14 @@ def _return_metric(
     horizon_hours: float,
     observation_end_relative_hours: float,
 ) -> tuple[bool | None, str]:
-    """Classify post-discharge return with explicit follow-up sufficiency.
-
-    An observed qualifying return establishes a positive result even when the
-    full negative-ascertainment horizon is not available. A negative result is
-    emitted only when observation extends through the complete horizon after
-    the qualifying discharge.
-    """
     if first_discharge is None:
         return None, "not_applicable"
-
     qualifying = [
         value for value in return_times
         if first_discharge <= value <= first_discharge + horizon_hours
     ]
     if qualifying:
         return True, "observed"
-
     required_end = first_discharge + horizon_hours
     if observation_end_relative_hours >= required_end:
         return False, "observed_zero"
@@ -88,13 +93,7 @@ def compute_utilization_metrics(
     *,
     observation_end_relative_hours: float = ANALYSIS_END_HOURS,
 ) -> dict[str, Any]:
-    """Compute Phase 4 metrics from canonical trajectory objects.
-
-    Primary utilization duration is clipped to [0,720) hours after infusion.
-    Negative acute-care-return results additionally require complete follow-up
-    through the requested horizon after discharge. Positive observed returns
-    remain valid even if later follow-up is incomplete.
-    """
+    """Compute Phase 4 metrics from canonical trajectory objects."""
     unknown_present = _unknown_overlap(intervals)
 
     routine = None if unknown_present else _state_hours(intervals, {"routine_inpatient"})
@@ -109,7 +108,6 @@ def compute_utilization_metrics(
         for transition in transitions
         if ANALYSIS_START_HOURS <= float(transition["relative_time_hours"]) < ANALYSIS_END_HOURS
     ]
-
     escalation_times = [
         float(t["relative_time_hours"])
         for t in in_window_transitions
@@ -133,7 +131,6 @@ def compute_utilization_metrics(
         if first_discharge is not None and first_return is not None and first_return >= first_discharge
         else None
     )
-
     return_7d, return_7d_status = _return_metric(
         first_discharge, return_times, 168.0, observation_end_relative_hours
     )
@@ -176,3 +173,47 @@ def compute_utilization_metrics(
         "unknown_state_hours": _status_for_scalar(unknown_hours),
     }
     return metrics
+
+
+def build_metric_result(
+    episode_id: str,
+    intervals: Sequence[Mapping[str, Any]],
+    transitions: Sequence[Mapping[str, Any]],
+    *,
+    observation_end_relative_hours: float = ANALYSIS_END_HOURS,
+    provenance_id: str | None = None,
+) -> dict[str, Any]:
+    """Wrap scalar metrics in a stable, auditable result envelope."""
+    metrics = compute_utilization_metrics(
+        intervals,
+        transitions,
+        observation_end_relative_hours=observation_end_relative_hours,
+    )
+    source_interval_ids = sorted(
+        {str(item["interval_id"]) for item in intervals if item.get("interval_id")}
+    )
+    source_transition_ids = sorted(
+        {str(item["transition_id"]) for item in transitions if item.get("transition_id")}
+    )
+    source_record_ids = sorted({
+        str(record_id)
+        for item in [*intervals, *transitions]
+        for record_id in (item.get("source_record_ids") or [])
+    })
+    return {
+        "episode_id": episode_id,
+        "metric_version": METRIC_VERSION,
+        "analysis_window_relative_hours": {
+            "start": ANALYSIS_START_HOURS,
+            "end": ANALYSIS_END_HOURS,
+            "boundary": "[start,end)",
+        },
+        "observation_end_relative_hours": float(observation_end_relative_hours),
+        "values": {key: metrics[key] for key in METRIC_VALUE_KEYS},
+        "status": dict(metrics["metric_status"]),
+        "missingness_reason": metrics["missingness_reason"],
+        "source_interval_ids": source_interval_ids,
+        "source_transition_ids": source_transition_ids,
+        "source_record_ids": source_record_ids,
+        "provenance_id": provenance_id,
+    }
