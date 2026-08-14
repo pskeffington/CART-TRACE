@@ -29,14 +29,14 @@ The project focuses on:
 
 CART-TRACE has completed and frozen the canonical episode/state model, synthetic oracle, deterministic reconstruction layer, post-infusion utilization metric contract, and synthetic scholarly prototype through **Gate 5**.
 
-**Gate 6 has also passed for methodological readiness.** GitHub Actions run `31829204761` completed successfully for commit `2f63a3d35825e615598f3030b64253abffc86818`, validating the complete governance and operational-review package.
+**Gate 6 is PASSED for methodological readiness, conditional on governed authorization.** GitHub Actions run `31829204761` validated the Gate 6 candidate package, and subsequent public scholarly/readiness milestones have remained CI-validated.
 
-Gate 6 does **not** mean institutional approval or governed data access has been granted. Any real-data application remains conditional on approvals, authorized users/environment, actual source-field availability, local mapping review, validation/adjudication planning, and governed pre-analysis signoff.
+The repository now contains a near-final public scholarly package: governed-execution templates, aggregate governed-reporting templates, a manuscript scaffold, a capstone presentation narrative, and reproducibility/submission checklists. These materials do not establish institutional approval or governed data access.
 
-The project therefore has two valid next paths:
+The project therefore has two valid branches:
 
-1. **Governed execution**, if approvals and data access are available: source profiling, local mapping, reconstructability/follow-up characterization, source-concordance validation, and descriptive trajectory analysis.
-2. **Scholarly synthesis**, if governed access is unavailable or delayed: complete limitations, reproducibility, Methods/Results/Discussion, and presentation/submission materials without expanding the frozen analytic software.
+1. **Governed execution**, only if institutional approvals and data access are independently confirmed: source profiling, local mapping, reconstructability/follow-up characterization, source-concordance validation, and descriptive trajectory analysis.
+2. **Final scholarly synthesis**, while governed access is unavailable or delayed: execute the reproducibility audit, tighten manuscript/presentation wording against controlled artifacts, record final CI/release evidence, and preserve explicit governed-result insertion points without inventing empirical findings.
 
 See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution horizon, and [THESIS.md](THESIS.md) for the formal scholarly framing.
 
