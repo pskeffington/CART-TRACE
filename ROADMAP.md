@@ -49,12 +49,15 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Near-final capstone presentation narrative completed
 - [x] Reproducibility audit and submission checklists completed
 - [x] Repository-wide scholarly consistency sweep completed
+- [x] Clean reproducibility audit completed on `4b2e64a` / Actions `31832440738`
+- [x] Final scholarly freeze candidate recorded
+- [ ] Repository description manually aligned to narrowed capstone scope
 - [ ] Institutional authorization and governed data access confirmed
 - [ ] Governed hospital-data validation initiated, if feasible
-- [ ] Final capstone manuscript and presentation completed
+- [ ] Final scholarly freeze declared
 
-**Current phase:** pre-freeze scholarly audit and submission readiness / awaiting governed authorization  
-**Current gate:** Gate 6 is **PASSED — methodological readiness / conditional on governed authorization**. The public method, governance controls, execution templates, aggregate reporting templates, near-final manuscript scaffold, presentation narrative, audit/submission controls, and scholarly consistency sweep are complete. No public artifact establishes or substitutes for institutional approval, data-use authorization, or governed data access.
+**Current phase:** final scholarly freeze candidate / one non-semantic metadata hold  
+**Current gate:** Gate 6 is **PASSED — methodological readiness / conditional on governed authorization**. The frozen analytic core, synthetic scholarly outputs, governance controls, near-final manuscript/presentation, and clean reproducibility audit are complete. Final public freeze is held only by the outdated GitHub repository description unless that metadata exception is explicitly accepted.
 
 ## Canonical care states
 
@@ -128,43 +131,27 @@ The governed execution branch may begin only after the responsible institutional
 
 ## Scholarly integration package
 
-**Status: pre-freeze scholarly package complete**
+**Status: final scholarly freeze candidate**
 
-The repository contains controlled scholarly integration templates plus a near-final manuscript, presentation narrative, audit controls, and a consistency-sweep record:
+The repository contains controlled scholarly integration templates plus a near-final manuscript, presentation narrative, audit controls, a consistency-sweep record, and `docs/scholarly/final_scholarly_freeze_candidate.md`.
 
-- `docs/scholarly/methods_integration_template.md`;
-- `docs/scholarly/results_integration_template.md`;
-- `docs/scholarly/limitations_template.md`;
-- `docs/scholarly/governance_reproducibility_statement_template.md`;
-- `docs/scholarly/capstone_presentation_outline.md`;
-- `docs/scholarly/capstone_manuscript_scaffold.md`;
-- `docs/scholarly/capstone_presentation_narrative.md`;
-- `docs/scholarly/reproducibility_audit_checklist.md`;
-- `docs/scholarly/capstone_submission_checklist.md`;
-- `docs/scholarly/scholarly_consistency_sweep.md`.
+The clean reproducibility audit used commit `4b2e64a178a8e47bb28e7fc9c54952ff29fe8679` and GitHub Actions run `31832440738`. Both Python 3.11 and 3.12 validation jobs completed schema tests, controlled JSON generation, scholarly rendering, rendered-artifact verification, and the full test suite successfully.
 
-The manuscript and presentation separate synthetic computational validation, governed representation validation, descriptive empirical findings, and external clinical validity. If governed access is unavailable, empirical sections remain explicitly unpopulated rather than being replaced by simulated findings.
+The audit found no frozen-semantic drift and no need for gate-impact review. Synthetic computational findings remain explicitly separate from governed representation validation and empirical clinical findings.
 
-The consistency sweep found no frozen-semantic conflict. README status was aligned to the near-final scholarly stage. The GitHub repository description remains an older broad formulation and should be manually narrowed because the current connector does not expose repository-description editing.
+### Remaining hold before final public freeze
 
-### Next scholarly work
+The GitHub repository description still reflects an older, broader scope and should be manually changed to:
 
-While authorization/access is pending, the remaining public work is finalization rather than methodological expansion:
+> Synthetic-first research framework for reproducible reconstruction of 30-day post-CAR-T hospital level-of-care trajectories from longitudinal encounter and location data.
 
-1. execute the reproducibility audit against a clean current head;
-2. tighten manuscript wording and captions against the controlled table/figure inventory;
-3. tighten the presentation narrative against the final manuscript;
-4. record final CI/reproduction evidence and release identifiers;
-5. manually align the GitHub repository description with the narrowed capstone scope;
-6. retain clearly marked governed-result insertion points if approved aggregate findings later become available.
-
-Do not expand the analytic software merely to compensate for unavailable governed access.
+The current connector does not expose repository-description editing. This is a presentation/metadata hold only; it does not affect the frozen method or reproducibility evidence.
 
 ---
 
 ## 21-month capstone execution horizon
 
-The schedule is organized around three linked claims: **computational validity**, **representation validity**, and **analytic utility**. Computational validity, scholarly prototype completeness, and public methodological readiness are established; subsequent work should emphasize governed empirical validation if feasible and scholarly completion regardless of access status.
+The schedule is organized around three linked claims: **computational validity**, **representation validity**, and **analytic utility**. Computational validity, scholarly prototype completeness, public methodological readiness, and the public freeze-candidate audit are established; governed empirical validation remains approval-dependent.
 
 | Months | Primary objective | Completion products |
 |---|---|---|
@@ -175,7 +162,7 @@ The schedule is organized around three linked claims: **computational validity**
 | 12–16 | Empirical validation | source-concordance review, discrepancy analysis, mapping review, sensitivity analyses, metric availability |
 | 15–18 | Primary descriptive analysis | patient trajectories, utilization distributions, escalation/de-escalation, discharge and return summaries |
 | 18–20 | Scholarly synthesis | near-final manuscript and presentation, figures/tables, limitations, governance/reproducibility statement |
-| 21 | Final freeze and capstone completion | clean reproducibility audit, repository release, final presentation/submission package |
+| 21 | Final freeze and capstone completion | clean reproducibility audit, metadata alignment, repository release, final presentation/submission package |
 
 Periods intentionally overlap. Writing and synthetic scholarly completion continue while access decisions and governance processes proceed.
 
@@ -217,10 +204,11 @@ For governed work, extend this chain with:
 14. [x] Build near-final capstone presentation narrative.
 15. [x] Build reproducibility audit and submission checklists.
 16. [x] Complete repository-wide scholarly consistency sweep.
-17. [ ] Confirm external institutional authorization and governed data access.
-18. [ ] Apply the frozen method to governed data if approvals/access permit.
-19. [ ] Complete empirical validation and primary descriptive analysis if governed data are available.
-20. [ ] Execute final reproducibility audit and freeze scholarly submission package.
+17. [x] Execute clean reproducibility audit and record final scholarly freeze candidate.
+18. [ ] Manually align GitHub repository description or explicitly accept the metadata exception.
+19. [ ] Declare final public scholarly freeze.
+20. [ ] Confirm external institutional authorization and governed data access, if pursued.
+21. [ ] Apply the frozen method to governed data and complete empirical validation if approvals/access permit.
 
 ## Success criterion
 
