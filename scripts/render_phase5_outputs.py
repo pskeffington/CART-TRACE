@@ -157,6 +157,34 @@ def render_table5(summary: Mapping[str, Any]) -> str:
     return heading + _markdown_table(["Measure", "Count"], rows)
 
 
+def render_supplementary_metric_matrix(
+    metric_results: Sequence[Mapping[str, Any]],
+) -> str:
+    """Render one row per episode with each metric value paired to its status."""
+    metric_ids = sorted(
+        {
+            metric_id
+            for result in metric_results
+            for metric_id in (result.get("values") or {}).keys()
+        }
+    )
+    headers = ["Episode"] + metric_ids
+    rows = []
+    for result in sorted(metric_results, key=lambda item: str(item.get("episode_id"))):
+        values = result.get("values") or {}
+        statuses = result.get("status") or {}
+        row = [result.get("episode_id")]
+        for metric_id in metric_ids:
+            row.append(f"{_format(values.get(metric_id))} [{statuses.get(metric_id, 'NA')}]")
+        rows.append(row)
+    heading = (
+        "# Supplementary Table S1. Complete metric-result matrix by synthetic episode\n\n"
+        "Synthetic demonstration only. Each cell reports the controlled metric value followed "
+        "by its metric status in brackets; unavailable results are not coerced to zero.\n\n"
+    )
+    return heading + _markdown_table(headers, rows)
+
+
 def _trajectory_selection(
     trajectories: Mapping[str, Sequence[Mapping[str, Any]]]
 ) -> list[str]:
@@ -307,6 +335,7 @@ def render_utilization_availability_svg(summary_rows: Sequence[Mapping[str, Any]
 
 def render_all(input_dir: Path = INPUT_DIR, output_dir: Path = OUTPUT_DIR) -> list[Path]:
     trajectories = _load("phase5_patient_trajectories.json", input_dir)
+    metric_results = _load("phase5_metric_results.json", input_dir)
     cohort = _load("phase5_cohort_summary.json", input_dir)
     metric_validation = _load("phase5_metric_validation.json", input_dir)
     reconstruction = _load("phase5_reconstruction_validation.json", input_dir)
@@ -317,6 +346,7 @@ def render_all(input_dir: Path = INPUT_DIR, output_dir: Path = OUTPUT_DIR) -> li
         "table3_validation.md": render_table3(reconstruction, metric_validation),
         "table4_cohort_summary.md": render_table4(cohort),
         "table5_uncertainty.md": render_table5(uncertainty),
+        "supplementary_table_s1_metric_matrix.md": render_supplementary_metric_matrix(metric_results),
         "figure2_representative_trajectories.svg": render_trajectory_svg(
             trajectories,
             _trajectory_selection(trajectories),
