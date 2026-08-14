@@ -40,7 +40,7 @@ Design: retrospective, descriptive, synthetic-first health-data-science methodol
 | Gate 5 | PASSED / frozen | Actions `31828145837`, commit `6428fda0be4b69f3d29a408d07e3611a69dd4daf` |
 | Gate 6 | PASSED — methodological readiness / conditional on governed authorization | Actions `31829204761`, commit `2f63a3d35825e615598f3030b64253abffc86818` |
 
-Post-gate public validation anchors include Actions `31830669600`, `31830978074`, `31831222408`, `31831407553`, `31832440738`, `31832888988`, and `31833669828`.
+Post-gate public validation anchors include Actions `31830669600`, `31830978074`, `31831222408`, `31831407553`, `31832440738`, `31832888988`, `31833669828`, and `31833799689`.
 
 ## Clean reproducibility anchor
 
@@ -60,7 +60,10 @@ Both Python 3.11 and 3.12 jobs successfully completed:
 Freeze-candidate validation subsequently passed on:
 
 - `ae27910a3f603cedc13c80db158b98408aeaef3f` / Actions `31832888988`;
-- `5ca76042d0448a3e90400c462e0b2d95b73672e8` / Actions `31833669828`.
+- `5ca76042d0448a3e90400c462e0b2d95b73672e8` / Actions `31833669828`;
+- `7eb891238f4c300b77e01b76cf92dbf66a2d9eb2` / Actions `31833799689`.
+
+The public release manifest itself is therefore CI-validated on the repository head that introduced it.
 
 ## Reproduction commands
 
