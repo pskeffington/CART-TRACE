@@ -6,17 +6,17 @@
 
 The public synthetic CART-TRACE research repository has satisfied its computational reproducibility, scholarly consistency, governance-separation, and repository-metadata criteria for final public scholarly freeze.
 
-## Final verified pre-freeze state
+## Final verified freeze state
 
-- release-state commit: `f06bd84cbc3bcd7a9a56b934a92d6b21ef8dd788`
-- GitHub Actions run: `31834081804`
+- final-freeze roadmap head: `a7b8325855b8dbcfe6adadf5f7e72b2041daeb48`
+- GitHub Actions run: `31848508218`
 - workflow: `Validate CART-TRACE`
 - conclusion: `success`
 - repository description verified as:
 
 > Synthetic-first research framework for reproducible reconstruction of 30-day post-CAR-T hospital level-of-care trajectories from longitudinal encounter and location data.
 
-The prior metadata hold is resolved.
+The prior metadata hold is resolved and the final-freeze head is CI-validated.
 
 ## Clean reproducibility evidence
 
@@ -34,7 +34,7 @@ Validated workflow steps included:
 4. expected rendered-artifact verification;
 5. full automated test suite.
 
-Subsequent release-candidate and release-manifest heads also remained green, including Actions `31832888988`, `31833669828`, `31833799689`, and `31834081804`.
+Subsequent release-candidate, release-manifest, and final-freeze heads also remained green, including Actions `31832888988`, `31833669828`, `31833799689`, `31834081804`, and `31848508218`.
 
 ## Frozen analytic contract
 
@@ -82,6 +82,12 @@ Final public scholarly freeze does not alter Gate 6 or substitute for institutio
 ## Public scholarly package
 
 The frozen public package includes the controlled main and supplementary figures/tables, near-final manuscript scaffold, capstone presentation narrative, governance/reproducibility controls, final reproducibility audit materials, submission checklist, scholarly consistency sweep, freeze-candidate record, and public release manifest.
+
+## Immutable release status
+
+As of the post-freeze integrity check, the GitHub repository has **no tags and no GitHub Releases**. The scholarly freeze is valid independently of an immutable GitHub release artifact.
+
+A future tag/release should be created only after an explicit version identifier and release naming decision are chosen. Creating a tag or Release must not change the frozen analytic contract.
 
 ## Post-freeze rule
 
