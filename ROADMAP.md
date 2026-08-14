@@ -46,12 +46,14 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Aggregate governed-reporting templates completed
 - [x] Scholarly integration templates completed
 - [x] Near-final capstone manuscript scaffold completed
+- [x] Near-final capstone presentation narrative completed
+- [x] Reproducibility audit and submission checklists completed
 - [ ] Institutional authorization and governed data access confirmed
 - [ ] Governed hospital-data validation initiated, if feasible
 - [ ] Final capstone manuscript and presentation completed
 
-**Current phase:** near-final public scholarly synthesis / awaiting governed authorization  
-**Current gate:** Gate 6 is **PASSED — methodological readiness / conditional on governed authorization**. The public method, governance controls, execution templates, aggregate reporting templates, and near-final manuscript scaffold are ready. No public artifact establishes or substitutes for institutional approval, data-use authorization, or governed data access.
+**Current phase:** near-final public scholarly synthesis and submission readiness / awaiting governed authorization  
+**Current gate:** Gate 6 is **PASSED — methodological readiness / conditional on governed authorization**. The public method, governance controls, execution templates, aggregate reporting templates, near-final manuscript scaffold, presentation narrative, and final audit/submission controls are ready. No public artifact establishes or substitutes for institutional approval, data-use authorization, or governed data access.
 
 ## Canonical care states
 
@@ -125,29 +127,31 @@ The governed execution branch may begin only after the responsible institutional
 
 ## Scholarly integration package
 
-**Status: near-final manuscript scaffold complete**
+**Status: near-final public scholarly package complete**
 
-The repository contains controlled scholarly integration templates and `docs/scholarly/capstone_manuscript_scaffold.md`, which integrates the frozen synthetic evidence into a manuscript-style structure while keeping governed empirical sections as explicit authorization-dependent insertion points.
-
-Current scholarly artifacts include:
+The repository contains controlled scholarly integration templates plus a near-final manuscript and presentation narrative:
 
 - `docs/scholarly/methods_integration_template.md`;
 - `docs/scholarly/results_integration_template.md`;
 - `docs/scholarly/limitations_template.md`;
 - `docs/scholarly/governance_reproducibility_statement_template.md`;
 - `docs/scholarly/capstone_presentation_outline.md`;
-- `docs/scholarly/capstone_manuscript_scaffold.md`.
+- `docs/scholarly/capstone_manuscript_scaffold.md`;
+- `docs/scholarly/capstone_presentation_narrative.md`;
+- `docs/scholarly/reproducibility_audit_checklist.md`;
+- `docs/scholarly/capstone_submission_checklist.md`.
 
-The scaffold separates synthetic computational validation, governed representation validation, descriptive empirical findings, and external clinical validity. If governed access is unavailable, empirical sections remain explicitly unpopulated rather than being replaced by simulated findings.
+The manuscript and presentation separate synthetic computational validation, governed representation validation, descriptive empirical findings, and external clinical validity. If governed access is unavailable, empirical sections remain explicitly unpopulated rather than being replaced by simulated findings.
 
 ### Next scholarly work
 
-While authorization/access is pending, the highest-value public work is:
+While authorization/access is pending, the remaining public work is finalization rather than methodological expansion:
 
-1. tighten the manuscript scaffold against the controlled table/figure inventory and THESIS framing;
-2. convert the presentation outline into a near-final defense/capstone narrative;
-3. prepare a final reproducibility audit checklist and submission inventory;
-4. retain clearly marked governed-result insertion points if approved aggregate findings later become available.
+1. execute the reproducibility audit against a clean current head;
+2. tighten manuscript wording and captions against the controlled table/figure inventory;
+3. tighten the presentation narrative against the final manuscript;
+4. record final CI/reproduction evidence and release identifiers;
+5. retain clearly marked governed-result insertion points if approved aggregate findings later become available.
 
 Do not expand the analytic software merely to compensate for unavailable governed access.
 
@@ -165,8 +169,8 @@ The schedule is organized around three linked claims: **computational validity**
 | 9–14 | Governed-data application, if feasible | source profiling, mapping coverage, reconstructability, uncertainty and follow-up characterization |
 | 12–16 | Empirical validation | source-concordance review, discrepancy analysis, mapping review, sensitivity analyses, metric availability |
 | 15–18 | Primary descriptive analysis | patient trajectories, utilization distributions, escalation/de-escalation, discharge and return summaries |
-| 18–20 | Scholarly synthesis | near-final manuscript, final Methods, Results, Discussion, tables, figures, limitations, reproducibility statement |
-| 21 | Final freeze and capstone completion | reproducibility audit, repository release, presentation/submission package |
+| 18–20 | Scholarly synthesis | near-final manuscript and presentation, figures/tables, limitations, governance/reproducibility statement |
+| 21 | Final freeze and capstone completion | clean reproducibility audit, repository release, final presentation/submission package |
 
 Periods intentionally overlap. Writing and synthetic scholarly completion continue while access decisions and governance processes proceed.
 
@@ -205,10 +209,12 @@ For governed work, extend this chain with:
 11. [x] Prepare aggregate governed-reporting templates.
 12. [x] Prepare scholarly integration templates.
 13. [x] Build near-final capstone manuscript scaffold.
-14. [ ] Confirm external institutional authorization and governed data access.
-15. [ ] Apply the frozen method to governed data if approvals/access permit.
-16. [ ] Complete empirical validation and primary descriptive analysis if governed data are available.
-17. [ ] Complete final scholarly synthesis and capstone submission package.
+14. [x] Build near-final capstone presentation narrative.
+15. [x] Build reproducibility audit and submission checklists.
+16. [ ] Confirm external institutional authorization and governed data access.
+17. [ ] Apply the frozen method to governed data if approvals/access permit.
+18. [ ] Complete empirical validation and primary descriptive analysis if governed data are available.
+19. [ ] Execute final reproducibility audit and freeze scholarly submission package.
 
 ## Success criterion
 
