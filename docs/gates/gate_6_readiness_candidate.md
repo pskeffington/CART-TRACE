@@ -1,10 +1,12 @@
-# Gate 6 — Governed-Data Methodological Readiness Candidate
+# Gate 6 — Governed-Data Methodological Readiness
 
 ## Decision status
 
-**Candidate / pending current-head validation.**
+**PASSED — methodological readiness / conditional on governed authorization.**
 
-The public CART-TRACE governance and operational-review package is complete enough to support a formal readiness decision. This gate evaluates whether the frozen method has the documentation and controls needed for an approved retrospective hospital-data application. It does **not** certify that institutional approvals, data-use authorization, or governed data access are currently in place.
+GitHub Actions run `31829204761` completed successfully for commit `2f63a3d35825e615598f3030b64253abffc86818`, validating the complete public CART-TRACE governance and operational-review package.
+
+This decision certifies that the frozen method has a documented, controlled process for an approved retrospective hospital-data application. It does **not** certify that institutional approvals, data-use authorization, governed-environment access, or actual source-data availability are in place.
 
 ## Scope of the gate
 
@@ -43,11 +45,15 @@ Gate 6 evaluates methodological and governance readiness only. It does not:
 - [x] the public/private boundary excludes PHI, credentials, local identifiers, restricted mappings, raw governed extracts, and patient-level adjudication evidence;
 - [x] pre-analysis review explicitly checks that frozen care states, interval semantics, precedence, metrics, follow-up rules, and oracle expectations have not changed implicitly.
 
+## Validation evidence
+
+GitHub Actions run `31829204761` completed successfully for head `2f63a3d35825e615598f3030b64253abffc86818`. The validated head contained the complete readiness artifact inventory and the Gate 6 candidate decision logic.
+
 ## Frozen-method boundary
 
 Any governed-data issue that appears to require a new canonical state, changed transition semantics, changed `[start,end)` convention, changed precedence/conflict behavior, changed metric definition, changed follow-up interpretation, or changed synthetic oracle expectation must stop and enter explicit gate-impact review. Local preprocessing may not absorb such changes silently.
 
-## External prerequisites
+## External prerequisites for governed execution
 
 Before governed application begins, the responsible institutional team must document inside the approved environment:
 
@@ -59,19 +65,11 @@ Before governed application begins, the responsible institutional team must docu
 6. permitted output/disclosure rules;
 7. completed pre-analysis readiness decision.
 
-These prerequisites cannot be established by the public repository alone.
-
-## Candidate decision rule
-
-Gate 6 may be marked **PASSED — methodological readiness / awaiting or conditional on governed authorization** when:
-
-1. the current repository head validates successfully;
-2. the readiness artifact inventory remains complete and internally consistent;
-3. no frozen analytic semantics changed during the readiness pass;
-4. the gate decision continues to distinguish methodological readiness from institutional authorization and actual data access.
-
-A successful Gate 6 decision therefore permits transition to governed application **only when** the external prerequisites above are independently satisfied.
+These prerequisites are external to the public repository and remain mandatory despite this methodological-readiness pass.
 
 ## Post-gate work
 
-After methodological readiness passes, the next capstone workstream is governed source profiling and local mapping, followed by source-concordance validation, reconstructability and follow-up characterization, descriptive trajectory analysis, limitations, and final scholarly synthesis. If governed access is unavailable, the frozen synthetic method and governance package remain valid capstone products and the project should proceed with limitations-focused scholarly completion rather than expanding the analytic software.
+Two capstone branches are now legitimate without reopening the frozen method:
+
+1. **Governed execution branch** — if approvals/access exist, perform source profiling, local mapping, reconstructability and follow-up characterization, source-concordance validation, descriptive trajectory analysis, and governed results reporting.
+2. **Scholarly synthesis branch** — if governed access is unavailable or delayed, complete the capstone with the frozen synthetic method, governance package, limitations, reproducibility statement, and manuscript/presentation synthesis rather than expanding the software.
