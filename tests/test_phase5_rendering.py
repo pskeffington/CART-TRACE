@@ -69,6 +69,18 @@ def test_render_all_preserves_required_phase5_controls(tmp_path: Path) -> None:
             }
         ],
     }
+    metric_results = [
+        {
+            "episode_id": "routine",
+            "values": {"total_inpatient_hours": 48, "acute_care_reuse_30d": None},
+            "status": {"total_inpatient_hours": "observed", "acute_care_reuse_30d": "incomplete_followup"},
+        },
+        {
+            "episode_id": "unknown",
+            "values": {"total_inpatient_hours": None, "acute_care_reuse_30d": False},
+            "status": {"total_inpatient_hours": "not_calculable", "acute_care_reuse_30d": "observed_zero"},
+        },
+    ]
     cohort = [
         {
             "metric_id": "total_inpatient_hours",
@@ -113,17 +125,19 @@ def test_render_all_preserves_required_phase5_controls(tmp_path: Path) -> None:
     }
 
     _write(input_dir / "phase5_patient_trajectories.json", trajectories)
+    _write(input_dir / "phase5_metric_results.json", metric_results)
     _write(input_dir / "phase5_cohort_summary.json", cohort)
     _write(input_dir / "phase5_metric_validation.json", metric_validation)
     _write(input_dir / "phase5_reconstruction_validation.json", reconstruction)
     _write(input_dir / "phase5_uncertainty_summary.json", uncertainty)
 
     paths = render_all(input_dir, output_dir)
-    assert len(paths) == 6
+    assert len(paths) == 7
 
     table3 = (output_dir / "table3_validation.md").read_text()
     table4 = (output_dir / "table4_cohort_summary.md").read_text()
     table5 = (output_dir / "table5_uncertainty.md").read_text()
+    table_s1 = (output_dir / "supplementary_table_s1_metric_matrix.md").read_text()
     figure2 = (output_dir / "figure2_representative_trajectories.svg").read_text()
     figure3 = (output_dir / "figure3_utilization_availability.svg").read_text()
     figure_s1 = (output_dir / "figure_s1_all_trajectories.svg").read_text()
@@ -134,6 +148,10 @@ def test_render_all_preserves_required_phase5_controls(tmp_path: Path) -> None:
     assert "total_inpatient_hours" in table4
     assert "Episodes with uncertain or unknown state" in table5
     assert "Metric status: incomplete_followup" in table5
+    assert "Complete metric-result matrix" in table_s1
+    assert "48 [observed]" in table_s1
+    assert "NA [incomplete_followup]" in table_s1
+    assert "NA [not_calculable]" in table_s1
     assert "analytic boundary = 720 h" in figure2
     assert "unknown" in figure2
     assert 'stroke-dasharray="5 3"' in figure2
@@ -168,6 +186,16 @@ def test_render_all_is_content_deterministic(tmp_path: Path) -> None:
                 }
             ]
         },
+    )
+    _write(
+        input_dir / "phase5_metric_results.json",
+        [
+            {
+                "episode_id": "episode",
+                "values": {"total_inpatient_hours": 24},
+                "status": {"total_inpatient_hours": "observed"},
+            }
+        ],
     )
     _write(input_dir / "phase5_cohort_summary.json", [])
     _write(input_dir / "phase5_metric_validation.json", [])
