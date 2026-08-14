@@ -1,14 +1,17 @@
-name: Validate Gate 1
+name: Validate CART-TRACE
 
 on:
   push:
     branches:
+      - main
       - build/core-trajectory-model
   pull_request:
     paths:
+      - 'cart_trace/**'
       - 'schemas/**'
       - 'config/**'
       - 'examples/synthetic/**'
+      - 'scripts/**'
       - 'tests/**'
       - 'pyproject.toml'
       - '.github/workflows/validate-gate1.yml'
@@ -18,7 +21,7 @@ permissions:
   contents: read
 
 jobs:
-  gate1:
+  validation:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -37,6 +40,20 @@ jobs:
 
       - name: Run Gate 1 schema tests
         run: pytest -q tests/test_gate1_schemas.py
+
+      - name: Generate controlled Phase 5 JSON outputs
+        run: python scripts/generate_phase5_outputs.py
+
+      - name: Render Phase 5 scholarly artifacts
+        run: python scripts/render_phase5_outputs.py
+
+      - name: Verify expected rendered artifacts
+        run: |
+          test -s examples/rendered/table3_validation.md
+          test -s examples/rendered/table4_cohort_summary.md
+          test -s examples/rendered/table5_uncertainty.md
+          test -s examples/rendered/figure2_representative_trajectories.svg
+          test -s examples/rendered/figure_s1_all_trajectories.svg
 
       - name: Run full test suite
         run: pytest -q
