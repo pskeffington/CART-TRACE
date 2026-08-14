@@ -7,7 +7,7 @@ Run from the repository root after generating the Phase 5 JSON artifacts:
 
 This module does not reconstruct episodes or calculate metrics. It only converts
 controlled Phase 5 JSON outputs into manuscript-facing Markdown tables and SVG
-trajectory figures using the Python standard library.
+figures using the Python standard library.
 """
 
 from __future__ import annotations
@@ -20,16 +20,6 @@ from typing import Any, Iterable, Mapping, Sequence
 ROOT = Path(__file__).resolve().parents[1]
 INPUT_DIR = ROOT / "examples" / "outputs"
 OUTPUT_DIR = ROOT / "examples" / "rendered"
-
-STATE_ORDER = [
-    "outpatient",
-    "emergency",
-    "routine_inpatient",
-    "intermediate_care",
-    "intensive_care",
-    "discharged",
-    "unknown",
-]
 
 STATE_LABELS = {
     "outpatient": "Outpatient",
@@ -253,6 +243,68 @@ def render_trajectory_svg(
     return "\n".join(parts) + "\n"
 
 
+def render_utilization_availability_svg(summary_rows: Sequence[Mapping[str, Any]]) -> str:
+    """Render Figure 3 with descriptive values and explicit metric availability."""
+    rows = list(summary_rows)
+    width = 1200
+    left = 280
+    right = 70
+    top = 110
+    row_height = 54
+    height = top + row_height * len(rows) + 95
+    plot_width = width - left - right
+    maximum = max(
+        [
+            float(row.get("maximum"))
+            for row in rows
+            if isinstance(row.get("maximum"), (int, float)) and not isinstance(row.get("maximum"), bool)
+        ]
+        or [1.0]
+    )
+
+    def x(value: float) -> float:
+        return left + max(0.0, value) / maximum * plot_width
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="white"/>',
+        f'<text x="{left}" y="35" font-family="sans-serif" font-size="22" font-weight="bold">Figure 3. Synthetic cohort utilization and metric availability</text>',
+        f'<text x="{left}" y="58" font-family="sans-serif" font-size="13">Synthetic demonstration; numeric summaries use observed and observed-zero results only.</text>',
+        f'<text x="{left}" y="78" font-family="sans-serif" font-size="13">Availability labels retain not-applicable, not-calculable, and incomplete-follow-up counts.</text>',
+    ]
+
+    for row_index, row in enumerate(rows):
+        y = top + row_index * row_height
+        metric = str(row.get("metric_id"))
+        median = row.get("median")
+        minimum = row.get("minimum")
+        maximum_value = row.get("maximum")
+        parts.append(
+            f'<text x="{left-12}" y="{y+18}" text-anchor="end" font-family="sans-serif" font-size="11">{html.escape(metric)}</text>'
+        )
+        if all(isinstance(value, (int, float)) and not isinstance(value, bool) for value in (minimum, median, maximum_value)):
+            xmin = x(float(minimum))
+            xmed = x(float(median))
+            xmax = x(float(maximum_value))
+            parts.append(f'<line x1="{xmin:.1f}" y1="{y+12}" x2="{xmax:.1f}" y2="{y+12}" stroke="#555555" stroke-width="2"/>')
+            parts.append(f'<circle cx="{xmed:.1f}" cy="{y+12}" r="4" fill="#222222"/>')
+        availability = (
+            f"available {row.get('available_count', 0)}/{row.get('episode_count', 0)}; "
+            f"NAp {row.get('not_applicable_count', 0)}; "
+            f"NC {row.get('not_calculable_count', 0)}; "
+            f"IFU {row.get('incomplete_followup_count', 0)}"
+        )
+        parts.append(
+            f'<text x="{left}" y="{y+34}" font-family="sans-serif" font-size="10">{html.escape(availability)}</text>'
+        )
+
+    parts.append(
+        f'<text x="{left}" y="{height-42}" font-family="sans-serif" font-size="11">Horizontal segment = observed minimum-to-maximum; dot = observed median. NAp = not applicable; NC = not calculable; IFU = incomplete follow-up.</text>'
+    )
+    parts.append('</svg>')
+    return "\n".join(parts) + "\n"
+
+
 def render_all(input_dir: Path = INPUT_DIR, output_dir: Path = OUTPUT_DIR) -> list[Path]:
     trajectories = _load("phase5_patient_trajectories.json", input_dir)
     cohort = _load("phase5_cohort_summary.json", input_dir)
@@ -270,6 +322,7 @@ def render_all(input_dir: Path = INPUT_DIR, output_dir: Path = OUTPUT_DIR) -> li
             _trajectory_selection(trajectories),
             "Figure 2. Representative synthetic post-infusion hospital care trajectories",
         ),
+        "figure3_utilization_availability.svg": render_utilization_availability_svg(cohort),
         "figure_s1_all_trajectories.svg": render_trajectory_svg(
             trajectories,
             list(trajectories),
