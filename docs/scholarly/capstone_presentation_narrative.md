@@ -1,8 +1,8 @@
-# CART-TRACE Near-Final Capstone Presentation Narrative
+# CART-TRACE Final Public Capstone Presentation Narrative
 
 ## Status
 
-Near-final public presentation narrative. It is built entirely from frozen synthetic evidence and methodological-readiness artifacts. Governed empirical findings may be inserted only after authorization, execution, and disclosure review.
+Final public presentation narrative for the frozen synthetic scholarly package. It is built entirely from frozen synthetic evidence and methodological-readiness artifacts. No institutional empirical findings are included in this public version. Any future governed findings may be added only after authorization, execution, and disclosure review.
 
 ## Slide 1 — Title and problem
 
@@ -78,11 +78,13 @@ Present the planned sequence if approved data become available:
 
 State explicitly that this branch begins only after institutional authorization and data access.
 
-## Slide 13 — Empirical results insertion point
+## Slide 13 — Governed empirical status
 
-If governed execution has occurred, insert only disclosure-approved aggregate findings for source availability, reconstructability, concordance, follow-up sufficiency, and descriptive utilization.
+State explicitly:
 
-If governed execution has not occurred, show the prespecified validation design and state that no institutional empirical results are available.
+> No institutional empirical findings are included in the frozen public CART-TRACE package. Governed validation remains a separate approval-dependent extension.
+
+Show the prespecified validation design rather than simulated or placeholder empirical results.
 
 ## Slide 14 — Limitations
 
@@ -100,11 +102,11 @@ Show the audit chain:
 
 `source record -> staging rule -> canonical object -> validation check -> metric eligibility -> analytic output -> capstone table/figure`
 
-Mention automated tests, generated artifacts, versioned mapping, frozen gates, and explicit gate-impact review.
+Mention automated tests, generated artifacts, versioned mapping, frozen gates, explicit gate-impact review, and final public scholarly freeze.
 
 ## Slide 17 — Conclusion
 
-Closing statement: CART-TRACE demonstrates that post-infusion hospital records can be transformed into a transparent, auditable, treatment-relative trajectory representation under a prespecified synthetic validation framework. Governed empirical validation is a separate, approval-dependent extension.
+Closing statement: CART-TRACE demonstrates that post-infusion hospital records can be transformed into a transparent, auditable, treatment-relative trajectory representation under a prespecified synthetic validation framework. The frozen public package establishes computational validity and methodological readiness; institutional representation fidelity and descriptive empirical findings require separate governed evaluation.
 
 ## Q&A anchors
 
