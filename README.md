@@ -29,15 +29,14 @@ The project focuses on:
 
 CART-TRACE has completed and frozen the canonical episode/state model, synthetic oracle, deterministic reconstruction layer, post-infusion utilization metric contract, and synthetic scholarly prototype through **Gate 5**.
 
-GitHub Actions run `31828145837` completed successfully for the Gate 5 freeze candidate, providing current-head validation evidence for the complete synthetic scholarly artifact inventory.
+**Gate 6 has also passed for methodological readiness.** GitHub Actions run `31829204761` completed successfully for commit `2f63a3d35825e615598f3030b64253abffc86818`, validating the complete governance and operational-review package.
 
-The project is now in **Phase 6 preparation — governance and data readiness**. Current priorities are:
+Gate 6 does **not** mean institutional approval or governed data access has been granted. Any real-data application remains conditional on approvals, authorized users/environment, actual source-field availability, local mapping review, validation/adjudication planning, and governed pre-analysis signoff.
 
-1. define the governed cohort and infusion-anchor specification;
-2. define the minimum encounter/location/transfer/disposition/infusion source-field inventory;
-3. establish local source-to-canonical mapping review and versioning rules;
-4. define source-concordance, adjudication, reconstructability, uncertainty, and follow-up review procedures;
-5. preserve a strict public/private boundary before any governed clinical-data application.
+The project therefore has two valid next paths:
+
+1. **Governed execution**, if approvals and data access are available: source profiling, local mapping, reconstructability/follow-up characterization, source-concordance validation, and descriptive trajectory analysis.
+2. **Scholarly synthesis**, if governed access is unavailable or delayed: complete limitations, reproducibility, Methods/Results/Discussion, and presentation/submission materials without expanding the frozen analytic software.
 
 See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution horizon, and [THESIS.md](THESIS.md) for the formal scholarly framing.
 
