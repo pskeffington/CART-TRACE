@@ -36,13 +36,14 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Cohort-style synthetic characterization table rendered reproducibly
 - [x] Capstone validation and uncertainty tables rendered reproducibly
 - [x] Figure 3 utilization/availability visualization rendered reproducibly
-- [ ] Methods/data-flow Figure 1 finalized
-- [ ] Specification-oriented Tables 1–2 finalized
+- [x] Methods/data-flow Figure 1 finalized from frozen specification sources
+- [x] Specification-oriented Tables 1–2 finalized from frozen sources
+- [ ] Supplementary Tables S1–S4 finalized and inventory reconciled
 - [ ] Phase 5 scholarly-output gate fully passed
 - [ ] Governed hospital-data validation initiated, if feasible
 
 **Current phase:** Phase 5 — capstone characterization and communication  
-**Current gate:** quantitative synthetic scholarly outputs are reproducibly rendered and linked to the manuscript scaffold; the remaining Phase 5 work is specification-oriented Figure 1/Tables 1–2 completion plus final integration/freeze review.
+**Current gate:** all planned main-text scholarly artifacts now have controlled repository paths. Remaining Phase 5 work is limited to supplementary Tables S1–S4, final inventory reconciliation, and scholarly prototype freeze.
 
 ## Canonical care states
 
@@ -146,7 +147,7 @@ Changes to frozen Phase 4 semantics require versioning, affected fixture regener
 
 ## Phase 5 — Capstone characterization and communication
 
-**Status: active / quantitative rendering validated**
+**Status: active / all main-text artifacts controlled**
 
 Goal: turn validated canonical trajectories and metric results into transparent scholarly outputs without changing the frozen data semantics.
 
@@ -165,25 +166,31 @@ Goal: turn validated canonical trajectories and metric results into transparent 
 - [x] limitations and governed-data transfer scaffold;
 - [x] deterministic rendering entry point for quantitative Phase 5 artifacts;
 - [x] rendering manifest with controlled source-to-output paths;
-- [x] manuscript scaffold references generated artifacts rather than manually maintained numeric results.
+- [x] manuscript scaffold references generated artifacts rather than manually maintained numeric results;
+- [x] Figure 1 finalized from the frozen clinical-data structuring framework;
+- [x] Table 1 finalized from frozen schemas, mapping/temporal semantics, and implementation artifacts;
+- [x] Table 2 finalized from the frozen Phase 2 fixture manifest and six controlled synthetic fixtures.
 
 GitHub Actions run `31827148476` completed successfully for commit `7aa5b44bf25fab87ac75908252c0cc048ab457fe`, validating generation, rendering, Figure 3 availability controls, deterministic rendering behavior, and the full automated suite on supported Python versions.
 
-### Quantitative presentation outputs
+### Main-text scholarly outputs
 
-- [x] render patient-level synthetic trajectory figures using treatment-relative time;
-- [x] render cohort-style synthetic utilization summary table from generated output;
-- [x] render reconstruction fidelity and metric validation table from generated output;
-- [x] render missingness/uncertainty table from generated output;
-- [x] render utilization/metric-availability Figure 3 from generated output;
-- [x] link generated quantitative artifacts into the manuscript scaffold without manually duplicating numeric results.
+- [x] Figure 1 — data structuring and validation architecture;
+- [x] Table 1 — canonical data model and deterministic rules;
+- [x] Table 2 — prespecified synthetic trajectory truth set;
+- [x] Figure 2 — representative patient trajectories;
+- [x] Table 3 — reconstruction and metric validation;
+- [x] Table 4 — synthetic cohort utilization summary;
+- [x] Figure 3 — utilization and metric availability;
+- [x] Table 5 — uncertainty/missingness summary.
 
-### Remaining specification-oriented outputs
+### Supplementary outputs remaining
 
-- [ ] finalize Figure 1 showing source -> staging -> canonical trajectory -> validation -> metrics -> outputs;
-- [ ] finalize Table 1 summarizing the canonical data model and deterministic transformation rules;
-- [ ] finalize Table 2 summarizing the six synthetic truth-set trajectory classes and validation targets;
-- [ ] perform one final manuscript-output inventory review confirming every required artifact has a controlled source and explicit synthetic/clinical-validity boundary.
+- [x] Supplementary Figure S1 — full six-episode trajectory panel;
+- [ ] Supplementary Table S1 — complete metric-result matrix by episode;
+- [ ] Supplementary Table S2 — source-to-canonical mapping rules;
+- [ ] Supplementary Table S3 — boundary and negative test inventory;
+- [ ] Supplementary Table S4 — reproducibility artifacts.
 
 ### Phase 5 scholarly-output gate
 
@@ -200,23 +207,24 @@ Gate requirements:
 - [x] repeat rendering from unchanged inputs is deterministic at the data/content level;
 - [x] manuscript scaffold references the generated quantitative artifacts and preserves source-to-output traceability;
 - [x] CI reproducibility evidence records a successful generation-and-render pass;
-- [ ] Figure 1 and Tables 1–2 are finalized from frozen specification sources;
-- [ ] final scholarly-output inventory review confirms all main-text and supplementary artifacts are accounted for.
+- [x] Figure 1 and Tables 1–2 are finalized from frozen specification sources;
+- [ ] Supplementary Tables S1–S4 are finalized from controlled sources;
+- [ ] final scholarly-output inventory review confirms all planned artifacts are accounted for and source-traceable.
 
-**Gate 5 -> scholarly prototype freeze: PARTIALLY PASSED / quantitative layer validated.** The remaining work is specification-oriented presentation and final freeze review, not expansion of reconstruction or metric logic.
+**Gate 5 -> scholarly prototype freeze: MAIN-TEXT COMPLETE / supplementary reconciliation pending.** The remaining work is supplementary presentation and final freeze review, not expansion of reconstruction or metric logic.
 
-### Next focused pass — specification-oriented scholarly outputs
+### Next focused pass — supplementary inventory closure
 
-Primary task: complete Figure 1 and Tables 1–2 directly from frozen method specifications and synthetic fixture definitions.
+Primary task: generate and reconcile Supplementary Tables S1–S4 from already-controlled sources.
 
 Completion artifacts for this pass:
 
-1. render or otherwise finalize Figure 1 from `docs/clinical_data_structuring_framework.md`, schemas, mapping config, and metric contract;
-2. produce Table 1 from frozen schema objects, interval/transition semantics, mapping/conflict rules, provenance behavior, and implementation paths;
-3. produce Table 2 from the six frozen Phase 2 synthetic fixture classes and their validation targets;
-4. add artifact paths to `docs/phase5_rendering_manifest.md` and `docs/manuscript_scaffold.md`;
-5. perform a final inventory reconciliation against `docs/table_figure_inventory.md`;
-6. only then mark the Phase 5 scholarly-output gate passed and freeze the synthetic scholarly prototype.
+1. produce Supplementary Table S1 from `examples/outputs/phase5_metric_results.json` with metric values and statuses by episode;
+2. produce Supplementary Table S2 from `config/synthetic_care_state_mapping.json` with source label, canonical state, priority, and mapping version;
+3. produce Supplementary Table S3 from `examples/synthetic/phase2_boundary_cases.json`, `invalid_phase2_cases.json`, and relevant automated tests;
+4. produce Supplementary Table S4 from gate documents, controlled repository paths, versions/commits, and CI evidence;
+5. update `docs/phase5_rendering_manifest.md`, `docs/table_figure_inventory.md`, and manuscript references as needed;
+6. run the final inventory reconciliation and only then mark Gate 5 fully passed and freeze the synthetic scholarly prototype.
 
 This pass should not alter frozen care-state semantics, reconstruction precedence, metric definitions, follow-up rules, or the six-case oracle unless a defect is demonstrated and handled through explicit gate-impact review.
 
@@ -230,8 +238,6 @@ This pass should not alter frozen care-state semantics, reconstruction precedenc
 - do not infer clinical severity from care location alone;
 - do not claim capacity forecasting or prospective decision support;
 - keep synthetic demonstration results distinct from future governed clinical findings.
-
-Recurring trajectory groups may be explored descriptively if a future governed sample supports them. Clustering and prediction are not required for capstone success.
 
 ---
 
@@ -260,15 +266,9 @@ The remaining schedule is organized around three linked claims: **computational 
 | 18–20 | Scholarly synthesis | final Methods, Results, Discussion, tables, figures, limitations, reproducibility statement |
 | 21 | Final freeze and capstone completion | reproducibility audit, repository release, presentation/submission package |
 
-Periods intentionally overlap. Governance preparation can begin while the synthetic scholarly prototype is finalized, and writing should continue throughout empirical work rather than being deferred to the final months.
-
 ### Work-session completion rule
 
 Each focused work session should define one primary task and one concrete completion artifact. A session is complete when the task supports a named capstone milestone, the artifact is committed or otherwise controlled, frozen semantics are not changed implicitly, validation evidence is added when logic changes, CI is checked before milestone claims, traceability is preserved, synthetic and governed findings remain separated, and the next highest-value task is recorded.
-
-### Monthly alignment review
-
-Review whether current work still supports the primary capstone question; whether it strengthens computational validity, representation validity, or analytic utility; whether uncertainty, denominators, and follow-up limitations are visible; whether outputs remain traceable to controlled inputs; whether governed work is separated from public synthetic artifacts; whether engineering effort is decreasing as the method stabilizes; and whether adequate time remains for validation, writing, revision, and final presentation.
 
 ### Scope guardrail
 
@@ -297,9 +297,9 @@ Every major capstone result should remain traceable through:
 11. [x] Implement the controlled Phase 5 rendering entry point and content-level checks.
 12. [x] Render quantitative manuscript tables and figures from generated machine-readable outputs.
 13. [x] Integrate generated quantitative artifacts into the manuscript scaffold without manual numeric duplication.
-14. [ ] Finalize Figure 1 and Tables 1–2 from frozen specification sources.
-15. [ ] Reconcile the complete scholarly-output inventory and pass the Phase 5 freeze gate.
-16. [ ] Complete final validation, limitations, and reproducibility reporting for the scholarly product.
+14. [x] Finalize Figure 1 and Tables 1–2 from frozen specification sources.
+15. [ ] Finalize Supplementary Tables S1–S4 and reconcile the complete scholarly-output inventory.
+16. [ ] Pass the Phase 5 freeze gate and complete final validation, limitations, and reproducibility reporting.
 
 ## Success criterion
 
