@@ -27,14 +27,17 @@ The project focuses on:
 
 ## Current status
 
-CART-TRACE has completed and frozen the canonical episode/state model, synthetic oracle, deterministic reconstruction layer, and post-infusion utilization metric contract. The project is currently in **Phase 5 — capstone characterization and communication**.
+CART-TRACE has completed and frozen the canonical episode/state model, synthetic oracle, deterministic reconstruction layer, post-infusion utilization metric contract, and synthetic scholarly prototype through **Gate 5**.
 
-Current priorities are:
+GitHub Actions run `31828145837` completed successfully for the Gate 5 freeze candidate, providing current-head validation evidence for the complete synthetic scholarly artifact inventory.
 
-1. finalize patient-level trajectory figures;
-2. render cohort-style synthetic characterization and validation tables from controlled machine-readable outputs;
-3. complete final validation, limitations, and reproducibility reporting;
-4. prepare governed-data mapping, data-quality, and adjudication workflows for retrospective clinical application if feasible.
+The project is now in **Phase 6 preparation — governance and data readiness**. Current priorities are:
+
+1. define the governed cohort and infusion-anchor specification;
+2. define the minimum encounter/location/transfer/disposition/infusion source-field inventory;
+3. establish local source-to-canonical mapping review and versioning rules;
+4. define source-concordance, adjudication, reconstructability, uncertainty, and follow-up review procedures;
+5. preserve a strict public/private boundary before any governed clinical-data application.
 
 See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution horizon, and [THESIS.md](THESIS.md) for the formal scholarly framing.
 
@@ -75,12 +78,16 @@ Any institutional clinical-data application must occur under appropriate governa
 
 ## Scope boundary
 
-The capstone is intentionally limited to retrospective, descriptive reconstruction and characterization of post-infusion hospital care. Candidate identification, eligibility adjudication, treatment-readiness gating, leukapheresis/bridging decisions, CMC/manufacturing analytics, patient-generated health data, prediction, and prospective decision support are post-capstone research opportunities rather than current requirements.
+The capstone is intentionally limited to retrospective, descriptive reconstruction and characterization of post-infusion hospital care. Candidate identification, eligibility adjudication, treatment-readiness gating, leukapheresis/bridging decisions, CMC/manufacturing analytics, patient-generated health data, prediction, and prospective decision support are outside the required capstone scope.
 
 ## Reproducibility principle
 
-Every major result should remain traceable through:
+Every major synthetic result remains traceable through:
 
 `source record -> staging rule -> canonical object -> validation check -> metric eligibility -> analytic output -> capstone table/figure`
 
-The repository prioritizes transparent definitions, versioned transformations, explicit uncertainty, synthetic truth sets, automated tests, and reproducible generated outputs.
+For future governed work, the analogous chain is:
+
+`approved source field -> local mapping rule -> canonical object -> concordance/adjudication evidence -> metric eligibility -> governed analytic result`
+
+The repository prioritizes transparent definitions, versioned transformations, explicit uncertainty, synthetic truth sets, automated tests, reproducible generated outputs, and separation of public synthetic artifacts from governed institutional data.
