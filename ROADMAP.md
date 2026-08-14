@@ -42,12 +42,15 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Public/private data boundary documented
 - [x] Data-quality profile, reconstructability, follow-up, discrepancy-log, and pre-analysis operational review package finalized
 - [x] Gate 6 methodological readiness passed with CI evidence
-- [x] Template-only governed-execution work package initiated
+- [x] Template-only governed-execution work package completed
+- [x] Aggregate governed-reporting templates completed
+- [x] Scholarly integration templates completed
 - [ ] Institutional authorization and governed data access confirmed
 - [ ] Governed hospital-data validation initiated, if feasible
+- [ ] Final capstone manuscript and presentation completed
 
-**Current phase:** Phase 6 complete for public methodological readiness / awaiting governed authorization  
-**Current gate:** Gate 6 is **PASSED — methodological readiness / conditional on governed authorization**. The public method and governance controls are ready for approved retrospective application, but no public-repository artifact can establish or substitute for institutional approval, data-use authorization, or actual governed data access.
+**Current phase:** public methodological and scholarly integration package complete / awaiting governed authorization  
+**Current gate:** Gate 6 is **PASSED — methodological readiness / conditional on governed authorization**. The public method, governance controls, governed-execution templates, aggregate reporting templates, and scholarly integration scaffolds are ready. No public artifact establishes or substitutes for institutional approval, data-use authorization, or governed data access.
 
 ## Canonical care states
 
@@ -83,32 +86,26 @@ Any change to frozen care states, interval semantics, source precedence, reconst
 
 **Status: methodological readiness complete / external authorization pending**
 
-Goal: prepare the frozen CART-TRACE method for an approved retrospective hospital-data application while keeping governed data and institution-specific details out of the public repository.
+The public governance package includes cohort/index-event specification, source-field inventory, local mapping/versioning, validation/adjudication, public/private boundaries, data-quality and reconstructability controls, follow-up sufficiency rules, discrepancy logging, and pre-analysis review.
 
-### Completed governance/data-readiness deliverables
-
-- [x] `docs/governance/cohort_specification.md` — therapy episode, infusion anchor, repeat-infusion handling, reconstructability, follow-up, and cohort accounting;
-- [x] `docs/governance/source_field_inventory.md` — minimum source domains, semantic roles, completeness, mapping-readiness, and data-quality dimensions;
-- [x] `docs/governance/local_mapping_protocol.md` — local mapping statuses, precedence, versioning, coverage, and source-conflict rules;
-- [x] `docs/governance/validation_adjudication_plan.md` — source concordance, metric validation, discrepancy categories, adjudication, and regeneration rules;
-- [x] `docs/governance/public_private_boundary.md` — public/governed artifact separation and disclosure boundary;
-- [x] `docs/governance/data_quality_profile_template.md` — anchor completeness, mapping coverage, timestamp quality, conflict/open-end burden, provenance, and follow-up profile;
-- [x] `docs/governance/reconstructability_worksheet.md` — operational episode-level reconstructability categories and structured reason codes;
-- [x] `docs/governance/followup_sufficiency_checklist.md` — metric-specific 7-day/30-day observation sufficiency rules;
-- [x] `docs/governance/discrepancy_log_specification.md` — controlled discrepancy categories, resolution classes, and gate-impact rule;
-- [x] `docs/governance/preanalysis_checklist.md` — final governed-environment readiness review and frozen-method integrity check;
-- [x] `docs/governance/governed_execution_decision_plan.md` — explicit post-Gate-6 branch logic;
-- [x] `docs/governance/field_availability_matrix_template.md` — local source-availability review template;
-- [x] `docs/governance/local_mapping_review_sheet.md` — governed source-label mapping review template;
-- [x] `docs/governance/validation_sample_protocol.md` — prespecified representation-validation sampling and review framework.
-
-### Gate 6 decision
-
-GitHub Actions run `31829204761` completed successfully for commit `2f63a3d35825e615598f3030b64253abffc86818`, validating the complete Gate 6 candidate package. The subsequent post-gate documentation head `28b0d12c6e8061f9ee58f57f62e3822f971eab01` was also validated successfully in Actions run `31829807836`.
+GitHub Actions run `31829204761` completed successfully for commit `2f63a3d35825e615598f3030b64253abffc86818`, validating the complete Gate 6 candidate package. The post-gate documentation head `28b0d12c6e8061f9ee58f57f62e3822f971eab01` was validated in run `31829807836`.
 
 **Gate 6 -> governed application: PASSED FOR METHODOLOGICAL READINESS / GOVERNED AUTHORIZATION REQUIRED.**
 
-This means the protocol, review controls, public/private boundary, and execution templates are ready. It does not mean that institutional approval or data access exists.
+### Governed execution templates
+
+Completed template-only execution controls:
+
+- `docs/governance/field_availability_matrix_template.md`;
+- `docs/governance/local_mapping_review_sheet.md`;
+- `docs/governance/validation_sample_protocol.md`;
+- `docs/governance/aggregate_data_quality_summary_template.md`;
+- `docs/governance/aggregate_reconstructability_summary_template.md`;
+- `docs/governance/aggregate_followup_sufficiency_summary_template.md`;
+- `docs/governance/aggregate_concordance_discrepancy_summary_template.md`;
+- `docs/governance/governed_results_manuscript_placeholder.md`.
+
+The aggregate reporting package was validated by GitHub Actions run `31830669600` for commit `45ac0d828eb9e540e386d711a2044ba9e3595855`.
 
 ### External prerequisites before governed execution
 
@@ -116,38 +113,40 @@ The governed execution branch may begin only after the responsible institutional
 
 1. IRB/privacy/data-use authorization as applicable;
 2. approved users and governed environment;
-3. actual source-field availability using the field-availability matrix;
-4. reviewed and versioned local mapping;
-5. a prespecified validation sample and adjudication process;
+3. actual source-field availability;
+4. reviewed/versioned local mapping;
+5. prespecified validation sample and adjudication process;
 6. permitted output/disclosure rules;
 7. completed pre-analysis checklist;
-8. confirmation that no frozen method rule has been changed implicitly.
+8. confirmation that no frozen method rule changed implicitly.
 
-### Governed execution work package
+---
 
-Once external prerequisites are satisfied, the first controlled work products are:
+## Scholarly integration package
 
-1. completed field-availability matrix;
-2. local mapping review/version;
-3. governed data-quality profile;
-4. reconstructability classification for the cohort;
-5. follow-up sufficiency profile;
-6. prespecified validation-sample review;
-7. discrepancy/adjudication log;
-8. approved aggregate source-concordance and metric-availability summaries.
+**Status: template layer complete**
 
-These products remain in the governed environment unless an approved, non-identifying aggregate form is explicitly permitted for public scholarly reporting.
+The repository now contains controlled scholarly integration templates that can support final capstone completion regardless of governed-access timing:
 
-### Alternative scholarly-synthesis branch
+- `docs/scholarly/methods_integration_template.md`;
+- `docs/scholarly/results_integration_template.md`;
+- `docs/scholarly/limitations_template.md`;
+- `docs/scholarly/governance_reproducibility_statement_template.md`;
+- `docs/scholarly/capstone_presentation_outline.md`.
 
-If governed authorization or data access is unavailable or materially delayed, do not expand the analytic software to compensate. Proceed with:
+These templates enforce separation among synthetic computational validation, governed representation validation, descriptive empirical findings, and external clinical validity. If governed access is unavailable, the Results template must remain explicit that no empirical clinical results were produced; synthetic or placeholder values may not be presented as observed data.
 
-- final Methods integration of the frozen synthetic and governance framework;
-- limitations emphasizing synthetic validation versus external clinical validity;
-- reproducibility and governance statements;
-- complete synthetic results and artifact traceability;
-- discussion of the planned governed validation design;
-- capstone presentation/submission preparation.
+### Next scholarly work
+
+While authorization/access is pending, the highest-value public work is:
+
+1. integrate the frozen method and synthetic evidence into a near-final Methods section;
+2. align synthetic Results with the controlled table/figure inventory;
+3. draft limitations and governance/reproducibility language;
+4. build the capstone presentation narrative from controlled artifacts;
+5. maintain clearly marked insertion points for governed aggregate findings if they later become available.
+
+Do not expand the analytic software merely to compensate for unavailable governed access.
 
 ---
 
@@ -200,10 +199,12 @@ For governed work, extend this chain with:
 8. [x] Operationalize data-quality, reconstructability, follow-up, discrepancy logging, and pre-analysis review controls.
 9. [x] Pass Gate 6 methodological readiness review.
 10. [x] Prepare template-only governed execution controls.
-11. [ ] Confirm external institutional authorization and governed data access.
-12. [ ] Apply the frozen method to governed data if approvals/access permit.
-13. [ ] Complete empirical validation and primary descriptive analysis if governed data are available.
-14. [ ] Complete final scholarly synthesis and capstone submission package.
+11. [x] Prepare aggregate governed-reporting templates.
+12. [x] Prepare scholarly integration templates.
+13. [ ] Confirm external institutional authorization and governed data access.
+14. [ ] Apply the frozen method to governed data if approvals/access permit.
+15. [ ] Complete empirical validation and primary descriptive analysis if governed data are available.
+16. [ ] Complete final scholarly synthesis and capstone submission package.
 
 ## Success criterion
 
