@@ -35,11 +35,16 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [x] Main-text and supplementary scholarly outputs finalized from controlled sources
 - [x] Phase 5 scholarly-output gate passed with CI evidence
 - [x] Synthetic scholarly prototype frozen
-- [ ] Governance/data-readiness package finalized
+- [x] Cohort and infusion-anchor specification documented
+- [x] Source-field inventory documented
+- [x] Local mapping/versioning protocol documented
+- [x] Validation/adjudication plan documented
+- [x] Public/private data boundary documented
+- [ ] Data-quality profile, reconstructability, follow-up, and discrepancy-log operational review package finalized
 - [ ] Governed hospital-data validation initiated, if feasible
 
 **Current phase:** Phase 6 preparation — governance and data readiness  
-**Current gate:** the synthetic computational and scholarly prototype is frozen. New work should prepare a governed retrospective application without modifying frozen analytic semantics.
+**Current gate:** the core governance documentation package is complete. Remaining readiness work is operational review design and confirmation of approvals/access before any governed application.
 
 ## Canonical care states
 
@@ -67,37 +72,32 @@ Primary utilization uses `[0,720)`. Limited pre-infusion context may be retained
 
 The canonical representation, synthetic oracle, deterministic reconstruction, utilization metrics, reporting layer, and complete scholarly artifact inventory have passed their respective gates. Gate 5 was promoted to **PASSED** after GitHub Actions run `31828145837` completed successfully for commit `6428fda0be4b69f3d29a408d07e3611a69dd4daf`.
 
-See:
-
-- `docs/gates/gate_1_to_2_candidate.md`
-- `docs/gates/gate_2_to_3_candidate.md`
-- `docs/gates/gate_3_to_4_candidate.md`
-- `docs/gates/gate_4_to_5_candidate.md`
-- `docs/gates/gate_5_scholarly_prototype_freeze_candidate.md`
-- `docs/phase5_rendering_manifest.md`
-
 Any change to frozen care states, interval semantics, source precedence, reconstruction behavior, metric definitions, follow-up rules, or the six-case oracle requires explicit gate-impact review and renewed validation.
 
 ---
 
 ## Phase 6 preparation — Governance and data readiness
 
-**Status: active / pre-data**
+**Status: active / core documentation complete**
 
 Goal: prepare the frozen CART-TRACE method for an approved retrospective hospital-data application while keeping governed data and institution-specific details out of the public repository.
 
-### Governance/data-readiness deliverables
+### Completed governance/data-readiness deliverables
 
-- [ ] cohort specification defining the therapy episode population and index infusion anchor;
-- [ ] minimum source-field inventory for encounter, admission/discharge, location/transfer, disposition, and infusion records;
-- [ ] local source-to-canonical mapping protocol with mapping-review and versioning rules;
-- [ ] source-data quality profile specification covering timestamp precision, missingness, overlap/conflict burden, and observation completeness;
-- [ ] reconstructability classification protocol (`reconstructable`, `reconstructable_with_uncertainty`, `not_reconstructable`);
-- [ ] source-concordance/adjudication plan for a governed validation sample;
-- [ ] metric-specific follow-up sufficiency and censoring review plan;
-- [ ] discrepancy log structure for mapping, timing, reconstruction, and metric disagreements;
-- [ ] public/private boundary describing which artifacts may enter the public repository and which remain governed;
-- [ ] pre-analysis checklist confirming no frozen analytic rule is changed implicitly during local mapping.
+- [x] `docs/governance/cohort_specification.md` — therapy episode, infusion anchor, repeat-infusion handling, reconstructability, follow-up, and cohort accounting;
+- [x] `docs/governance/source_field_inventory.md` — minimum source domains, semantic roles, completeness, mapping-readiness, and data-quality dimensions;
+- [x] `docs/governance/local_mapping_protocol.md` — local mapping statuses, precedence, versioning, coverage, and source-conflict rules;
+- [x] `docs/governance/validation_adjudication_plan.md` — source concordance, metric validation, discrepancy categories, adjudication, and regeneration rules;
+- [x] `docs/governance/public_private_boundary.md` — public/governed artifact separation and disclosure boundary.
+
+### Remaining operational readiness artifacts
+
+- [ ] source-data quality profile template covering anchor completeness, mapping coverage, timestamp precision, overlap/conflict, open ends, provenance, and observation completeness;
+- [ ] reconstructability review worksheet operationalizing `reconstructable`, `reconstructable_with_uncertainty`, and `not_reconstructable` with machine-readable reasons;
+- [ ] metric-specific follow-up sufficiency and censoring review checklist;
+- [ ] discrepancy log structure with controlled domains/statuses and resolution/version fields;
+- [ ] pre-analysis checklist confirming approvals/access, mapping version, validation sample plan, output disclosure rules, and no implicit analytic-rule changes;
+- [ ] Gate 6 readiness review document.
 
 ### Gate 6 readiness criteria
 
@@ -109,37 +109,38 @@ A governed-data application may begin only when:
 4. local mapping is reviewed and versioned separately from the public synthetic mapping;
 5. source-concordance and adjudication procedures are defined;
 6. reconstructability, uncertainty, and follow-up sufficiency rules are operationalized for review;
-7. no PHI, credentials, local identifiers, or institution-specific confidential mappings are committed publicly;
-8. any proposed change to the frozen method is handled through explicit gate-impact review rather than silently embedded in local preprocessing.
+7. data-quality and discrepancy logging are controlled rather than ad hoc;
+8. no PHI, credentials, local identifiers, or confidential mappings are committed publicly;
+9. any proposed change to the frozen method is handled through explicit gate-impact review rather than silently embedded in local preprocessing.
 
-**Gate 6 -> governed application: NOT YET PASSED.** Data readiness and governance documentation are the next work products.
+**Gate 6 -> governed application: NOT YET PASSED.** The documentation foundation is complete; operational review artifacts and approvals/access remain required.
 
-### Next focused pass — governance/data-readiness package
+### Next focused pass — operational readiness controls
 
-Primary task: create a controlled documentation package that can be used to scope and review an eventual governed clinical-data extract without requiring access to actual patient data.
+Primary task: convert the governance principles into execution-ready review templates that can be completed inside an approved environment.
 
 Completion artifacts:
 
-1. `docs/governance/cohort_specification.md`;
-2. `docs/governance/source_field_inventory.md`;
-3. `docs/governance/local_mapping_protocol.md`;
-4. `docs/governance/validation_adjudication_plan.md`;
-5. `docs/governance/public_private_boundary.md`;
-6. update manuscript Methods/governed-data extension references as appropriate.
+1. `docs/governance/data_quality_profile_template.md`;
+2. `docs/governance/reconstructability_review_template.md`;
+3. `docs/governance/followup_sufficiency_checklist.md`;
+4. `docs/governance/discrepancy_log_specification.md`;
+5. `docs/governance/pre_analysis_checklist.md`;
+6. `docs/gates/gate_6_readiness_candidate.md` after the controls above are complete and approvals/access status is explicitly recorded.
 
-This phase is documentation and review design, not new analytic feature development.
+This phase remains documentation and review design, not new analytic feature development.
 
 ---
 
 ## 21-month capstone execution horizon
 
-The schedule is organized around three linked claims: **computational validity**, **representation validity**, and **analytic utility**. Computational validity and the synthetic scholarly prototype are now frozen; subsequent work should increasingly emphasize governed-data readiness, empirical validation, descriptive analysis, and scholarly completion.
+The schedule is organized around three linked claims: **computational validity**, **representation validity**, and **analytic utility**. Computational validity and the synthetic scholarly prototype are frozen; subsequent work should emphasize governed-data readiness, empirical validation, descriptive analysis, and scholarly completion.
 
 | Months | Primary objective | Completion products |
 |---|---|---|
 | 1–4 | Computational foundation | canonical model, synthetic oracle, reconstruction, metric contract, Gates 1–4 |
 | 5–7 | Scholarly prototype freeze | generated synthetic tables/figures, reproducibility package, manuscript Methods/Results scaffold, Gate 5 |
-| 6–10 | Governance and data readiness | cohort specification, source-field inventory, local mapping protocol, validation/adjudication plan |
+| 6–10 | Governance and data readiness | cohort specification, source-field inventory, local mapping protocol, validation/adjudication plan, operational review templates |
 | 9–14 | Governed-data application, if feasible | source profiling, mapping coverage, reconstructability, uncertainty and follow-up characterization |
 | 12–16 | Empirical validation | source-concordance review, discrepancy analysis, mapping review, sensitivity analyses, metric availability |
 | 15–18 | Primary descriptive analysis | patient trajectories, utilization distributions, escalation/de-escalation, discharge and return summaries |
@@ -173,13 +174,14 @@ For governed work, extend this chain with:
 1. [x] Complete and freeze synthetic computational Gates 1–4.
 2. [x] Complete controlled Phase 5 scholarly rendering and inventory.
 3. [x] Pass Gate 5 and freeze the synthetic scholarly prototype.
-4. [ ] Define governed cohort and infusion-anchor specification.
-5. [ ] Define minimum source-field inventory and data-quality review dimensions.
-6. [ ] Define local mapping/versioning protocol and public/private boundary.
-7. [ ] Define source-concordance and adjudication plan.
-8. [ ] Pass Gate 6 readiness review before any governed application.
-9. [ ] Apply the frozen method to governed data if approvals/access permit.
-10. [ ] Complete empirical validation, descriptive analysis, and final scholarly synthesis.
+4. [x] Define governed cohort and infusion-anchor specification.
+5. [x] Define minimum source-field inventory and data-quality dimensions.
+6. [x] Define local mapping/versioning protocol and public/private boundary.
+7. [x] Define source-concordance and adjudication plan.
+8. [ ] Operationalize data-quality, reconstructability, follow-up, discrepancy logging, and pre-analysis review controls.
+9. [ ] Pass Gate 6 readiness review before any governed application.
+10. [ ] Apply the frozen method to governed data if approvals/access permit.
+11. [ ] Complete empirical validation, descriptive analysis, and final scholarly synthesis.
 
 ## Success criterion
 
