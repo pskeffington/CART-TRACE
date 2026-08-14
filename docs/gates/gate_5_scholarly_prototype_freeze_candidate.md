@@ -1,14 +1,16 @@
-# Gate 5 — Synthetic Scholarly Prototype Freeze Candidate
+# Gate 5 — Synthetic Scholarly Prototype Freeze
 
 ## Decision status
 
-**Candidate / pending current-head CI.**
+**PASSED.**
 
-The CART-TRACE Phase 5 synthetic scholarly prototype now has controlled main-text and supplementary artifact coverage. Freeze should be declared only after the current head containing the Supplementary Table S1 renderer and updated rendering tests completes successfully in GitHub Actions.
+GitHub Actions run `31828145837` completed successfully for commit `6428fda0be4b69f3d29a408d07e3611a69dd4daf`, validating the current Phase 5 freeze candidate after supplementary rendering, inventory reconciliation, and reproducibility updates.
+
+The CART-TRACE synthetic scholarly prototype is therefore frozen at Gate 5. Subsequent work must not reopen the canonical model, reconstruction semantics, metric definitions, follow-up rules, or synthetic oracle unless a demonstrated defect requires explicit gate-impact review.
 
 ## Scope of the gate
 
-This gate evaluates scholarly-output completeness and reproducibility. It does not re-open the frozen canonical model, reconstruction semantics, metric definitions, follow-up rules, or synthetic oracle.
+This gate evaluates scholarly-output completeness and reproducibility. It does not establish external clinical validity and does not authorize governed clinical-data use.
 
 ## Main-text inventory
 
@@ -40,7 +42,7 @@ This gate evaluates scholarly-output completeness and reproducibility. It does n
 - [x] synthetic demonstration and external-clinical-validity boundaries remain explicit;
 - [x] governed clinical-data application remains a separate approval-dependent phase.
 
-## Reproducibility controls
+## Reproducibility evidence
 
 Required reproduction sequence:
 
@@ -50,25 +52,15 @@ python scripts/render_phase5_outputs.py
 pytest -q
 ```
 
-Previously validated quantitative rendering evidence includes GitHub Actions run `31827148476` for commit `7aa5b44bf25fab87ac75908252c0cc048ab457fe`.
+Validated evidence:
 
-The current freeze candidate additionally requires successful CI for the head containing:
+- GitHub Actions run `31827148476` for commit `7aa5b44bf25fab87ac75908252c0cc048ab457fe` validated quantitative rendering and Figure 3 controls.
+- GitHub Actions run `31828145837` for commit `6428fda0be4b69f3d29a408d07e3611a69dd4daf` validated the complete freeze candidate including Supplementary Table S1 rendering, updated rendering tests, Supplementary Tables S2–S4, and final inventory reconciliation.
 
-- Supplementary Table S1 rendering from metric-result JSON;
-- updated rendering tests covering value/status cells;
-- Supplementary Tables S2–S4;
-- complete Phase 5 rendering-manifest reconciliation.
+## Freeze rule
 
-## Freeze criteria
-
-Gate 5 may be marked **PASSED** when:
-
-1. current-head GitHub Actions completes successfully;
-2. no rendering test regresses deterministic content, missingness/status visibility, or synthetic-boundary labeling;
-3. every artifact listed above remains present at its controlled path;
-4. no numeric analytic result is manually maintained where a generated controlled source exists;
-5. no Phase 5 presentation change modifies frozen analytic semantics.
+Presentation-layer edits may improve wording, layout, labeling, or citation quality only if they preserve controlled source values and frozen analytic semantics. Any change to care states, reconstruction precedence, interval semantics, metric definitions, follow-up rules, or the six-case oracle requires explicit gate-impact review and renewed validation.
 
 ## Post-freeze work
 
-After Gate 5 passes, engineering expansion should stop unless required to correct a demonstrated defect. Subsequent capstone work should emphasize final scholarly synthesis, governance/data readiness, governed clinical-data mapping and validation if feasible, empirical characterization, limitations, and presentation/submission preparation.
+Engineering expansion stops here unless needed to correct a demonstrated defect. The active capstone workstream moves to governance/data readiness, governed clinical-data mapping and validation if feasible, empirical descriptive characterization, limitations, and final scholarly synthesis.
