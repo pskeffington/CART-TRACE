@@ -31,14 +31,11 @@ CART-TRACE has completed and frozen the canonical episode/state model, synthetic
 
 **Gate 6 is PASSED for methodological readiness, conditional on governed authorization.** GitHub Actions run `31829204761` validated the Gate 6 candidate package, and subsequent public scholarly/readiness milestones have remained CI-validated.
 
-The repository now contains a near-final public scholarly package: governed-execution templates, aggregate governed-reporting templates, a manuscript scaffold, a capstone presentation narrative, and reproducibility/submission checklists. These materials do not establish institutional approval or governed data access.
+**The final public scholarly freeze is declared.** The clean reproducibility audit, scholarly consistency sweep, public release manifest, repository metadata alignment, and final freeze record are complete. The verified pre-freeze release state `f06bd84cbc3bcd7a9a56b934a92d6b21ef8dd788` passed GitHub Actions run `31834081804`.
 
-The project therefore has two valid branches:
+The public repository therefore represents the frozen synthetic scholarly package. Any institutional clinical-data extension remains separate and may proceed only if approvals and governed data access are independently confirmed.
 
-1. **Governed execution**, only if institutional approvals and data access are independently confirmed: source profiling, local mapping, reconstructability/follow-up characterization, source-concordance validation, and descriptive trajectory analysis.
-2. **Final scholarly synthesis**, while governed access is unavailable or delayed: execute the reproducibility audit, tighten manuscript/presentation wording against controlled artifacts, record final CI/release evidence, and preserve explicit governed-result insertion points without inventing empirical findings.
-
-See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution horizon, and [THESIS.md](THESIS.md) for the formal scholarly framing.
+See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution horizon, [THESIS.md](THESIS.md) for the formal scholarly framing, and `docs/scholarly/final_public_scholarly_freeze.md` for the final freeze record.
 
 ## Canonical care states
 
