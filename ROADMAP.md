@@ -35,6 +35,7 @@ The primary unit of analysis is the **therapy episode**, aligned to continuous t
 - [ ] Patient-level capstone trajectory figures finalized
 - [ ] Cohort-style synthetic characterization tables finalized
 - [ ] Capstone validation/methods tables rendered from generated outputs
+- [ ] Phase 5 scholarly-output gate passed with deterministic render evidence
 - [ ] Governed hospital-data validation initiated, if feasible
 
 **Current phase:** Phase 5 — capstone characterization and communication  
@@ -171,6 +172,39 @@ GitHub Actions run `31664640817` completed successfully for commit `4aaeb2b4ca96
 - [ ] render methods/data-flow figure showing source -> staging -> canonical trajectory -> validation -> metrics -> outputs;
 - [ ] integrate generated tables/figures into the manuscript scaffold without manually duplicating numeric results.
 
+### Phase 5 scholarly-output gate
+
+Phase 5 is complete only when the controlled machine-readable outputs have been converted into the planned scholarly artifacts without introducing a second, manually maintained analytic representation.
+
+Gate requirements:
+
+- [ ] one deterministic rendering entry point consumes the controlled `examples/outputs/phase5_*.json` artifacts;
+- [ ] Figure 2 and Supplementary Figure S1 are generated directly from patient-level trajectory output using treatment-relative time;
+- [ ] Tables 3–5 are generated directly from reconstruction validation, metric validation, cohort summary, and uncertainty outputs;
+- [ ] Figure 3 reports metric availability alongside descriptive values so unavailable or incomplete-follow-up results cannot be silently treated as zeros;
+- [ ] every generated artifact carries a synthetic-demonstration label or caption boundary and avoids claims of external clinical validity;
+- [ ] generated numeric values are not manually duplicated in manuscript source text when a controlled output can supply them;
+- [ ] repeat rendering from unchanged inputs is deterministic at the data/content level;
+- [ ] manuscript scaffold references the generated artifacts and preserves source-to-output traceability;
+- [ ] CI or equivalent reproducibility evidence records a successful generation-and-render pass before Phase 5 is frozen.
+
+**Gate 5 -> scholarly prototype freeze: NOT YET PASSED.** The next build work is rendering and integration, not expansion of the reconstruction or metric model.
+
+### Next focused pass — controlled rendering layer
+
+Primary task: establish the minimum rendering layer needed to turn the validated Phase 5 JSON outputs into capstone-ready artifacts while keeping the computational model frozen.
+
+Completion artifacts for this pass:
+
+1. add a single rendering entry point, preferably `scripts/render_phase5_outputs.py`, that reads existing generated JSON rather than recalculating trajectories or metrics;
+2. produce machine-generated Table 3, Table 4, and Table 5 outputs in a stable text/tabular format suitable for manuscript integration;
+3. produce the representative patient-level trajectory figure and the full six-episode supplementary trajectory panel from `phase5_patient_trajectories.json`;
+4. add tests or content-level checks proving required rows/panels, treatment-relative boundaries, explicit unknown-state representation, and denominator/status fields are present;
+5. document exact output paths and the command used to regenerate the scholarly artifacts;
+6. only after those controls pass, integrate the generated outputs into the manuscript scaffold and check off the corresponding inventory items.
+
+This pass should not alter frozen care-state semantics, reconstruction precedence, metric definitions, follow-up rules, or the six-case oracle unless a defect is demonstrated and handled through explicit gate-impact review.
+
 ### Characterization principles
 
 - descriptive rather than predictive;
@@ -245,8 +279,11 @@ Every major capstone result should remain traceable through:
 8. [x] Pass Gate 4 -> 5 with exact metric-oracle and schema evidence.
 9. [x] Implement CI-validated Phase 5 reporting and output-generation infrastructure.
 10. [x] Define manuscript structure and controlled table/figure inventory.
-11. [ ] Render manuscript tables and figures from generated machine-readable outputs.
-12. [ ] Complete final validation, limitations, and reproducibility reporting for the scholarly product.
+11. [ ] Implement the controlled Phase 5 rendering entry point and content-level checks.
+12. [ ] Render manuscript tables and figures from generated machine-readable outputs.
+13. [ ] Integrate generated artifacts into the manuscript scaffold without manual numeric duplication.
+14. [ ] Pass the Phase 5 scholarly-output gate with reproducibility evidence.
+15. [ ] Complete final validation, limitations, and reproducibility reporting for the scholarly product.
 
 ## Success criterion
 
