@@ -119,12 +119,13 @@ def test_render_all_preserves_required_phase5_controls(tmp_path: Path) -> None:
     _write(input_dir / "phase5_uncertainty_summary.json", uncertainty)
 
     paths = render_all(input_dir, output_dir)
-    assert len(paths) == 5
+    assert len(paths) == 6
 
     table3 = (output_dir / "table3_validation.md").read_text()
     table4 = (output_dir / "table4_cohort_summary.md").read_text()
     table5 = (output_dir / "table5_uncertainty.md").read_text()
     figure2 = (output_dir / "figure2_representative_trajectories.svg").read_text()
+    figure3 = (output_dir / "figure3_utilization_availability.svg").read_text()
     figure_s1 = (output_dir / "figure_s1_all_trajectories.svg").read_text()
 
     assert "Metric expected values" in table3
@@ -136,6 +137,10 @@ def test_render_all_preserves_required_phase5_controls(tmp_path: Path) -> None:
     assert "analytic boundary = 720 h" in figure2
     assert "unknown" in figure2
     assert 'stroke-dasharray="5 3"' in figure2
+    assert "Synthetic cohort utilization and metric availability" in figure3
+    assert "available 3/4" in figure3
+    assert "IFU 1" in figure3
+    assert "not-calculable" in figure3
     for episode_id in trajectories:
         assert episode_id in figure_s1
 
