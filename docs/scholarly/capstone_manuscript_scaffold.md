@@ -1,8 +1,8 @@
-# CART-TRACE Near-Final Capstone Manuscript Scaffold
+# CART-TRACE Final Public Capstone Manuscript Scaffold
 
 ## Status
 
-Near-final scholarly scaffold. Synthetic computational findings and methodological-readiness evidence are established. Governed empirical findings remain authorization-dependent and are represented only by explicit insertion points.
+Final public scholarly scaffold for the frozen synthetic CART-TRACE package. Synthetic computational findings and methodological-readiness evidence are established. No institutional empirical findings are included in this public version. Governed empirical validation remains a separate approval-dependent extension.
 
 ## Working title
 
@@ -24,11 +24,11 @@ CART-TRACE uses the CAR T-cell therapy episode as the analytic unit and the docu
 
 ### Results
 
-The synthetic methodological pipeline reproduced the prespecified oracle, generated deterministic trajectories and utilization metrics, and produced a controlled scholarly artifact set through Gate 5. Gate 6 methodological readiness was subsequently passed with documented governance, source-mapping, reconstructability, follow-up, validation/adjudication, disclosure, and pre-analysis controls. **[Governed empirical results: insert only after authorization, execution, and disclosure review.]**
+The synthetic methodological pipeline reproduced the prespecified oracle, generated deterministic trajectories and utilization metrics, and produced a controlled scholarly artifact set through Gate 5. Gate 6 methodological readiness was subsequently passed with documented governance, source-mapping, reconstructability, follow-up, validation/adjudication, disclosure, and pre-analysis controls. No institutional empirical results are included in the frozen public package.
 
 ### Conclusions
 
-CART-TRACE demonstrates a transparent and auditable approach to treatment-relative reconstruction of post-CAR-T hospital care trajectories. Synthetic validation establishes computational validity; representation fidelity and empirical descriptive findings require separate governed-data evaluation.
+CART-TRACE demonstrates a transparent and auditable approach to treatment-relative reconstruction of post-CAR-T hospital care trajectories. Synthetic validation establishes computational validity, and Gate 6 establishes methodological readiness for a governed extension. Representation fidelity and descriptive institutional findings require separate approved source-data evaluation.
 
 ---
 
@@ -147,29 +147,11 @@ Gate 5 established a complete synthetic scholarly prototype with generated patie
 
 Gate 6 established a governed-data readiness package covering cohort/anchor specification, source-field inventory, local mapping/versioning, validation/adjudication, public/private boundaries, data-quality profiling, reconstructability, follow-up sufficiency, discrepancy logging, pre-analysis review, execution templates, and aggregate reporting templates.
 
-### 3.4 Governed source availability
+### 3.4 Governed empirical status
 
-**[AUTHORIZATION-DEPENDENT INSERTION POINT]**
+No institutional empirical findings are included in the frozen public CART-TRACE package. Institutional source availability, reconstructability, follow-up sufficiency, source-concordance, and descriptive utilization have not been represented as completed public results.
 
-If governed execution occurs, report candidate episodes, valid infusion anchors, source-domain availability, timestamp quality, mapping coverage, and provenance coverage using the approved aggregate data-quality template. If governed access does not occur, retain this section as a planned-validation description and state explicitly that no institutional empirical data were analyzed.
-
-### 3.5 Governed reconstructability and follow-up
-
-**[AUTHORIZATION-DEPENDENT INSERTION POINT]**
-
-Report `reconstructable`, `reconstructable_with_uncertainty`, and `not_reconstructable` episode counts and prespecified reason categories. Report metric-specific positive, observed-zero, incomplete-follow-up, and unavailable counts without coercing unavailable results to zero.
-
-### 3.6 Representation validation
-
-**[AUTHORIZATION-DEPENDENT INSERTION POINT]**
-
-Report aggregate concordance for infusion anchor, encounter boundaries, care-state mapping, transition timing, discharge/return interpretation, and frozen metric outputs. Summarize discrepancy categories and resolutions without patient-level evidence.
-
-### 3.7 Descriptive utilization
-
-**[AUTHORIZATION-DEPENDENT INSERTION POINT]**
-
-If permitted, report frozen descriptive utilization outputs only. Do not infer treatment appropriateness, toxicity severity, or causal effects from level-of-care trajectories.
+If governed execution is authorized in the future, those findings should be reported only through the prespecified aggregate templates and only after disclosure review.
 
 ---
 
@@ -210,7 +192,7 @@ Future work may assess transferability across institutions, compare alternative 
 5. `unknown` and uncertainty can affect state-duration and transition summaries and must remain visible.
 6. Level of care is an imperfect utilization representation and is not a direct toxicity/severity measure.
 7. Institution-specific mappings may limit transportability despite the institution-independent canonical state model.
-8. If governed access is unavailable, the capstone cannot claim empirical institutional validation and must present the governed layer as a prespecified future validation protocol.
+8. The frozen public capstone package does not include institutional empirical validation; the governed layer remains a prespecified future validation protocol unless separately authorized and executed.
 
 ---
 
@@ -222,7 +204,7 @@ The public CART-TRACE repository contains the frozen canonical model, synthetic 
 
 ## 7. Conclusion
 
-CART-TRACE provides a transparent, auditable, and reproducible method for transforming longitudinal hospital records surrounding CAR T-cell infusion into treatment-relative care-state trajectories and transitions. The synthetic methodological program establishes computational validity and reproducible analytic outputs; Gate 6 establishes readiness for governed application. Empirical representation fidelity and descriptive utilization findings remain contingent on approved institutional execution.
+CART-TRACE provides a transparent, auditable, and reproducible method for transforming longitudinal hospital records surrounding CAR T-cell infusion into treatment-relative care-state trajectories and transitions. The frozen public package establishes computational validity and methodological readiness for governed application. Institutional representation fidelity and descriptive utilization findings remain a separate approval-dependent empirical question.
 
 ---
 
@@ -247,4 +229,4 @@ Supplementary artifacts:
 - Table S3 — boundary/negative-test inventory
 - Table S4 — reproducibility artifact inventory
 
-Governed empirical tables/figures, if any, must be added only after disclosure review and must remain clearly distinguished from synthetic artifacts.
+Any future governed empirical tables or figures must be added only after authorization and disclosure review and must remain clearly distinguished from the frozen synthetic artifacts.
