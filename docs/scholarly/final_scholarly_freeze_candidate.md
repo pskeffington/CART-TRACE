@@ -6,15 +6,23 @@
 
 ## Audit anchor
 
+Primary clean-audit evidence:
+
 - audited commit: `4b2e64a178a8e47bb28e7fc9c54952ff29fe8679`
 - GitHub Actions run: `31832440738`
 - workflow: `Validate CART-TRACE`
 - matrix: Python 3.11 and Python 3.12
 - conclusion: success for both validation jobs
 
+Freeze-candidate validation evidence:
+
+- freeze-candidate roadmap head: `ae27910a3f603cedc13c80db158b98408aeaef3f`
+- GitHub Actions run: `31832888988`
+- conclusion: success
+
 ## Reproduction evidence
 
-The clean current-head workflow completed the following in both supported Python environments:
+The clean audit workflow completed the following in both supported Python environments:
 
 1. checkout;
 2. project/test dependency installation;
@@ -24,7 +32,7 @@ The clean current-head workflow completed the following in both supported Python
 6. expected rendered-artifact verification;
 7. full automated test suite.
 
-All steps completed successfully.
+All steps completed successfully. The subsequent freeze-candidate head also passed the repository validation workflow.
 
 ## Frozen analytic-core review
 
@@ -68,6 +76,8 @@ The GitHub repository description still reflects an older, broader scope and men
 Suggested repository description:
 
 > Synthetic-first research framework for reproducible reconstruction of 30-day post-CAR-T hospital level-of-care trajectories from longitudinal encounter and location data.
+
+The GitHub connector available in this session does not expose repository-description editing, and the local GitHub CLI is not installed. This is therefore a manual metadata action rather than a scientific or reproducibility defect.
 
 ## Freeze rule
 
