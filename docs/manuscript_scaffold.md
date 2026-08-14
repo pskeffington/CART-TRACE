@@ -4,6 +4,26 @@
 
 **CART-TRACE: Reconstructing Hospital Care Trajectories Following CAR T-Cell Therapy from Longitudinal Clinical Data**
 
+## Controlled scholarly-output integration
+
+Generated quantitative Phase 5 outputs are controlled through `docs/phase5_rendering_manifest.md` and should be regenerated with:
+
+```bash
+python scripts/generate_phase5_outputs.py
+python scripts/render_phase5_outputs.py
+```
+
+Use the following generated artifacts directly during manuscript assembly rather than manually maintaining duplicated numeric results:
+
+- Figure 2: `examples/rendered/figure2_representative_trajectories.svg`
+- Figure 3: `examples/rendered/figure3_utilization_availability.svg`
+- Supplementary Figure S1: `examples/rendered/figure_s1_all_trajectories.svg`
+- Table 3: `examples/rendered/table3_validation.md`
+- Table 4: `examples/rendered/table4_cohort_summary.md`
+- Table 5: `examples/rendered/table5_uncertainty.md`
+
+Figure 1 and Tables 1–2 remain specification-oriented outputs derived from frozen framework documentation, schemas, mapping rules, and synthetic fixture definitions.
+
 ## Abstract scaffold
 
 ### Background
@@ -124,7 +144,7 @@ Escalation/de-escalation uses the inpatient acuity ordering routine < intermedia
 
 ## 2.9 Synthetic truth set
 
-Reference Table 2 and Supplementary Figure S1.
+Reference Table 2 and Supplementary Figure S1 (`examples/rendered/figure_s1_all_trajectories.svg`).
 
 Describe the six prespecified trajectory classes:
 
@@ -139,7 +159,7 @@ Also describe boundary/error cases including duplicate records, open end, adjace
 
 ## 2.10 Reconstruction validation
 
-Reference Table 3.
+Reference generated Table 3 (`examples/rendered/table3_validation.md`).
 
 Separate validation domains:
 
@@ -190,13 +210,13 @@ Each metric-result object records the episode, metric version, analytic window, 
 
 ## 2.14 Phase 5 descriptive analysis
 
-Reference Figures 2–3 and Tables 4–5. Synthetic cohort summaries use only `observed` and `observed_zero` numeric values for mean/median/minimum/maximum. Denominators, non-calculable results, not-applicable results, and incomplete follow-up are reported separately.
+Reference generated Figure 2 (`examples/rendered/figure2_representative_trajectories.svg`), Figure 3 (`examples/rendered/figure3_utilization_availability.svg`), Table 4 (`examples/rendered/table4_cohort_summary.md`), and Table 5 (`examples/rendered/table5_uncertainty.md`). Synthetic cohort summaries use only `observed` and `observed_zero` numeric values for mean/median/minimum/maximum. Denominators, non-calculable results, not-applicable results, and incomplete follow-up are reported separately.
 
 No inferential population estimates should be calculated from the six synthetic truth-set episodes.
 
 ## 2.15 Reproducibility
 
-State that fixtures, schemas, mapping rules, reconstruction code, metric definitions, result schemas, reporting helpers, and automated tests are version controlled. Phase 5 derived output files are generated reproducibly from the frozen synthetic inputs rather than manually maintained.
+Fixtures, schemas, mapping rules, reconstruction code, metric definitions, result schemas, reporting helpers, output generation, and presentation rendering are version controlled. Phase 5 derived files are generated reproducibly from frozen synthetic inputs rather than manually maintained. See `docs/phase5_rendering_manifest.md` for the controlled source-to-output mapping and reproduction sequence.
 
 ## 2.16 Governed-data extension
 
@@ -214,7 +234,7 @@ Report six synthetic therapy episodes covering routine recovery, prolonged routi
 
 ## 3.2 Reconstruction fidelity
 
-Report exact interval and transition agreement from the generated reconstruction-validation artifact.
+Report exact interval and transition agreement from generated Table 3 and its controlled validation sources.
 
 Suggested wording after final output generation:
 
@@ -222,17 +242,17 @@ Suggested wording after final output generation:
 
 Also state that duplicate same-state records did not generate false transitions, adjacent intervals respected shared half-open boundaries, and equal-priority canonical disagreement produced explicit `unknown` rather than an arbitrary state.
 
-**Insert:** Table 3.
+**Generated artifact:** `examples/rendered/table3_validation.md`.
 
 ## 3.3 Metric validation
 
-Report exact expected-value agreement for all prespecified Phase 4 metrics across the six fixtures. Emphasize the corrected post-infusion clipping rule: negative-time continuity records contribute to reconstruction context but not primary utilization totals.
+Report exact expected-value agreement from generated Table 3. Emphasize the corrected post-infusion clipping rule: negative-time continuity records contribute to reconstruction context but not primary utilization totals.
 
-Include examples only if useful, such as routine recovery totaling 98 post-infusion inpatient hours rather than 100 source-encounter hours, and intensive-care escalation totaling 76 post-infusion inpatient hours with 12 intensive-care hours.
+Do not manually maintain example numeric values in manuscript source when they can be read from generated outputs.
 
 ## 3.4 Representative trajectories
 
-Describe the patterns shown in Figure 2 without implying clinical frequency.
+Describe the patterns shown in generated Figure 2 without implying clinical frequency.
 
 Suggested structure:
 
@@ -241,21 +261,26 @@ Suggested structure:
 - intensive escalation/return: routine -> intensive -> routine -> discharge -> emergency return;
 - conflict: observed routine care interrupted by an explicit unknown interval caused by equal-priority disagreement.
 
+**Generated artifact:** `examples/rendered/figure2_representative_trajectories.svg`.
+
 ## 3.5 Synthetic utilization characterization
 
-Populate this section from `phase5_cohort_summary.json` after generation. Report total N=6 and metric-specific available denominators. Numeric summaries should be framed as demonstrations of analytic behavior only.
+Use generated Table 4 and Figure 3. Report total N and metric-specific available denominators from the controlled output rather than maintaining those values independently in the manuscript source. Numeric summaries are demonstrations of analytic behavior only.
 
-**Insert:** Table 4 and Figure 3.
+**Generated artifacts:**
+
+- `examples/rendered/table4_cohort_summary.md`
+- `examples/rendered/figure3_utilization_availability.svg`
 
 ## 3.6 Missingness and uncertainty
 
-Populate from `phase5_uncertainty_summary.json`. Report the number of episodes containing uncertainty/unknown state and counts of metric statuses. Explain that unknown-state hours can be directly measured when bounded even when state-attributed inpatient duration is not calculable.
+Use generated Table 5 to report episodes containing uncertainty/unknown state and metric-status counts. Explain that unknown-state hours can be directly measured when bounded even when state-attributed inpatient duration is not calculable.
 
-**Insert:** Table 5.
+**Generated artifact:** `examples/rendered/table5_uncertainty.md`.
 
 ## 3.7 Reproducibility
 
-Report the CI run corresponding to the final frozen Phase 5 output generator and state that the full automated suite passed on supported Python versions. Do not cite a run until the relevant final head has completed successfully.
+GitHub Actions run `31827148476` completed successfully for commit `7aa5b44bf25fab87ac75908252c0cc048ab457fe`, validating Phase 5 output generation, rendering, Figure 3 metric-availability controls, deterministic rendering behavior, and the full automated test suite on supported Python versions. This establishes computational and presentation reproducibility for the synthetic scholarly-output layer, not external clinical validity.
 
 ---
 
@@ -324,10 +349,10 @@ CART-TRACE provides a formal, deterministic approach for transforming heterogene
 1. Figure 1 — data structuring and validation architecture.
 2. Table 1 — canonical model and deterministic rules.
 3. Table 2 — synthetic truth-set classes.
-4. Figure 2 — representative patient trajectories.
-5. Table 3 — reconstruction and metric validation.
-6. Table 4 — synthetic cohort utilization summary.
-7. Figure 3 — utilization and availability visualization.
-8. Table 5 — uncertainty/missingness summary.
+4. Figure 2 — representative patient trajectories (`examples/rendered/figure2_representative_trajectories.svg`).
+5. Table 3 — reconstruction and metric validation (`examples/rendered/table3_validation.md`).
+6. Table 4 — synthetic cohort utilization summary (`examples/rendered/table4_cohort_summary.md`).
+7. Figure 3 — utilization and availability visualization (`examples/rendered/figure3_utilization_availability.svg`).
+8. Table 5 — uncertainty/missingness summary (`examples/rendered/table5_uncertainty.md`).
 
-The final manuscript should pull numeric values from generated machine-readable Phase 5 outputs and should not manually maintain duplicated numeric results.
+The final manuscript should pull numeric values from generated machine-readable Phase 5 outputs and generated manuscript artifacts and should not manually maintain duplicated numeric results.
