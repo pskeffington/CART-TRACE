@@ -12,7 +12,7 @@ from statistics import mean, median
 from typing import Any, Mapping, Sequence
 
 
-REPORTING_VERSION = "0.1.0"
+REPORTING_VERSION = "0.2.0"
 
 
 def build_patient_trajectory_rows(
@@ -94,6 +94,16 @@ def _numeric_observed(metric_results: Sequence[Mapping[str, Any]], metric_id: st
     return values
 
 
+def _boolean_observed(metric_results: Sequence[Mapping[str, Any]], metric_id: str) -> list[bool]:
+    values: list[bool] = []
+    for result in metric_results:
+        status = result.get("status", {}).get(metric_id)
+        value = result.get("values", {}).get(metric_id)
+        if status in {"observed", "observed_zero"} and isinstance(value, bool):
+            values.append(value)
+    return values
+
+
 def build_cohort_metric_summary(
     metric_results: Sequence[Mapping[str, Any]],
     metric_ids: Sequence[str],
@@ -103,7 +113,10 @@ def build_cohort_metric_summary(
     total_episodes = len(metric_results)
     for metric_id in metric_ids:
         statuses = Counter(result.get("status", {}).get(metric_id) for result in metric_results)
-        values = _numeric_observed(metric_results, metric_id)
+        numeric_values = _numeric_observed(metric_results, metric_id)
+        boolean_values = _boolean_observed(metric_results, metric_id)
+        positive_count = sum(boolean_values)
+        negative_count = len(boolean_values) - positive_count
         rows.append({
             "metric_id": metric_id,
             "episode_count": total_episodes,
@@ -111,10 +124,15 @@ def build_cohort_metric_summary(
             "not_applicable_count": statuses.get("not_applicable", 0),
             "not_calculable_count": statuses.get("not_calculable", 0),
             "incomplete_followup_count": statuses.get("incomplete_followup", 0),
-            "mean": mean(values) if values else None,
-            "median": median(values) if values else None,
-            "minimum": min(values) if values else None,
-            "maximum": max(values) if values else None,
+            "mean": mean(numeric_values) if numeric_values else None,
+            "median": median(numeric_values) if numeric_values else None,
+            "minimum": min(numeric_values) if numeric_values else None,
+            "maximum": max(numeric_values) if numeric_values else None,
+            "positive_count": positive_count if boolean_values else None,
+            "negative_count": negative_count if boolean_values else None,
+            "positive_fraction_among_available": (
+                positive_count / len(boolean_values) if boolean_values else None
+            ),
         })
     return rows
 
