@@ -2,7 +2,7 @@
 
 ## Status
 
-**Release-ready scholarly package, pending one manual GitHub repository-description correction.**
+**Final public scholarly freeze declared and CI-validated.**
 
 This manifest consolidates the public capstone evidence required for a reproducible scholarly release. It does not establish institutional authorization or governed clinical-data execution.
 
@@ -40,7 +40,7 @@ Design: retrospective, descriptive, synthetic-first health-data-science methodol
 | Gate 5 | PASSED / frozen | Actions `31828145837`, commit `6428fda0be4b69f3d29a408d07e3611a69dd4daf` |
 | Gate 6 | PASSED — methodological readiness / conditional on governed authorization | Actions `31829204761`, commit `2f63a3d35825e615598f3030b64253abffc86818` |
 
-Post-gate public validation anchors include Actions `31830669600`, `31830978074`, `31831222408`, `31831407553`, `31832440738`, `31832888988`, `31833669828`, and `31833799689`.
+Post-gate public validation anchors include Actions `31830669600`, `31830978074`, `31831222408`, `31831407553`, `31832440738`, `31832888988`, `31833669828`, `31833799689`, `31834081804`, `31848508218`, `31849398353`, and `31853659240`.
 
 ## Clean reproducibility anchor
 
@@ -57,13 +57,7 @@ Both Python 3.11 and 3.12 jobs successfully completed:
 6. expected rendered-artifact verification;
 7. full automated test suite.
 
-Freeze-candidate validation subsequently passed on:
-
-- `ae27910a3f603cedc13c80db158b98408aeaef3f` / Actions `31832888988`;
-- `5ca76042d0448a3e90400c462e0b2d95b73672e8` / Actions `31833669828`;
-- `7eb891238f4c300b77e01b76cf92dbf66a2d9eb2` / Actions `31833799689`.
-
-The public release manifest itself is therefore CI-validated on the repository head that introduced it.
+Final public scholarly freeze was subsequently recorded and validated. The finalized manuscript and submission-checklist heads also remained green.
 
 ## Reproduction commands
 
@@ -106,6 +100,9 @@ The authoritative table/figure source mapping remains `docs/phase5_rendering_man
 - `docs/scholarly/capstone_submission_checklist.md`
 - `docs/scholarly/scholarly_consistency_sweep.md`
 - `docs/scholarly/final_scholarly_freeze_candidate.md`
+- `docs/scholarly/final_public_scholarly_freeze.md`
+
+The freeze-candidate record is retained as historical provenance; `final_public_scholarly_freeze.md` is the controlling final status record.
 
 ## Governance package
 
@@ -131,12 +128,10 @@ It must not claim:
 - prospective decision support;
 - causal treatment effects.
 
-## Remaining release hold
+## Repository metadata and release state
 
-The GitHub repository description still reflects an older broad scope. Final public scholarly freeze remains held until that description is manually changed or the metadata exception is explicitly accepted.
-
-Recommended description:
+The GitHub repository description is aligned to the narrowed capstone scope:
 
 > Synthetic-first research framework for reproducible reconstruction of 30-day post-CAR-T hospital level-of-care trajectories from longitudinal encounter and location data.
 
-This is a metadata-only hold and does not affect the scientific, analytic, or reproducibility status of the repository.
+The prior metadata hold is closed. The public scholarly package is frozen and CI-validated. A formal GitHub tag or Release remains optional and should be created only after an explicit version identifier is chosen.
