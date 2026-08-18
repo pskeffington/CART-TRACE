@@ -1,0 +1,39 @@
+{
+  "schema_version": "portfolio-valuation-manifest/v1",
+  "repository": "pskeffington/CART-TRACE",
+  "portfolio_valuator": "pskeffington/Portfolio",
+  "valuation_status": "aligned_internal_estimate",
+  "market_lane": "translational health data science / longitudinal clinical research methods",
+  "maturity_stage": "manuscript-ready",
+  "evidence_grade": "A-",
+  "product_surface": "frozen synthetic longitudinal clinical-trajectory research framework",
+  "integration_role": "flagship biomedical and translational-health research software asset",
+  "public_safety_status": "clean",
+  "risk_level": "medium",
+  "current_value_range_usd": {"low": 250000, "high": 450000},
+  "forward_value_range_usd": {"low": 600000, "high": 1500000},
+  "collateral_treatment": "Treat as research software and technical IP only. Apply substantial transferability, key-person, external-validation, institutional-adoption, and clinical-governance discounts; no clinical collateral value is asserted.",
+  "evidence_paths": [
+    "README.md",
+    "ROADMAP.md",
+    "THESIS.md",
+    "docs/scholarly/final_public_scholarly_freeze.md",
+    "portfolio_valuation_manifest.json"
+  ],
+  "next_value_unlocks": [
+    "peer-reviewed or equivalent external scholarly validation",
+    "governed institutional clinical-data implementation",
+    "independent reproducibility review",
+    "external research user or design partner"
+  ],
+  "missing_financial_inputs": [
+    "revenue",
+    "customers",
+    "contracts",
+    "licensing",
+    "institutional implementation",
+    "independent appraisal"
+  ],
+  "claim_boundary": "Synthetic-first retrospective research methods only. No treatment recommendation, eligibility decision, diagnostic claim, prospective clinical decision support, clinical safety claim, or external clinical validity is asserted.",
+  "last_aligned_on": "2026-08-17"
+}
