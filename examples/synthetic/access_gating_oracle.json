@@ -1,0 +1,217 @@
+{
+  "oracle_version": "0.1.0",
+  "purpose": "Synthetic truth set for retrospective hospital/payer CAR-T access-gating research. Non-operational and not for patient-specific coverage or clinical eligibility decisions.",
+  "anchor_time": "2026-01-01T12:00:00Z",
+  "cases": [
+    {
+      "case_id": "AG-001-straight-approval",
+      "summary": "Complete referral, in-network pathway, authorization approval, financial clearance, access-ready.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":48},
+        {"gate_id":"A4","status":"satisfied","hour":60},
+        {"gate_id":"A5","status":"submitted_pending","hour":72},
+        {"gate_id":"A5","status":"approved","hour":120},
+        {"gate_id":"A7","status":"satisfied","hour":132},
+        {"gate_id":"A8","status":"satisfied","hour":132}
+      ],
+      "expected": {
+        "terminal_authorization_status": "approved",
+        "access_ready": true,
+        "authorization_turnaround_hours": 48,
+        "referral_to_access_ready_hours": 132,
+        "primary_barrier": null
+      }
+    },
+    {
+      "case_id": "AG-002-information-request-delay",
+      "summary": "Authorization submission triggers request for additional information before approval.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"satisfied","hour":36},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"additional_information_requested","hour":72},
+        {"gate_id":"A5","status":"submitted_pending","hour":144},
+        {"gate_id":"A5","status":"approved","hour":192},
+        {"gate_id":"A7","status":"satisfied","hour":204},
+        {"gate_id":"A8","status":"satisfied","hour":204}
+      ],
+      "expected": {
+        "terminal_authorization_status": "approved",
+        "access_ready": true,
+        "authorization_turnaround_hours": 144,
+        "information_request_delay_hours": 72,
+        "referral_to_access_ready_hours": 204,
+        "primary_barrier": "additional_information_requested"
+      }
+    },
+    {
+      "case_id": "AG-003-medical-necessity-denial",
+      "summary": "Payer denies on medical-necessity grounds; no appeal is pursued.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"satisfied","hour":36},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"denied_medical_necessity","hour":96},
+        {"gate_id":"A5","status":"final_denial","hour":96},
+        {"gate_id":"A8","status":"not_satisfied","hour":96}
+      ],
+      "expected": {
+        "terminal_authorization_status": "final_denial",
+        "access_ready": false,
+        "authorization_turnaround_hours": 48,
+        "referral_to_terminal_hours": 96,
+        "primary_barrier": "denied_medical_necessity"
+      }
+    },
+    {
+      "case_id": "AG-004-benefit-exclusion",
+      "summary": "Requested service is excluded by the applicable benefit design despite program acceptance.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":30},
+        {"gate_id":"A4","status":"not_satisfied","hour":42},
+        {"gate_id":"A5","status":"denied_benefit_exclusion","hour":60},
+        {"gate_id":"A8","status":"not_satisfied","hour":60}
+      ],
+      "expected": {
+        "terminal_authorization_status": "denied_benefit_exclusion",
+        "access_ready": false,
+        "referral_to_terminal_hours": 60,
+        "primary_barrier": "denied_benefit_exclusion"
+      }
+    },
+    {
+      "case_id": "AG-005-network-site-denial",
+      "summary": "Clinical pathway accepted but payer denies requested Dartmouth site/network arrangement.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"pending","hour":30},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"denied_network_or_site","hour":84},
+        {"gate_id":"A8","status":"not_satisfied","hour":84}
+      ],
+      "expected": {
+        "terminal_authorization_status": "denied_network_or_site",
+        "access_ready": false,
+        "authorization_turnaround_hours": 36,
+        "referral_to_terminal_hours": 84,
+        "primary_barrier": "denied_network_or_site"
+      }
+    },
+    {
+      "case_id": "AG-006-peer-to-peer-overturn",
+      "summary": "Initial medical-necessity denial is reversed after peer-to-peer/reconsideration.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"satisfied","hour":36},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"denied_medical_necessity","hour":96},
+        {"gate_id":"A5","status":"peer_to_peer_pending","hour":108},
+        {"gate_id":"A5","status":"overturned_on_reconsideration_or_appeal","hour":156},
+        {"gate_id":"A5","status":"approved","hour":156},
+        {"gate_id":"A7","status":"satisfied","hour":168},
+        {"gate_id":"A8","status":"satisfied","hour":168}
+      ],
+      "expected": {
+        "terminal_authorization_status": "approved",
+        "access_ready": true,
+        "initial_denial": true,
+        "overturned": true,
+        "appeal_or_reconsideration_delay_hours": 60,
+        "referral_to_access_ready_hours": 168,
+        "primary_barrier": "initial_medical_necessity_denial"
+      }
+    },
+    {
+      "case_id": "AG-007-formal-appeal-overturn",
+      "summary": "Initial denial proceeds to formal appeal and is overturned.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"satisfied","hour":36},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"denied_medical_necessity","hour":96},
+        {"gate_id":"A5","status":"appeal_pending","hour":120},
+        {"gate_id":"A5","status":"overturned_on_reconsideration_or_appeal","hour":240},
+        {"gate_id":"A5","status":"approved","hour":240},
+        {"gate_id":"A7","status":"satisfied","hour":252},
+        {"gate_id":"A8","status":"satisfied","hour":252}
+      ],
+      "expected": {
+        "terminal_authorization_status": "approved",
+        "access_ready": true,
+        "initial_denial": true,
+        "overturned": true,
+        "appeal_or_reconsideration_delay_hours": 144,
+        "referral_to_access_ready_hours": 252,
+        "primary_barrier": "appeal_delay"
+      }
+    },
+    {
+      "case_id": "AG-008-authorization-expiration",
+      "summary": "Authorization is approved but expires before access-ready status is reached, requiring rework.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"satisfied","hour":36},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"approved","hour":96},
+        {"gate_id":"A5","status":"expired","hour":720},
+        {"gate_id":"A8","status":"not_satisfied","hour":720}
+      ],
+      "expected": {
+        "terminal_authorization_status": "expired",
+        "access_ready": false,
+        "authorization_turnaround_hours": 48,
+        "referral_to_terminal_hours": 720,
+        "primary_barrier": "authorization_expired"
+      }
+    },
+    {
+      "case_id": "AG-009-policy-version-change",
+      "summary": "Case spans a policy change; decision must retain the policy version in force at each decision event.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0,"policy_version":null},
+        {"gate_id":"A5","status":"submitted_pending","hour":48,"policy_version":"v1"},
+        {"gate_id":"A5","status":"additional_information_requested","hour":96,"policy_version":"v1"},
+        {"gate_id":"A5","status":"submitted_pending","hour":192,"policy_version":"v2"},
+        {"gate_id":"A5","status":"approved","hour":240,"policy_version":"v2"},
+        {"gate_id":"A8","status":"satisfied","hour":252,"policy_version":"v2"}
+      ],
+      "expected": {
+        "terminal_authorization_status": "approved",
+        "access_ready": true,
+        "policy_versions_observed": ["v1", "v2"],
+        "policy_drift_flag": true,
+        "referral_to_access_ready_hours": 252,
+        "primary_barrier": "policy_change_during_episode"
+      }
+    },
+    {
+      "case_id": "AG-010-financial-clearance-delay",
+      "summary": "Authorization is approved but financial-clearance work delays access-ready status.",
+      "events": [
+        {"gate_id":"A0","status":"satisfied","hour":0},
+        {"gate_id":"A2","status":"satisfied","hour":24},
+        {"gate_id":"A4","status":"satisfied","hour":36},
+        {"gate_id":"A5","status":"submitted_pending","hour":48},
+        {"gate_id":"A5","status":"approved","hour":96},
+        {"gate_id":"A7","status":"pending","hour":108},
+        {"gate_id":"A7","status":"satisfied","hour":300},
+        {"gate_id":"A8","status":"satisfied","hour":300}
+      ],
+      "expected": {
+        "terminal_authorization_status": "approved",
+        "access_ready": true,
+        "financial_clearance_delay_hours": 192,
+        "referral_to_access_ready_hours": 300,
+        "primary_barrier": "financial_clearance_delay"
+      }
+    }
+  ]
+}
