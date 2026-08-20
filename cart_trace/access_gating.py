@@ -7,6 +7,7 @@ to determine patient eligibility, insurance coverage, or treatment readiness.
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping, Sequence
 
 ACCESS_GATING_VERSION = "0.1.0"
@@ -17,6 +18,30 @@ DENIAL_STATUSES = {
     "denied_network_or_site",
     "denied_missing_authorization",
     "final_denial",
+}
+
+GATE_DOMAINS = {
+    "A0": "referral",
+    "A1": "clinical_review",
+    "A2": "clinical_review",
+    "A3": "hospital",
+    "A4": "network",
+    "A5": "payer",
+    "A6": "medicare",
+    "A7": "financial",
+    "A8": "access",
+}
+
+DECISION_ACTORS = {
+    "A0": "referring_clinician",
+    "A1": "dartmouth_program",
+    "A2": "dartmouth_program",
+    "A3": "dartmouth_program",
+    "A4": "benefit_administrator",
+    "A5": "payer",
+    "A6": "payer",
+    "A7": "financial_services",
+    "A8": "research_derivation",
 }
 
 
@@ -67,8 +92,68 @@ def _primary_barrier(events: Sequence[Mapping[str, Any]], policy_drift: bool) ->
     return None
 
 
+def _iso_from_anchor(anchor_time: str, hour: float) -> str:
+    anchor = datetime.fromisoformat(anchor_time.replace("Z", "+00:00"))
+    if anchor.tzinfo is None:
+        anchor = anchor.replace(tzinfo=timezone.utc)
+    return (anchor + timedelta(hours=float(hour))).astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def materialize_access_event(
+    case_id: str,
+    event_index: int,
+    compact_event: Mapping[str, Any],
+    anchor_time: str,
+) -> dict[str, Any]:
+    """Expand one compact oracle event into a schema-conformant synthetic record."""
+    gate_id = str(compact_event["gate_id"])
+    timestamp = _iso_from_anchor(anchor_time, float(compact_event["hour"]))
+    policy_version = compact_event.get("policy_version")
+    return {
+        "patient_research_id": f"SYN-{case_id}",
+        "access_episode_id": case_id,
+        "event_id": f"{case_id}-E{event_index:03d}",
+        "gate_id": gate_id,
+        "gate_domain": GATE_DOMAINS[gate_id],
+        "status": compact_event["status"],
+        "status_timestamp": timestamp,
+        "decision_timestamp": timestamp,
+        "decision_actor_type": DECISION_ACTORS[gate_id],
+        "source_type": "synthetic_fixture",
+        "source_record_id": f"SYN-{case_id}-SRC-{event_index:03d}",
+        "payer_name": "synthetic_payer" if gate_id in {"A4", "A5", "A6"} else None,
+        "plan_product": "synthetic_plan" if gate_id in {"A4", "A5", "A6"} else None,
+        "line_of_business": "synthetic" if gate_id in {"A4", "A5", "A6"} else None,
+        "servicing_administrator": "synthetic_administrator" if gate_id in {"A4", "A5", "A6"} else None,
+        "state_service_area": "NH" if gate_id in {"A4", "A5", "A6"} else None,
+        "requested_product": "synthetic_car_t" if gate_id in {"A1", "A2", "A3", "A5", "A6"} else None,
+        "policy_id": "SYN-POLICY" if policy_version is not None else None,
+        "policy_version": policy_version,
+        "policy_effective_date": "2026-01-01" if policy_version is not None else None,
+        "reason_code": None,
+        "reason_text_original": None,
+        "facility_requirement_type": None,
+        "evidence_completeness": "complete_for_gate",
+        "uncertainty_flag": False,
+        "provenance": {
+            "synthetic": True,
+            "rule_version": ACCESS_GATING_VERSION,
+            "source_note": "materialized from compact access-gating oracle event",
+        },
+    }
+
+
+def materialize_access_case(case: Mapping[str, Any], anchor_time: str) -> list[dict[str, Any]]:
+    """Materialize all compact events for one oracle case in deterministic order."""
+    case_id = str(case["case_id"])
+    return [
+        materialize_access_event(case_id, index, event, anchor_time)
+        for index, event in enumerate(_ordered(case["events"]), start=1)
+    ]
+
+
 def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-    """Derive deterministic administrative access outcomes from synthetic events."""
+    """Derive deterministic administrative access outcomes from synthetic compact events."""
     if not events:
         raise ValueError("access-gating reconstruction requires at least one event")
 
