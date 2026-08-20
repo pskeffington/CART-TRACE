@@ -1,10 +1,17 @@
 import json
 from pathlib import Path
 
-from cart_trace.access_gating import expected_subset_matches, reconstruct_access_case
+from jsonschema import Draft202012Validator, FormatChecker
+
+from cart_trace.access_gating import (
+    expected_subset_matches,
+    materialize_access_case,
+    reconstruct_access_case,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 ORACLE = json.loads((ROOT / "examples" / "synthetic" / "access_gating_oracle.json").read_text())
+ACCESS_EVENT_SCHEMA = json.loads((ROOT / "schemas" / "access_gate_event.schema.json").read_text())
 
 
 def cases():
@@ -18,6 +25,49 @@ def test_all_oracle_cases_match_exact_expected_fields():
         if not expected_subset_matches(result, case["expected"]):
             failures.append((case["case_id"], result, case["expected"]))
     assert failures == []
+
+
+def test_materialized_events_validate_against_access_event_schema():
+    validator = Draft202012Validator(ACCESS_EVENT_SCHEMA, format_checker=FormatChecker())
+    for case in cases():
+        records = materialize_access_case(case, ORACLE["anchor_time"])
+        assert len(records) == len(case["events"])
+        for record in records:
+            validator.validate(record)
+            assert record["provenance"]["synthetic"] is True
+            assert record["access_episode_id"] == case["case_id"]
+            assert record["patient_research_id"].startswith("SYN-")
+
+
+def test_materialization_is_deterministic_and_order_invariant():
+    case = next(item for item in cases() if item["case_id"] == "AG-002-information-request-delay")
+    forward = materialize_access_case(case, ORACLE["anchor_time"])
+    reordered_case = dict(case)
+    reordered_case["events"] = list(reversed(case["events"]))
+    reverse = materialize_access_case(reordered_case, ORACLE["anchor_time"])
+    assert forward == reverse
+
+
+def test_materialized_event_ids_are_unique_within_episode():
+    for case in cases():
+        records = materialize_access_case(case, ORACLE["anchor_time"])
+        ids = [record["event_id"] for record in records]
+        assert len(ids) == len(set(ids))
+
+
+def test_materialized_timestamps_are_monotonic():
+    for case in cases():
+        records = materialize_access_case(case, ORACLE["anchor_time"])
+        timestamps = [record["status_timestamp"] for record in records]
+        assert timestamps == sorted(timestamps)
+
+
+def test_policy_drift_materialization_preserves_contemporaneous_versions():
+    case = next(item for item in cases() if item["case_id"] == "AG-009-policy-version-change")
+    records = materialize_access_case(case, ORACLE["anchor_time"])
+    versions = [record["policy_version"] for record in records if record["policy_version"] is not None]
+    assert versions == ["v1", "v1", "v2", "v2", "v2"]
+    assert all(record["policy_id"] == "SYN-POLICY" for record in records if record["policy_version"] is not None)
 
 
 def test_approved_does_not_imply_access_ready():
