@@ -45,8 +45,19 @@ DECISION_ACTORS = {
 }
 
 
+def _event_sort_key(event: Mapping[str, Any]) -> tuple[Any, ...]:
+    """Return an input-order-independent key, including deterministic tie breaks."""
+    return (
+        float(event["hour"]),
+        str(event.get("gate_id", "")),
+        str(event.get("status", "")),
+        str(event.get("policy_version", "")),
+        str(event.get("event_id", "")),
+    )
+
+
 def _ordered(events: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
-    return sorted(events, key=lambda event: (float(event["hour"]), str(event.get("event_id", ""))))
+    return sorted(events, key=_event_sort_key)
 
 
 def _first(events: Sequence[Mapping[str, Any]], gate_id: str, status: str) -> Mapping[str, Any] | None:
