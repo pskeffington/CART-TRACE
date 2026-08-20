@@ -44,13 +44,38 @@ DECISION_ACTORS = {
     "A8": "research_derivation",
 }
 
+STATUS_PRECEDENCE = {
+    "not_started": 0,
+    "required_not_submitted": 10,
+    "submitted_pending": 20,
+    "additional_information_requested": 30,
+    "peer_to_peer_pending": 40,
+    "appeal_pending": 50,
+    "denied_medical_necessity": 60,
+    "denied_benefit_exclusion": 60,
+    "denied_network_or_site": 60,
+    "denied_missing_authorization": 60,
+    "overturned_on_reconsideration_or_appeal": 70,
+    "partially_approved": 80,
+    "approved": 90,
+    "final_denial": 90,
+    "expired": 100,
+    "pending": 20,
+    "satisfied": 90,
+    "not_satisfied": 90,
+    "not_applicable": 90,
+    "unknown": 90,
+}
+
 
 def _event_sort_key(event: Mapping[str, Any]) -> tuple[Any, ...]:
-    """Return an input-order-independent key, including deterministic tie breaks."""
+    """Return an input-order-independent key with semantic same-time ordering."""
+    status = str(event.get("status", ""))
     return (
         float(event["hour"]),
         str(event.get("gate_id", "")),
-        str(event.get("status", "")),
+        STATUS_PRECEDENCE.get(status, 999),
+        status,
         str(event.get("policy_version", "")),
         str(event.get("event_id", "")),
     )
