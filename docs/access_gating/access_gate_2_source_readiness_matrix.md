@@ -13,10 +13,10 @@ Each proposed source receives one score per dimension:
 - `0 — unknown`: not yet established.
 - `1 — blocked`: known issue prevents mapping review.
 - `2 — partial`: material exists but is incomplete or unresolved.
-- `3 — reviewable`: sufficient for controlled mapping review.
-- `4 — governed-ready`: authorization, stewardship, observability, provenance, and minimum-necessary scope are documented for retrospective validation.
+- `3 — sufficient`: sufficient for the individual dimension's controlled mapping-review threshold.
+- `4 — governed-ready`: strongest documented state for dimensions that require explicit authorization, provenance, linkage, or PHI containment.
 
-No source may receive `4` if institutional authorization is absent.
+A dimension score is not itself a source-level readiness classification. In particular, authorization below `4` remains a hard blocker for governed sample review.
 
 ## Scored dimensions
 
@@ -56,13 +56,12 @@ This register is intentionally unscored until source ownership and authorization
 
 Source-level classification is determined by hard prerequisites first, not by averaging scores.
 
-- **Not assessed:** source has not undergone governed inventory review.
-- **Blocked:** authorization, PHI containment, linkage, or provenance is scored 0–1.
-- **Partial:** hard prerequisites exist, but one or more required dimensions remain below threshold.
-- **Reviewable:** all non-authorization dimensions meet minimum thresholds, but governed use has not yet been authorized.
-- **Governed-ready:** authorization and all required thresholds are satisfied.
+- **Not assessed:** documentation/register state used before a source metadata record is evaluated.
+- **Blocked:** one or more hard prerequisites are below their required threshold, unsupported inference is detected, PHI export risk is detected, or observability defects require correction.
+- **Partial:** all hard prerequisites meet threshold, but one or more non-hard readiness dimensions remain below threshold.
+- **Governed-ready:** all hard prerequisites and all remaining required thresholds are satisfied.
 
-A numerical average must not override a blocked hard prerequisite.
+The executable validator intentionally emits only `blocked`, `partial`, or `governed-ready`. A numerical average must not override a blocked hard prerequisite.
 
 ## Gate 2B minimum entry condition
 
