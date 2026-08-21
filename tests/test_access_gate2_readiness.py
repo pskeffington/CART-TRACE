@@ -36,6 +36,14 @@ def test_missing_authorization_is_hard_blocker():
     assert "authorization" in result["hard_blockers"]
 
 
+def test_source_classification_vocabulary_has_no_reviewable_state():
+    allowed = {"blocked", "partial", "governed-ready"}
+    for item in FIXTURES["sources"]:
+        result = classify_source_readiness(item)
+        assert result["classification"] in allowed
+        assert result["classification"] != "reviewable"
+
+
 def test_unsupported_inference_fails_closed():
     result = classify_source_readiness(source("SRC-BLOCKED-INFERENCE"))
     assert result["classification"] == "blocked"
