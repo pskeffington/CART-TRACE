@@ -1,0 +1,114 @@
+{
+  "fixture_version": "0.1.0",
+  "sources": [
+    {
+      "source_inventory_id": "SRC-READY-001",
+      "scores": {
+        "authorization": 4,
+        "stewardship": 3,
+        "minimum_necessary": 3,
+        "event_time_observability": 3,
+        "actor_authority": 3,
+        "status_observability": 3,
+        "provenance": 4,
+        "historical_versioning": 3,
+        "linkage": 4,
+        "missingness": 3,
+        "conflict_handling": 3,
+        "phi_containment": 4,
+        "public_export": 3,
+        "reviewer_ownership": 3
+      },
+      "observability_rows": [
+        {"field_name": "status", "observability": "direct", "source_inventory_id": "SRC-READY-001"},
+        {"field_name": "access_ready", "observability": "derived", "source_inventory_id": "SRC-READY-001", "mapping_rule_version": "0.1.0"}
+      ]
+    },
+    {
+      "source_inventory_id": "SRC-PARTIAL-001",
+      "scores": {
+        "authorization": 4,
+        "stewardship": 3,
+        "minimum_necessary": 3,
+        "event_time_observability": 2,
+        "actor_authority": 3,
+        "status_observability": 2,
+        "provenance": 4,
+        "historical_versioning": 3,
+        "linkage": 4,
+        "missingness": 2,
+        "conflict_handling": 3,
+        "phi_containment": 4,
+        "public_export": 3,
+        "reviewer_ownership": 3
+      },
+      "observability_rows": [
+        {"field_name": "decision_timestamp", "observability": "partial", "source_inventory_id": "SRC-PARTIAL-001"}
+      ]
+    },
+    {
+      "source_inventory_id": "SRC-BLOCKED-AUTH",
+      "scores": {
+        "authorization": 2,
+        "stewardship": 3,
+        "minimum_necessary": 3,
+        "event_time_observability": 3,
+        "actor_authority": 3,
+        "status_observability": 3,
+        "provenance": 4,
+        "historical_versioning": 3,
+        "linkage": 4,
+        "missingness": 3,
+        "conflict_handling": 3,
+        "phi_containment": 4,
+        "public_export": 3,
+        "reviewer_ownership": 3
+      },
+      "observability_rows": []
+    },
+    {
+      "source_inventory_id": "SRC-BLOCKED-INFERENCE",
+      "scores": {
+        "authorization": 4,
+        "stewardship": 3,
+        "minimum_necessary": 3,
+        "event_time_observability": 3,
+        "actor_authority": 3,
+        "status_observability": 3,
+        "provenance": 4,
+        "historical_versioning": 3,
+        "linkage": 4,
+        "missingness": 3,
+        "conflict_handling": 3,
+        "phi_containment": 4,
+        "public_export": 3,
+        "reviewer_ownership": 3
+      },
+      "unsupported_inference_detected": true,
+      "observability_rows": [
+        {"field_name": "financial_clearance", "observability": "absent", "source_inventory_id": "SRC-BLOCKED-INFERENCE", "mapped_as_satisfied": true}
+      ]
+    },
+    {
+      "source_inventory_id": "SRC-BLOCKED-PHI",
+      "scores": {
+        "authorization": 4,
+        "stewardship": 3,
+        "minimum_necessary": 3,
+        "event_time_observability": 3,
+        "actor_authority": 3,
+        "status_observability": 3,
+        "provenance": 4,
+        "historical_versioning": 3,
+        "linkage": 4,
+        "missingness": 3,
+        "conflict_handling": 3,
+        "phi_containment": 4,
+        "public_export": 3,
+        "reviewer_ownership": 3
+      },
+      "phi_export_risk_detected": true,
+      "observability_rows": []
+    }
+  ]
+}
