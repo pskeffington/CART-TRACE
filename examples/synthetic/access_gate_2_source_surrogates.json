@@ -1,0 +1,84 @@
+{
+  "fixture_version": "0.1.0",
+  "mapping_rule_version": "0.1.0",
+  "purpose": "Synthetic source-like fixtures for non-operational Gate 2 source-to-field mapping validation.",
+  "cases": [
+    {
+      "case_id": "S2-001-direct-referral",
+      "records": [
+        {"synthetic_source_id": "S2-001-R1", "synthetic_patient_id": "P001", "synthetic_episode_id": "E001", "source_class": "synthetic_referral", "source_timestamp": "2026-01-01T12:00:00Z", "decision_timestamp": "2026-01-01T12:00:00Z", "actor_type": "referring_clinician", "source_status": "satisfied", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"gate_ids": ["A0"], "access_ready": false}
+    },
+    {
+      "case_id": "S2-002-approval-not-ready",
+      "records": [
+        {"synthetic_source_id": "S2-002-R1", "synthetic_patient_id": "P002", "synthetic_episode_id": "E002", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-02T12:00:00Z", "decision_timestamp": "2026-01-02T12:00:00Z", "actor_type": "payer", "source_status": "approved", "source_version": "1", "synthetic": true, "payer_name": "synthetic_payer", "plan_product": "synthetic_plan"}
+      ],
+      "expected": {"gate_ids": ["A5"], "terminal_authorization_status": "approved", "access_ready": false}
+    },
+    {
+      "case_id": "S2-003-missing-decision-time",
+      "records": [
+        {"synthetic_source_id": "S2-003-R1", "synthetic_patient_id": "P003", "synthetic_episode_id": "E003", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-03T12:00:00Z", "decision_timestamp": null, "actor_type": "payer", "source_status": "approved", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"uncertainty_flags": [true], "decision_timestamps": [null]}
+    },
+    {
+      "case_id": "S2-004-conflicting-authorization",
+      "records": [
+        {"synthetic_source_id": "S2-004-R1", "synthetic_patient_id": "P004", "synthetic_episode_id": "E004", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-04T12:00:00Z", "decision_timestamp": "2026-01-04T12:00:00Z", "actor_type": "payer", "source_status": "approved", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-004-R2", "synthetic_patient_id": "P004", "synthetic_episode_id": "E004", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-05T12:00:00Z", "decision_timestamp": "2026-01-05T12:00:00Z", "actor_type": "payer", "source_status": "denied_medical_necessity", "source_status_code": "corrected_decision", "source_version": "2", "synthetic": true}
+      ],
+      "expected": {"event_count": 2, "terminal_authorization_status": "denied_medical_necessity"}
+    },
+    {
+      "case_id": "S2-005-policy-drift",
+      "records": [
+        {"synthetic_source_id": "S2-005-R1", "synthetic_patient_id": "P005", "synthetic_episode_id": "E005", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-06T12:00:00Z", "decision_timestamp": "2026-01-06T12:00:00Z", "actor_type": "payer", "source_status": "submitted_pending", "policy_id": "SYN-POLICY", "policy_version": "v1", "policy_effective_date": "2026-01-01", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-005-R2", "synthetic_patient_id": "P005", "synthetic_episode_id": "E005", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-10T12:00:00Z", "decision_timestamp": "2026-01-10T12:00:00Z", "actor_type": "payer", "source_status": "approved", "policy_id": "SYN-POLICY", "policy_version": "v2", "policy_effective_date": "2026-01-08", "source_version": "2", "synthetic": true}
+      ],
+      "expected": {"policy_versions": ["v1", "v2"], "policy_drift_flag": true}
+    },
+    {
+      "case_id": "S2-006-network-denial",
+      "records": [
+        {"synthetic_source_id": "S2-006-R1", "synthetic_patient_id": "P006", "synthetic_episode_id": "E006", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-07T12:00:00Z", "decision_timestamp": "2026-01-07T12:00:00Z", "actor_type": "payer", "source_status": "denied_network_or_site", "source_status_code": "network_site", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"statuses": ["denied_network_or_site"], "primary_barrier": "denied_network_or_site"}
+    },
+    {
+      "case_id": "S2-007-financial-delay",
+      "records": [
+        {"synthetic_source_id": "S2-007-R1", "synthetic_patient_id": "P007", "synthetic_episode_id": "E007", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-08T12:00:00Z", "decision_timestamp": "2026-01-08T12:00:00Z", "actor_type": "payer", "source_status": "approved", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-007-R2", "synthetic_patient_id": "P007", "synthetic_episode_id": "E007", "source_class": "synthetic_financial_clearance", "source_timestamp": "2026-01-09T12:00:00Z", "decision_timestamp": null, "actor_type": "financial_services", "source_status": "pending", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-007-R3", "synthetic_patient_id": "P007", "synthetic_episode_id": "E007", "source_class": "synthetic_financial_clearance", "source_timestamp": "2026-01-12T12:00:00Z", "decision_timestamp": "2026-01-12T12:00:00Z", "actor_type": "financial_services", "source_status": "satisfied", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"terminal_authorization_status": "approved", "access_ready": false, "a7_statuses": ["pending", "satisfied"]}
+    },
+    {
+      "case_id": "S2-008-program-vs-payer",
+      "records": [
+        {"synthetic_source_id": "S2-008-R1", "synthetic_patient_id": "P008", "synthetic_episode_id": "E008", "source_class": "synthetic_program_review", "source_timestamp": "2026-01-09T12:00:00Z", "decision_timestamp": "2026-01-09T12:00:00Z", "actor_type": "dartmouth_program", "source_status": "satisfied", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-008-R2", "synthetic_patient_id": "P008", "synthetic_episode_id": "E008", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-10T12:00:00Z", "decision_timestamp": "2026-01-10T12:00:00Z", "actor_type": "payer", "source_status": "approved", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"gate_actor_pairs": [["A2", "dartmouth_program"], ["A5", "payer"]]}
+    },
+    {
+      "case_id": "S2-009-facility-authority",
+      "records": [
+        {"synthetic_source_id": "S2-009-R1", "synthetic_patient_id": "P009", "synthetic_episode_id": "E009", "source_class": "synthetic_facility_logistics", "source_timestamp": "2026-01-11T12:00:00Z", "decision_timestamp": "2026-01-11T12:00:00Z", "actor_type": "dartmouth_program", "source_status": "satisfied", "facility_requirement_type": "payer_site_of_care", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-009-R2", "synthetic_patient_id": "P009", "synthetic_episode_id": "E009", "source_class": "synthetic_facility_logistics", "source_timestamp": "2026-01-11T12:00:00Z", "decision_timestamp": "2026-01-11T12:00:00Z", "actor_type": "dartmouth_program", "source_status": "satisfied", "facility_requirement_type": "fact_iec_expectation", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"facility_requirement_types": ["fact_iec_expectation", "payer_site_of_care"]}
+    },
+    {
+      "case_id": "S2-010-unobservable-financial-gate",
+      "records": [
+        {"synthetic_source_id": "S2-010-R1", "synthetic_patient_id": "P010", "synthetic_episode_id": "E010", "source_class": "synthetic_authorization", "source_timestamp": "2026-01-12T12:00:00Z", "decision_timestamp": "2026-01-12T12:00:00Z", "actor_type": "payer", "source_status": "approved", "source_version": "1", "synthetic": true},
+        {"synthetic_source_id": "S2-010-R2", "synthetic_patient_id": "P010", "synthetic_episode_id": "E010", "source_class": "synthetic_research_derivation", "source_timestamp": "2026-01-13T12:00:00Z", "decision_timestamp": null, "actor_type": "research_derivation", "source_status": "unknown", "target_gate": "A8", "source_status_code": "insufficient_prerequisites", "source_version": "1", "synthetic": true}
+      ],
+      "expected": {"a7_present": false, "access_ready": false}
+    }
+  ]
+}
