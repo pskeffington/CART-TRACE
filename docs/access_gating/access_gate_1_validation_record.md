@@ -10,13 +10,13 @@
 
 ## Gate decision
 
-- [ ] PASS
-- [x] CONDITIONAL PASS
+- [x] PASS
+- [ ] CONDITIONAL PASS
 - [ ] FAIL / REMAIN IN CURRENT PHASE
 
-**Condition:** the latest CI failure on materialized-event order invariance must be closed by a successful GitHub Actions run after commit `7160519ac65995d89e7654e8d2861e281548f64e`, which adds an input-order-independent event tie-break rule.
+**Passing CI evidence:** GitHub Actions run `32323744732`, workflow `Validate CART-TRACE`, completed successfully on 2026-08-20 for branch head `123602350e246d760a77514fca5f300d830e5843`.
 
-The residual issue is limited to deterministic ordering of same-hour synthetic events. It does not alter the gate vocabulary, access-status semantics, payer/clinical separation, oracle expected outcomes, or schema. Promotion beyond synthetic methodological validation remains prohibited until the CI condition is satisfied.
+Access Gate 1 establishes synthetic methodological readiness only. It does not authorize clinical, payer, or prospective use.
 
 ## Scope of this gate
 
@@ -39,13 +39,13 @@ Passing this gate does **not** establish:
 | Access-gate vocabulary defined | Complete | `docs/access_gating/dartmouth_health_access_gating_framework.md` | Manual review complete | A0-A8 remain administrative/research constructs. |
 | Payer evidence provenance framework | Complete | `docs/access_gating/dartmouth_payer_policy_registry.md`; `payer_policy_evidence_matrix.md` | Manual review complete | Member-specific coverage explicitly excluded. |
 | Synthetic oracle | Complete | `examples/synthetic/access_gating_oracle.json` | 10 cases frozen | Includes approval, denial, appeal, expiration, policy drift, financial delay. |
-| Event schema | Complete | `schemas/access_gate_event.schema.json` | Schema tests pass in prior CI | Synthetic records only. |
-| Deterministic reconstruction | Complete with CI condition | `cart_trace/access_gating.py` | Oracle expected fields matched before materialization extension | Latest same-hour tie-order defect fixed in commit `7160519...`; CI rerun required. |
-| Materialized schema records | Complete with CI condition | `materialize_access_event`, `materialize_access_case` | Schema-conformance tests added | Deterministic IDs/timestamps/provenance. |
+| Event schema | Complete | `schemas/access_gate_event.schema.json` | Schema validation passes | Synthetic records only. |
+| Deterministic reconstruction | Complete | `cart_trace/access_gating.py` | Oracle expectations pass | Same-time semantic status precedence is explicit. |
+| Materialized schema records | Complete | `materialize_access_event`, `materialize_access_case` | Schema-conformance tests pass | Deterministic IDs/timestamps/provenance. |
 | Clinical vs administrative separation | Complete | framework + tests | Manual/test review complete | `approved` does not imply `access_ready`. |
-| Policy version preservation | Complete | AG-009 oracle case | Test present | Historical decisions retain contemporaneous version. |
-| Frozen capstone-core isolation | Complete | PR diff | 0 deletions; additive extension | No changes to frozen core trajectory semantics required. |
-| Full branch CI | Pending | GitHub Actions | Prior run failed on deterministic same-hour ordering | Must pass after tie-break fix. |
+| Policy version preservation | Complete | AG-009 oracle case | Test passes | Historical decisions retain contemporaneous version. |
+| Frozen capstone-core isolation | Complete | PR diff | Additive extension | No frozen post-infusion trajectory semantics changed. |
+| Full branch CI | Complete | GitHub Actions run `32323744732` | PASS | Full matrix validated. |
 
 ## Requirement traceability
 
@@ -56,7 +56,8 @@ Passing this gate does **not** establish:
 - `ACCESS-POLICY-002` — policy drift is preserved rather than normalized away.
 - `ACCESS-ORACLE-001` — ten synthetic access trajectories have prespecified outputs.
 - `ACCESS-ORACLE-002` — denial, benefit, network/site, appeal, expiration, and financial barriers remain typed distinctly.
-- `ACCESS-DETERMINISM-001` — event ordering must be independent of input ordering, including same-hour events.
+- `ACCESS-DETERMINISM-001` — event ordering is independent of input ordering, including same-hour events.
+- `ACCESS-DETERMINISM-002` — same-time payer statuses follow explicit semantic precedence rather than lexical ordering.
 - `ACCESS-SCOPE-001` — the extension remains retrospective, descriptive, non-operational, and outside the frozen capstone core.
 
 ## Verification evidence
@@ -74,23 +75,18 @@ The access test suite verifies:
 - schema validation of materialized synthetic events;
 - unique deterministic event IDs;
 - monotonic materialized timestamps;
-- input-order invariance.
+- input-order invariance;
+- semantic same-time payer status ordering.
 
-### CI finding and corrective action
+### CI findings and closure
 
-GitHub Actions run `32322440151` completed with failure in the Python 3.12 matrix. All preceding workflow steps passed, including package installation, Gate 1 schema tests, controlled Phase 5 output generation, rendering, and artifact-presence checks. The full test suite had one failing test:
+Two deterministic-ordering defects were discovered during Gate 1 validation and corrected before passage.
 
-`tests/test_access_gating.py::test_materialization_is_deterministic_and_order_invariant`
+1. Run `32322440151` exposed input-order dependence for same-hour compact events. Commit `7160519ac65995d89e7654e8d2861e281548f64e` added intrinsic tie-breaking.
+2. Run `32322755567` exposed an incorrect same-time lexical ordering between `overturned_on_reconsideration_or_appeal` and `approved`. Commit `cda80634fde3d05e33f2fdf344bedd16881ff957` replaced lexical ordering with explicit semantic `STATUS_PRECEDENCE`.
+3. Run `32323744732` completed successfully after these corrections, closing the Gate 1 CI condition.
 
-Root cause: compact events at the same hour did not have intrinsic `event_id` values, and the prior sort key used only hour plus optional event ID. Stable sorting therefore retained the caller's input order for ties. In AG-002, `A7=satisfied` and `A8=satisfied` share the same hour, producing different generated ordinal IDs when the input list was reversed.
-
-Corrective action in commit `7160519ac65995d89e7654e8d2861e281548f64e`:
-
-- adds an intrinsic tie-break key using `hour`, `gate_id`, `status`, `policy_version`, and optional `event_id`;
-- preserves chronological ordering while making same-hour ordering input-order independent;
-- leaves clinical, payer, access-ready, and metric semantics unchanged.
-
-A successful CI run on or after this commit is required to close the conditional pass.
+These regressions are retained as part of the gate evidence because they clarify the deterministic contract and future regression surface.
 
 ## Manual review
 
@@ -126,27 +122,28 @@ The following artifacts must not change silently after Access Gate 1 closure:
 - policy-version preservation behavior;
 - synthetic oracle expected outputs;
 - materialization provenance fields;
-- input-order-independent deterministic event ordering.
+- input-order-independent deterministic event ordering;
+- same-time status precedence.
 
-Any material change should require versioning, affected-test updates, and a new gate-impact review.
+Any material change requires versioning, affected-test updates, and a new gate-impact review.
 
 ## Promotion criteria for Access Gate 2
 
-Access Gate 2 may begin only after all of the following are true:
+Access Gate 2 may focus on governed source-to-field mapping and retrospective workflow validation planning, subject to all of the following:
 
-1. GitHub Actions passes the full matrix after the deterministic tie-order fix.
-2. The ten-case oracle remains exact under repeated execution.
-3. All materialized events validate against `access_gate_event.schema.json`.
-4. The payer-policy registry records source/effective-date provenance for the targeted Dartmouth-relevant payer set.
-5. Any Dartmouth internal workflow mapping is performed only under appropriate institutional authorization.
+1. Source classes and candidate fields are documented before governed extraction begins.
+2. No source field is interpreted as clinical eligibility unless Dartmouth governance explicitly defines that use.
+3. Payer administrative records, clinical records, financial records, and derived research fields retain typed provenance.
+4. Missingness, uncertainty, conflicting records, and policy-version ambiguity remain explicit.
+5. Any Dartmouth internal workflow mapping occurs only under appropriate institutional authorization.
 6. Governed validation remains retrospective and does not create prospective patient-specific authorization or clinical decision support.
 
 ## Approval record
 
-**Reviewer(s):** pending
+**Reviewer(s):** repository methodological review
 
-**Decision rationale:** conditional methodological readiness. The synthetic administrative access model, oracle, schema, reconstruction logic, and scope boundaries are sufficiently developed for Gate 1, but the gate cannot be declared fully passed until the latest deterministic-ordering fix is verified by CI.
+**Decision rationale:** PASS for synthetic methodological readiness. The administrative access model, schema, oracle, deterministic reconstruction, provenance behavior, and CI evidence are sufficient to support the next retrospective research-design step.
 
-**Residual actions:** obtain successful GitHub Actions validation on the corrected head; then update this record from `CONDITIONAL PASS` to `PASS` with run ID and head SHA.
+**Residual actions:** none required for Access Gate 1 closure. Known limitations remain active constraints for Access Gate 2.
 
-**Next phase authorized:** none beyond synthetic validation until the CI condition is closed. After closure, Access Gate 2 may focus on source-to-field mapping and governed retrospective workflow validation planning.
+**Next phase authorized:** Access Gate 2 source-to-field mapping and governed retrospective workflow validation planning only.
