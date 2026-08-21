@@ -1,0 +1,28 @@
+{
+  "readiness_input_version": "0.1.0",
+  "sources": [
+    {
+      "source_inventory_id": "SRC-TBD-001",
+      "source_class": "TBD",
+      "unsupported_inference_detected": false,
+      "phi_export_risk_detected": false,
+      "scores": {
+        "authorization": 0,
+        "stewardship": 0,
+        "minimum_necessary": 0,
+        "event_time_observability": 0,
+        "actor_authority": 0,
+        "status_observability": 0,
+        "provenance": 0,
+        "historical_versioning": 0,
+        "linkage": 0,
+        "missingness": 0,
+        "conflict_handling": 0,
+        "phi_containment": 0,
+        "public_export": 0,
+        "reviewer_ownership": 0
+      },
+      "observability_rows": []
+    }
+  ]
+}
