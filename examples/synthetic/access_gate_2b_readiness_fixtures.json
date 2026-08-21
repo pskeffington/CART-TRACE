@@ -3,6 +3,7 @@
   "sources": [
     {
       "source_inventory_id": "SRC-READY-001",
+      "source_class": "synthetic_authorization_metadata",
       "scores": {
         "authorization": 4,
         "stewardship": 3,
@@ -26,6 +27,7 @@
     },
     {
       "source_inventory_id": "SRC-PARTIAL-001",
+      "source_class": "synthetic_program_review_metadata",
       "scores": {
         "authorization": 4,
         "stewardship": 3,
@@ -48,6 +50,7 @@
     },
     {
       "source_inventory_id": "SRC-BLOCKED-AUTH",
+      "source_class": "synthetic_authorization_metadata",
       "scores": {
         "authorization": 2,
         "stewardship": 3,
@@ -68,6 +71,7 @@
     },
     {
       "source_inventory_id": "SRC-BLOCKED-INFERENCE",
+      "source_class": "synthetic_financial_metadata",
       "scores": {
         "authorization": 4,
         "stewardship": 3,
@@ -91,6 +95,7 @@
     },
     {
       "source_inventory_id": "SRC-BLOCKED-PHI",
+      "source_class": "synthetic_referral_metadata",
       "scores": {
         "authorization": 4,
         "stewardship": 3,
