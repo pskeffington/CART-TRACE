@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/schemas/access_gate_event.schema.json",
+  "title": "CART-TRACE Access Gate Event",
+  "description": "Synthetic/non-operational event model for retrospective CAR-T hospital and payer access-gating research.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "patient_research_id",
+    "access_episode_id",
+    "event_id",
+    "gate_id",
+    "gate_domain",
+    "status",
+    "status_timestamp",
+    "decision_actor_type",
+    "source_type",
+    "provenance"
+  ],
+  "properties": {
+    "patient_research_id": {"type": "string", "minLength": 1},
+    "access_episode_id": {"type": "string", "minLength": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "gate_id": {
+      "type": "string",
+      "enum": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"]
+    },
+    "gate_domain": {
+      "type": "string",
+      "enum": ["referral", "clinical_review", "hospital", "network", "payer", "medicare", "financial", "access"]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "not_started",
+        "pending",
+        "satisfied",
+        "not_satisfied",
+        "not_applicable",
+        "unknown",
+        "required_not_submitted",
+        "submitted_pending",
+        "additional_information_requested",
+        "approved",
+        "partially_approved",
+        "denied_medical_necessity",
+        "denied_benefit_exclusion",
+        "denied_network_or_site",
+        "denied_missing_authorization",
+        "peer_to_peer_pending",
+        "appeal_pending",
+        "overturned_on_reconsideration_or_appeal",
+        "final_denial",
+        "expired"
+      ]
+    },
+    "status_timestamp": {"type": "string", "format": "date-time"},
+    "decision_timestamp": {"type": ["string", "null"], "format": "date-time"},
+    "decision_actor_type": {
+      "type": "string",
+      "enum": ["referring_clinician", "dartmouth_program", "payer", "benefit_administrator", "financial_services", "research_derivation", "unknown"]
+    },
+    "source_type": {
+      "type": "string",
+      "enum": ["synthetic_fixture", "referral_record", "clinical_note", "authorization_record", "payer_policy", "benefit_document", "financial_record", "derived_research_record", "unknown"]
+    },
+    "source_record_id": {"type": ["string", "null"]},
+    "payer_name": {"type": ["string", "null"]},
+    "plan_product": {"type": ["string", "null"]},
+    "line_of_business": {"type": ["string", "null"]},
+    "servicing_administrator": {"type": ["string", "null"]},
+    "state_service_area": {"type": ["string", "null"]},
+    "requested_product": {"type": ["string", "null"]},
+    "policy_id": {"type": ["string", "null"]},
+    "policy_version": {"type": ["string", "null"]},
+    "policy_effective_date": {"type": ["string", "null"], "format": "date"},
+    "reason_code": {"type": ["string", "null"]},
+    "reason_text_original": {"type": ["string", "null"]},
+    "facility_requirement_type": {
+      "type": ["string", "null"],
+      "enum": [null, "former_fda_rems", "payer_site_of_care", "fact_iec_expectation", "network_contract", "other"]
+    },
+    "evidence_completeness": {
+      "type": "string",
+      "enum": ["complete_for_gate", "partial", "insufficient", "unknown"]
+    },
+    "uncertainty_flag": {"type": "boolean", "default": false},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["synthetic", "rule_version"],
+      "properties": {
+        "synthetic": {"const": true},
+        "rule_version": {"type": "string", "minLength": 1},
+        "source_note": {"type": ["string", "null"]}
+      }
+    }
+  }
+}
