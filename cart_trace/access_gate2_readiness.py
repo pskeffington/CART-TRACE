@@ -96,15 +96,8 @@ def classify_source_readiness(source: Mapping[str, Any]) -> dict[str, Any]:
         classification = "blocked"
     elif below_threshold:
         classification = "partial"
-    elif int(scores["authorization"]) < 4:
-        classification = "reviewable"
     else:
         classification = "governed-ready"
-
-    # Authorization is a hard prerequisite, so an otherwise complete but
-    # unauthorized record remains blocked rather than being promoted by score.
-    if int(scores["authorization"]) < 4:
-        classification = "blocked"
 
     return {
         "source_inventory_id": source.get("source_inventory_id"),
