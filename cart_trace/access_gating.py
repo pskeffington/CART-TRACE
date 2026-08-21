@@ -68,11 +68,32 @@ STATUS_PRECEDENCE = {
 }
 
 
+def _parse_timestamp(value: str) -> datetime:
+    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return parsed.astimezone(timezone.utc)
+
+
+def _event_time(event: Mapping[str, Any]) -> float:
+    """Return a comparable hour value for compact or schema-native events."""
+    if "hour" in event:
+        return float(event["hour"])
+    timestamp = event.get("status_timestamp") or event.get("decision_timestamp")
+    if timestamp is None:
+        raise ValueError("access event requires hour or status/decision timestamp")
+    return _parse_timestamp(str(timestamp)).timestamp() / 3600.0
+
+
+def _elapsed_hours(later: Mapping[str, Any], earlier: Mapping[str, Any]) -> float:
+    return _event_time(later) - _event_time(earlier)
+
+
 def _event_sort_key(event: Mapping[str, Any]) -> tuple[Any, ...]:
     """Return an input-order-independent key with semantic same-time ordering."""
     status = str(event.get("status", ""))
     return (
-        float(event["hour"]),
+        _event_time(event),
         str(event.get("gate_id", "")),
         STATUS_PRECEDENCE.get(status, 999),
         status,
@@ -189,7 +210,7 @@ def materialize_access_case(case: Mapping[str, Any], anchor_time: str) -> list[d
 
 
 def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-    """Derive deterministic administrative access outcomes from synthetic compact events."""
+    """Derive deterministic administrative access outcomes from compact or schema-native events."""
     if not events:
         raise ValueError("access-gating reconstruction requires at least one event")
 
@@ -236,7 +257,7 @@ def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, An
                 event
                 for event in ordered
                 if event.get("gate_id") == "A5"
-                and float(event["hour"]) >= float(submitted["hour"])
+                and _event_time(event) >= _event_time(submitted)
                 and event.get("status")
                 in {
                     "approved",
@@ -249,7 +270,7 @@ def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, An
             None,
         )
         if first_decision is not None:
-            result["authorization_turnaround_hours"] = float(first_decision["hour"]) - float(submitted["hour"])
+            result["authorization_turnaround_hours"] = _elapsed_hours(first_decision, submitted)
 
     if info_request is not None:
         resubmission = next(
@@ -258,21 +279,21 @@ def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, An
                 for event in ordered
                 if event.get("gate_id") == "A5"
                 and event.get("status") == "submitted_pending"
-                and float(event["hour"]) > float(info_request["hour"])
+                and _event_time(event) > _event_time(info_request)
             ),
             None,
         )
         if resubmission is not None:
-            result["information_request_delay_hours"] = float(resubmission["hour"]) - float(info_request["hour"])
+            result["information_request_delay_hours"] = _elapsed_hours(resubmission, info_request)
 
     if first_denial is not None and overturn is not None:
-        result["appeal_or_reconsideration_delay_hours"] = float(overturn["hour"]) - float(first_denial["hour"])
+        result["appeal_or_reconsideration_delay_hours"] = _elapsed_hours(overturn, first_denial)
 
     if financial_pending is not None and financial_satisfied is not None:
-        result["financial_clearance_delay_hours"] = float(financial_satisfied["hour"]) - float(financial_pending["hour"])
+        result["financial_clearance_delay_hours"] = _elapsed_hours(financial_satisfied, financial_pending)
 
     if referral is not None and terminal_a8 is not None:
-        elapsed = float(terminal_a8["hour"]) - float(referral["hour"])
+        elapsed = _elapsed_hours(terminal_a8, referral)
         if terminal_a8.get("status") == "satisfied":
             result["referral_to_access_ready_hours"] = elapsed
         elif terminal_a8.get("status") == "not_satisfied":
