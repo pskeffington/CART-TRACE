@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/schemas/access_gate_2b_readiness_input.schema.json",
+  "title": "CART-TRACE Gate 2B Readiness Input",
+  "description": "Metadata-only input contract for retrospective governed-source readiness review. No patient records or PHI are permitted.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["readiness_input_version", "sources"],
+  "properties": {
+    "readiness_input_version": {"const": "0.1.0"},
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "#/$defs/source"}
+    }
+  },
+  "$defs": {
+    "score": {"type": "integer", "minimum": 0, "maximum": 4},
+    "observability_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field_name", "observability"],
+      "properties": {
+        "field_name": {"type": "string", "minLength": 1},
+        "gate_id": {"type": ["string", "null"], "enum": [null, "A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"]},
+        "observability": {"type": "string", "enum": ["direct", "normalized", "partial", "derived", "absent", "unknown"]},
+        "source_inventory_id": {"type": ["string", "null"]},
+        "mapping_rule_version": {"type": ["string", "null"]},
+        "unsupported_inference": {"type": "boolean", "default": false},
+        "mapped_as_satisfied": {"type": "boolean", "default": false},
+        "note": {"type": ["string", "null"]}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_inventory_id", "source_class", "scores", "observability_rows"],
+      "properties": {
+        "source_inventory_id": {"type": "string", "minLength": 1},
+        "source_class": {"type": "string", "minLength": 1},
+        "unsupported_inference_detected": {"type": "boolean", "default": false},
+        "phi_export_risk_detected": {"type": "boolean", "default": false},
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "authorization", "stewardship", "minimum_necessary", "event_time_observability",
+            "actor_authority", "status_observability", "provenance", "historical_versioning",
+            "linkage", "missingness", "conflict_handling", "phi_containment", "public_export",
+            "reviewer_ownership"
+          ],
+          "properties": {
+            "authorization": {"$ref": "#/$defs/score"},
+            "stewardship": {"$ref": "#/$defs/score"},
+            "minimum_necessary": {"$ref": "#/$defs/score"},
+            "event_time_observability": {"$ref": "#/$defs/score"},
+            "actor_authority": {"$ref": "#/$defs/score"},
+            "status_observability": {"$ref": "#/$defs/score"},
+            "provenance": {"$ref": "#/$defs/score"},
+            "historical_versioning": {"$ref": "#/$defs/score"},
+            "linkage": {"$ref": "#/$defs/score"},
+            "missingness": {"$ref": "#/$defs/score"},
+            "conflict_handling": {"$ref": "#/$defs/score"},
+            "phi_containment": {"$ref": "#/$defs/score"},
+            "public_export": {"$ref": "#/$defs/score"},
+            "reviewer_ownership": {"$ref": "#/$defs/score"}
+          }
+        },
+        "observability_rows": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/observability_row"}
+        }
+      }
+    }
+  }
+}
