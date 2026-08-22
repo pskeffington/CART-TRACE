@@ -12,7 +12,7 @@ FIXTURES = json.loads((ROOT / "examples" / "synthetic" / "access_gate_2b_readine
 SCRIPT = ROOT / "scripts" / "generate_gate2b_readiness_report.py"
 
 
-def test_blank_template_validates_and_fails_closed():
+def test_blank_template_validates_and_reports_not_ready_with_zero_exit():
     Draft202012Validator(SCHEMA).validate(TEMPLATE)
     completed = subprocess.run(
         [sys.executable, str(SCRIPT), str(ROOT / "examples" / "templates" / "access_gate_2b_readiness_input.template.json")],
@@ -21,10 +21,28 @@ def test_blank_template_validates_and_fails_closed():
         text=True,
         check=False,
     )
-    assert completed.returncode == 2
+    assert completed.returncode == 0
     report = json.loads(completed.stdout)
     assert report["gate2b_entry_status"] == "not_ready"
     assert "authorization" in report["aggregate_hard_blockers"]
+
+
+def test_require_ready_fails_closed_for_not_ready_input():
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            str(ROOT / "examples" / "templates" / "access_gate_2b_readiness_input.template.json"),
+            "--require-ready",
+        ],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 2
+    report = json.loads(completed.stdout)
+    assert report["gate2b_entry_status"] == "not_ready"
 
 
 def test_governed_ready_payload_returns_zero_and_writes_reports(tmp_path):
@@ -46,6 +64,7 @@ def test_governed_ready_payload_returns_zero_and_writes_reports(tmp_path):
             str(json_out),
             "--markdown-out",
             str(markdown_out),
+            "--require-ready",
         ],
         cwd=ROOT,
         capture_output=True,
@@ -73,11 +92,12 @@ def test_cli_output_is_deterministic(tmp_path):
     input_b.write_text(json.dumps(reversed_payload))
 
     for input_path, output_path in [(input_a, first), (input_b, second)]:
-        subprocess.run(
+        completed = subprocess.run(
             [sys.executable, str(SCRIPT), str(input_path), "--json-out", str(output_path)],
             cwd=ROOT,
             capture_output=True,
             text=True,
             check=False,
         )
+        assert completed.returncode == 0
     assert first.read_text() == second.read_text()
