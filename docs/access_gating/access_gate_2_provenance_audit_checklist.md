@@ -79,23 +79,29 @@ For each hand-reviewed retrospective episode, the validation packet should conta
 6. field-level uncertainties;
 7. conflicts or corrections encountered;
 8. reviewer disposition: agree / disagree / insufficient evidence;
-9. discrepancy reason when reviewer and mapper differ;
+9. discrepancy class when reviewer and mapper differ;
 10. confirmation that no prospective recommendation was produced.
 
-## Discrepancy taxonomy
+## Canonical discrepancy taxonomy
 
-Minimum discrepancy categories:
+Use the discrepancy classes defined in `access_gate_2_discrepancy_review_template.md`. The canonical classes are:
 
-- `source_field_not_observable`
-- `source_timestamp_ambiguous`
-- `actor_authority_ambiguous`
-- `status_normalization_disagreement`
-- `episode_linkage_uncertain`
-- `policy_version_unresolved`
-- `source_conflict_unresolved`
-- `gate_mapping_disagreement`
-- `insufficient_evidence`
-- `other_documented`
+- `SOURCE_MISSING`
+- `SOURCE_CONFLICT`
+- `TIMESTAMP_CONFLICT`
+- `ACTOR_AUTHORITY_CONFLICT`
+- `STATUS_NORMALIZATION_ERROR`
+- `GATE_ASSIGNMENT_ERROR`
+- `POLICY_VERSION_MISMATCH`
+- `EPISODE_LINKAGE_ERROR`
+- `DERIVATION_ERROR`
+- `SCHEMA_ERROR`
+- `UNSUPPORTED_INFERENCE`
+- `PHI_EXPORT_RISK`
+- `NOT_OBSERVABLE`
+- `OTHER`
+
+Do not maintain a second discrepancy vocabulary in the provenance audit. A discrepancy may use one primary class and optional secondary classes under the canonical template.
 
 Discrepancies must not be silently corrected by changing the source record or overwriting the first-pass mapped result. The correction path should be auditable and versioned.
 
