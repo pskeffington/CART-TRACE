@@ -26,6 +26,11 @@ def main() -> int:
     parser.add_argument("--schema", type=Path, default=DEFAULT_SCHEMA, help="Readiness input JSON schema")
     parser.add_argument("--json-out", type=Path, help="Optional JSON report output path")
     parser.add_argument("--markdown-out", type=Path, help="Optional Markdown report output path")
+    parser.add_argument(
+        "--require-ready",
+        action="store_true",
+        help="Return exit code 2 when the validated source set is not governed-ready.",
+    )
     args = parser.parse_args()
 
     payload = json.loads(args.input.read_text())
@@ -43,7 +48,9 @@ def main() -> int:
     if not args.json_out and not args.markdown_out:
         print(rendered_json, end="")
 
-    return 0 if report["ready_for_governed_sample_review"] else 2
+    if args.require_ready and not report["ready_for_governed_sample_review"]:
+        return 2
+    return 0
 
 
 if __name__ == "__main__":
