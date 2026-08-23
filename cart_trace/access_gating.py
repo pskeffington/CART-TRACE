@@ -113,7 +113,7 @@ def _ordered(events: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
 
 
 def _validate_decisive_a5_ties(events: Sequence[Mapping[str, Any]]) -> None:
-    """Reject simultaneous conflicting payer outcomes instead of choosing lexically."""
+    """Reject contradictory simultaneous payer outcomes without erasing denial typing."""
     by_time: dict[float, set[str]] = {}
     for event in events:
         if event.get("gate_id") != "A5":
@@ -123,7 +123,17 @@ def _validate_decisive_a5_ties(events: Sequence[Mapping[str, Any]]) -> None:
             continue
         by_time.setdefault(_event_time(event), set()).add(status)
 
-    conflicts = [statuses for statuses in by_time.values() if len(statuses) > 1]
+    conflicts: list[set[str]] = []
+    typed_denials = DENIAL_STATUSES - {"final_denial"}
+    for statuses in by_time.values():
+        if len(statuses) <= 1:
+            continue
+        if "final_denial" in statuses:
+            specific_denials = statuses - {"final_denial"}
+            if len(specific_denials) == 1 and specific_denials <= typed_denials:
+                continue
+        conflicts.append(statuses)
+
     if conflicts:
         rendered = "; ".join(", ".join(sorted(statuses)) for statuses in conflicts)
         raise ValueError(f"ambiguous same-time A5 decisive outcomes: {rendered}")
