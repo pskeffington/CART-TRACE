@@ -119,6 +119,30 @@ def test_financial_delay_is_not_medical_denial():
     assert "denied_medical_necessity" not in [event["status"] for event in case["events"]]
 
 
+def test_same_time_conflicting_decisive_a5_outcomes_fail_closed():
+    events = [
+        {"gate_id": "A5", "status": "submitted_pending", "hour": 0},
+        {"gate_id": "A5", "status": "approved", "hour": 24},
+        {"gate_id": "A5", "status": "final_denial", "hour": 24},
+    ]
+    try:
+        reconstruct_access_case(events)
+    except ValueError as exc:
+        assert "ambiguous same-time A5 decisive outcomes" in str(exc)
+    else:
+        raise AssertionError("same-time conflicting decisive A5 outcomes must fail closed")
+
+
+def test_same_time_duplicate_decisive_a5_status_is_not_conflict():
+    events = [
+        {"gate_id": "A5", "status": "submitted_pending", "hour": 0},
+        {"gate_id": "A5", "status": "approved", "hour": 24, "event_id": "A"},
+        {"gate_id": "A5", "status": "approved", "hour": 24, "event_id": "B"},
+    ]
+    result = reconstruct_access_case(events)
+    assert result["terminal_authorization_status"] == "approved"
+
+
 def test_input_order_does_not_change_output():
     case = next(item for item in cases() if item["case_id"] == "AG-002-information-request-delay")
     forward = reconstruct_access_case(case["events"])

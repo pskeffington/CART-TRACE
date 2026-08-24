@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Sequence
 
-MAPPING_RULE_VERSION = "0.1.0"
+MAPPING_RULE_VERSION = "0.1.1"
 
 SOURCE_CLASS_TO_GATE = {
     "synthetic_referral": "A0",
@@ -47,12 +47,18 @@ SOURCE_TYPES = {
 
 
 def _gate_for(record: Mapping[str, Any]) -> str:
-    if record.get("target_gate"):
-        return str(record["target_gate"])
     source_class = str(record["source_class"])
     if source_class not in SOURCE_CLASS_TO_GATE:
         raise ValueError(f"unsupported synthetic source class: {source_class}")
-    return SOURCE_CLASS_TO_GATE[source_class]
+
+    canonical_gate = SOURCE_CLASS_TO_GATE[source_class]
+    asserted_gate = record.get("target_gate")
+    if asserted_gate is not None and str(asserted_gate) != canonical_gate:
+        raise ValueError(
+            f"target_gate {asserted_gate} conflicts with canonical gate {canonical_gate} "
+            f"for source class {source_class}"
+        )
+    return canonical_gate
 
 
 def _sort_key(record: Mapping[str, Any]) -> tuple[Any, ...]:

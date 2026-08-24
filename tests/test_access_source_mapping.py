@@ -114,6 +114,24 @@ def test_s2_010_missing_financial_source_does_not_infer_a7_or_ready():
     assert reconstruct_access_case(mapped)["access_ready"] is False
 
 
+def test_matching_target_gate_is_only_an_assertion():
+    record = dict(cases()[0]["records"][0])
+    record["target_gate"] = "A0"
+    mapped = map_synthetic_source_case([record])
+    assert mapped[0]["gate_id"] == "A0"
+
+
+def test_target_gate_cannot_override_source_class_mapping():
+    record = dict(cases()[0]["records"][0])
+    record["target_gate"] = "A8"
+    try:
+        map_synthetic_source_case([record])
+    except ValueError as exc:
+        assert "conflicts with canonical gate A0" in str(exc)
+    else:
+        raise AssertionError("mismatched target_gate should be rejected")
+
+
 def test_non_synthetic_source_is_rejected():
     record = dict(cases()[0]["records"][0])
     record["synthetic"] = False

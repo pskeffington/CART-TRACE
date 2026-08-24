@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping, Sequence
 
-ACCESS_GATING_VERSION = "0.1.0"
+ACCESS_GATING_VERSION = "0.1.1"
 
 DENIAL_STATUSES = {
     "denied_medical_necessity",
@@ -18,6 +18,12 @@ DENIAL_STATUSES = {
     "denied_network_or_site",
     "denied_missing_authorization",
     "final_denial",
+}
+
+DECISIVE_A5_STATUSES = DENIAL_STATUSES | {
+    "approved",
+    "partially_approved",
+    "expired",
 }
 
 GATE_DOMAINS = {
@@ -104,6 +110,33 @@ def _event_sort_key(event: Mapping[str, Any]) -> tuple[Any, ...]:
 
 def _ordered(events: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
     return sorted(events, key=_event_sort_key)
+
+
+def _validate_decisive_a5_ties(events: Sequence[Mapping[str, Any]]) -> None:
+    """Reject contradictory simultaneous payer outcomes without erasing denial typing."""
+    by_time: dict[float, set[str]] = {}
+    for event in events:
+        if event.get("gate_id") != "A5":
+            continue
+        status = str(event.get("status", ""))
+        if status not in DECISIVE_A5_STATUSES:
+            continue
+        by_time.setdefault(_event_time(event), set()).add(status)
+
+    conflicts: list[set[str]] = []
+    typed_denials = DENIAL_STATUSES - {"final_denial"}
+    for statuses in by_time.values():
+        if len(statuses) <= 1:
+            continue
+        if "final_denial" in statuses:
+            specific_denials = statuses - {"final_denial"}
+            if len(specific_denials) == 1 and specific_denials <= typed_denials:
+                continue
+        conflicts.append(statuses)
+
+    if conflicts:
+        rendered = "; ".join(", ".join(sorted(statuses)) for statuses in conflicts)
+        raise ValueError(f"ambiguous same-time A5 decisive outcomes: {rendered}")
 
 
 def _first(events: Sequence[Mapping[str, Any]], gate_id: str, status: str) -> Mapping[str, Any] | None:
@@ -214,6 +247,7 @@ def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, An
     if not events:
         raise ValueError("access-gating reconstruction requires at least one event")
 
+    _validate_decisive_a5_ties(events)
     ordered = _ordered(events)
     referral = _first(ordered, "A0", "satisfied")
     terminal_a5 = _last_gate(ordered, "A5")
