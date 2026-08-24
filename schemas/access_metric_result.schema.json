@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.org/cart-trace/access_metric_result.schema.json",
+  "title": "CART-TRACE Access Gate 3 Metric Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "access_episode_id",
+    "metric_id",
+    "metric_contract_version",
+    "status",
+    "value",
+    "unit",
+    "contributing_event_ids",
+    "contributing_gate_ids",
+    "policy_versions_observed",
+    "mapping_rule_versions",
+    "synthetic",
+    "uncertainty_flag"
+  ],
+  "properties": {
+    "access_episode_id": {"type": "string", "minLength": 1},
+    "metric_id": {
+      "enum": [
+        "referral_to_access_ready_hours",
+        "authorization_turnaround_hours",
+        "information_request_delay_hours",
+        "appeal_or_reconsideration_delay_hours",
+        "financial_clearance_delay_hours",
+        "referral_to_terminal_hours",
+        "access_ready",
+        "policy_drift_flag",
+        "primary_barrier"
+      ]
+    },
+    "metric_contract_version": {"const": "1.0.0"},
+    "status": {
+      "enum": [
+        "observed",
+        "not_applicable",
+        "not_observable",
+        "insufficient_followup",
+        "invalid_temporal_order",
+        "unresolved_mapping",
+        "unknown"
+      ]
+    },
+    "value": {"type": ["number", "boolean", "string", "null"]},
+    "unit": {"enum": ["hours", "boolean", "category"]},
+    "contributing_event_ids": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "contributing_gate_ids": {
+      "type": "array",
+      "items": {"enum": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8"]},
+      "uniqueItems": true
+    },
+    "policy_versions_observed": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "mapping_rule_versions": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "uniqueItems": true
+    },
+    "synthetic": {"type": "boolean"},
+    "uncertainty_flag": {"type": "boolean"},
+    "missingness_reason": {"type": ["string", "null"]}
+  }
+}
