@@ -4,6 +4,7 @@ from pathlib import Path
 from jsonschema import Draft202012Validator, FormatChecker
 
 from cart_trace.access_gating import (
+    derive_access_metric_results,
     expected_subset_matches,
     materialize_access_case,
     reconstruct_access_case,
@@ -12,10 +13,15 @@ from cart_trace.access_gating import (
 ROOT = Path(__file__).resolve().parents[1]
 ORACLE = json.loads((ROOT / "examples" / "synthetic" / "access_gating_oracle.json").read_text())
 ACCESS_EVENT_SCHEMA = json.loads((ROOT / "schemas" / "access_gate_event.schema.json").read_text())
+ACCESS_METRIC_SCHEMA = json.loads((ROOT / "schemas" / "access_metric_result.schema.json").read_text())
 
 
 def cases():
     return ORACLE["cases"]
+
+
+def metric_by_id(results, metric_id):
+    return next(result for result in results if result["metric_id"] == metric_id)
 
 
 def test_all_oracle_cases_match_exact_expected_fields():
@@ -133,3 +139,76 @@ def test_empty_event_stream_is_rejected():
         assert "at least one event" in str(exc)
     else:
         raise AssertionError("empty event stream should raise ValueError")
+
+
+def test_gate3_metric_results_validate_against_schema():
+    validator = Draft202012Validator(ACCESS_METRIC_SCHEMA, format_checker=FormatChecker())
+    for case in cases():
+        records = materialize_access_case(case, ORACLE["anchor_time"])
+        results = derive_access_metric_results(records)
+        assert len(results) == 9
+        for result in results:
+            validator.validate(result)
+            assert result["access_episode_id"] == case["case_id"]
+            assert result["metric_contract_version"] == "1.0.0"
+            assert result["synthetic"] is True
+
+
+def test_gate3_metrics_preserve_event_provenance():
+    case = next(item for item in cases() if item["case_id"] == "AG-002-information-request-delay")
+    records = materialize_access_case(case, ORACLE["anchor_time"])
+    results = derive_access_metric_results(records)
+    metric = metric_by_id(results, "information_request_delay_hours")
+    assert metric["status"] == "observed"
+    assert metric["value"] == 72
+    assert metric["contributing_gate_ids"] == ["A5"]
+    assert len(metric["contributing_event_ids"]) == 2
+    assert metric["mapping_rule_versions"] == ["0.1.0"]
+
+
+def test_gate3_access_ready_requires_explicit_a8():
+    case = {
+        "case_id": "AG-T-NO-A8",
+        "events": [
+            {"gate_id": "A0", "status": "satisfied", "hour": 0},
+            {"gate_id": "A5", "status": "submitted_pending", "hour": 24},
+            {"gate_id": "A5", "status": "approved", "hour": 48},
+        ],
+    }
+    records = materialize_access_case(case, ORACLE["anchor_time"])
+    results = derive_access_metric_results(records)
+    assert metric_by_id(results, "access_ready")["value"] is False
+    referral_metric = metric_by_id(results, "referral_to_access_ready_hours")
+    assert referral_metric["status"] == "insufficient_followup"
+    assert referral_metric["value"] is None
+
+
+def test_gate3_missing_metrics_are_not_zero():
+    case = next(item for item in cases() if item["case_id"] == "AG-001-straight-approval")
+    records = materialize_access_case(case, ORACLE["anchor_time"])
+    results = derive_access_metric_results(records)
+    info_delay = metric_by_id(results, "information_request_delay_hours")
+    appeal_delay = metric_by_id(results, "appeal_or_reconsideration_delay_hours")
+    financial_delay = metric_by_id(results, "financial_clearance_delay_hours")
+    assert info_delay["status"] == "not_applicable" and info_delay["value"] is None
+    assert appeal_delay["status"] == "not_applicable" and appeal_delay["value"] is None
+    assert financial_delay["status"] == "not_applicable" and financial_delay["value"] is None
+
+
+def test_gate3_policy_drift_preserves_versions():
+    case = next(item for item in cases() if item["case_id"] == "AG-009-policy-version-change")
+    records = materialize_access_case(case, ORACLE["anchor_time"])
+    results = derive_access_metric_results(records)
+    drift = metric_by_id(results, "policy_drift_flag")
+    barrier = metric_by_id(results, "primary_barrier")
+    assert drift["value"] is True
+    assert drift["policy_versions_observed"] == ["v1", "v2"]
+    assert barrier["value"] == "policy_change_during_episode"
+
+
+def test_gate3_metric_output_is_order_invariant():
+    case = next(item for item in cases() if item["case_id"] == "AG-006-peer-to-peer-overturn")
+    records = materialize_access_case(case, ORACLE["anchor_time"])
+    forward = derive_access_metric_results(records)
+    reverse = derive_access_metric_results(list(reversed(records)))
+    assert forward == reverse
