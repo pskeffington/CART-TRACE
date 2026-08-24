@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Mapping, Sequence
 
 ACCESS_GATING_VERSION = "0.1.0"
+ACCESS_METRIC_CONTRACT_VERSION = "1.0.0"
 
 DENIAL_STATUSES = {
     "denied_medical_necessity",
@@ -300,6 +301,166 @@ def reconstruct_access_case(events: Sequence[Mapping[str, Any]]) -> dict[str, An
             result["referral_to_terminal_hours"] = elapsed
 
     return result
+
+
+def _episode_id(events: Sequence[Mapping[str, Any]]) -> str:
+    values = {str(event.get("access_episode_id")) for event in events if event.get("access_episode_id")}
+    if len(values) == 1:
+        return next(iter(values))
+    if len(values) > 1:
+        raise ValueError("access metric derivation requires one access_episode_id")
+    return "synthetic-compact-episode"
+
+
+def _event_ids(events: Sequence[Mapping[str, Any]]) -> list[str]:
+    return [str(event["event_id"]) for event in events if event.get("event_id")]
+
+
+def _gate_ids(events: Sequence[Mapping[str, Any]]) -> list[str]:
+    return list(dict.fromkeys(str(event["gate_id"]) for event in events if event.get("gate_id")))
+
+
+def _policy_versions(events: Sequence[Mapping[str, Any]]) -> list[str]:
+    return list(
+        dict.fromkeys(
+            str(event["policy_version"])
+            for event in events
+            if event.get("policy_version") is not None
+        )
+    )
+
+
+def _mapping_versions(events: Sequence[Mapping[str, Any]]) -> list[str]:
+    versions: list[str] = []
+    for event in events:
+        provenance = event.get("provenance") or {}
+        version = provenance.get("rule_version") if isinstance(provenance, Mapping) else None
+        if version is not None and str(version) not in versions:
+            versions.append(str(version))
+    return versions
+
+
+def _metric_result(
+    episode_id: str,
+    metric_id: str,
+    status: str,
+    value: Any,
+    unit: str,
+    contributing_events: Sequence[Mapping[str, Any]],
+    all_events: Sequence[Mapping[str, Any]],
+    missingness_reason: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "access_episode_id": episode_id,
+        "metric_id": metric_id,
+        "metric_contract_version": ACCESS_METRIC_CONTRACT_VERSION,
+        "status": status,
+        "value": value,
+        "unit": unit,
+        "contributing_event_ids": _event_ids(contributing_events),
+        "contributing_gate_ids": _gate_ids(contributing_events),
+        "policy_versions_observed": _policy_versions(all_events),
+        "mapping_rule_versions": _mapping_versions(all_events),
+        "synthetic": all(bool((event.get("provenance") or {}).get("synthetic", False)) for event in all_events),
+        "uncertainty_flag": any(bool(event.get("uncertainty_flag", False)) for event in contributing_events),
+        "missingness_reason": missingness_reason,
+    }
+
+
+def derive_access_metric_results(events: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Return Gate 3 episode-level metric results with explicit provenance and missingness."""
+    if not events:
+        raise ValueError("access metric derivation requires at least one event")
+
+    ordered = _ordered(events)
+    episode_id = _episode_id(ordered)
+    referral = _first(ordered, "A0", "satisfied")
+    terminal_a8 = _last_gate(ordered, "A8")
+    submitted = _first(ordered, "A5", "submitted_pending")
+    first_denial = _first_denial(ordered)
+    overturn = _first(ordered, "A5", "overturned_on_reconsideration_or_appeal")
+    info_request = _first(ordered, "A5", "additional_information_requested")
+    financial_pending = _first(ordered, "A7", "pending")
+    financial_satisfied = _first(ordered, "A7", "satisfied")
+
+    versions = _policy_versions(ordered)
+    policy_drift = len(versions) > 1
+    barrier = _primary_barrier(ordered, policy_drift) or "unknown_or_unresolved"
+    results: list[dict[str, Any]] = []
+
+    access_ready = bool(terminal_a8 and terminal_a8.get("status") == "satisfied")
+    access_events = [event for event in (terminal_a8,) if event is not None]
+    results.append(_metric_result(episode_id, "access_ready", "observed", access_ready, "boolean", access_events, ordered))
+    results.append(_metric_result(episode_id, "policy_drift_flag", "observed", policy_drift, "boolean", ordered, ordered))
+    results.append(_metric_result(episode_id, "primary_barrier", "observed", barrier, "category", ordered, ordered))
+
+    if referral is None:
+        results.append(_metric_result(episode_id, "referral_to_access_ready_hours", "not_observable", None, "hours", [], ordered, "missing A0 satisfied referral event"))
+        results.append(_metric_result(episode_id, "referral_to_terminal_hours", "not_observable", None, "hours", [], ordered, "missing A0 satisfied referral event"))
+    elif terminal_a8 is None:
+        results.append(_metric_result(episode_id, "referral_to_access_ready_hours", "insufficient_followup", None, "hours", [referral], ordered, "no explicit A8 terminal event"))
+        results.append(_metric_result(episode_id, "referral_to_terminal_hours", "insufficient_followup", None, "hours", [referral], ordered, "no explicit A8 terminal event"))
+    else:
+        elapsed = _elapsed_hours(terminal_a8, referral)
+        status = "observed" if elapsed >= 0 else "invalid_temporal_order"
+        if terminal_a8.get("status") == "satisfied":
+            results.append(_metric_result(episode_id, "referral_to_access_ready_hours", status, elapsed if elapsed >= 0 else None, "hours", [referral, terminal_a8], ordered, None if elapsed >= 0 else "A8 precedes A0"))
+            results.append(_metric_result(episode_id, "referral_to_terminal_hours", "not_applicable", None, "hours", [referral, terminal_a8], ordered, "episode reached access-ready rather than explicit non-progression"))
+        elif terminal_a8.get("status") == "not_satisfied":
+            results.append(_metric_result(episode_id, "referral_to_access_ready_hours", "not_applicable", None, "hours", [referral, terminal_a8], ordered, "episode ended with explicit A8 not_satisfied"))
+            results.append(_metric_result(episode_id, "referral_to_terminal_hours", status, elapsed if elapsed >= 0 else None, "hours", [referral, terminal_a8], ordered, None if elapsed >= 0 else "A8 precedes A0"))
+        else:
+            results.append(_metric_result(episode_id, "referral_to_access_ready_hours", "unknown", None, "hours", [referral, terminal_a8], ordered, "A8 terminal status is neither satisfied nor not_satisfied"))
+            results.append(_metric_result(episode_id, "referral_to_terminal_hours", "unknown", None, "hours", [referral, terminal_a8], ordered, "A8 terminal status is neither satisfied nor not_satisfied"))
+
+    if submitted is None:
+        results.append(_metric_result(episode_id, "authorization_turnaround_hours", "not_applicable", None, "hours", [], ordered, "no A5 submitted_pending event"))
+    else:
+        first_decision = next(
+            (
+                event for event in ordered
+                if event.get("gate_id") == "A5"
+                and _event_time(event) >= _event_time(submitted)
+                and event.get("status") in {
+                    "approved", "denied_medical_necessity", "denied_benefit_exclusion",
+                    "denied_network_or_site", "denied_missing_authorization"
+                }
+            ),
+            None,
+        )
+        if first_decision is None:
+            results.append(_metric_result(episode_id, "authorization_turnaround_hours", "insufficient_followup", None, "hours", [submitted], ordered, "no terminal first A5 decision observed"))
+        else:
+            elapsed = _elapsed_hours(first_decision, submitted)
+            results.append(_metric_result(episode_id, "authorization_turnaround_hours", "observed" if elapsed >= 0 else "invalid_temporal_order", elapsed if elapsed >= 0 else None, "hours", [submitted, first_decision], ordered, None if elapsed >= 0 else "A5 decision precedes submission"))
+
+    if info_request is None:
+        results.append(_metric_result(episode_id, "information_request_delay_hours", "not_applicable", None, "hours", [], ordered, "no additional-information request observed"))
+    else:
+        resubmission = next((event for event in ordered if event.get("gate_id") == "A5" and event.get("status") == "submitted_pending" and _event_time(event) > _event_time(info_request)), None)
+        if resubmission is None:
+            results.append(_metric_result(episode_id, "information_request_delay_hours", "insufficient_followup", None, "hours", [info_request], ordered, "no resubmission observed after information request"))
+        else:
+            elapsed = _elapsed_hours(resubmission, info_request)
+            results.append(_metric_result(episode_id, "information_request_delay_hours", "observed", elapsed, "hours", [info_request, resubmission], ordered))
+
+    if first_denial is None:
+        results.append(_metric_result(episode_id, "appeal_or_reconsideration_delay_hours", "not_applicable", None, "hours", [], ordered, "no qualifying initial A5 denial"))
+    elif overturn is None:
+        results.append(_metric_result(episode_id, "appeal_or_reconsideration_delay_hours", "not_applicable", None, "hours", [first_denial], ordered, "no overturn observed"))
+    else:
+        elapsed = _elapsed_hours(overturn, first_denial)
+        results.append(_metric_result(episode_id, "appeal_or_reconsideration_delay_hours", "observed" if elapsed >= 0 else "invalid_temporal_order", elapsed if elapsed >= 0 else None, "hours", [first_denial, overturn], ordered, None if elapsed >= 0 else "overturn precedes denial"))
+
+    if financial_pending is None:
+        results.append(_metric_result(episode_id, "financial_clearance_delay_hours", "not_applicable", None, "hours", [], ordered, "no A7 pending interval"))
+    elif financial_satisfied is None:
+        results.append(_metric_result(episode_id, "financial_clearance_delay_hours", "insufficient_followup", None, "hours", [financial_pending], ordered, "financial clearance remains unresolved"))
+    else:
+        elapsed = _elapsed_hours(financial_satisfied, financial_pending)
+        results.append(_metric_result(episode_id, "financial_clearance_delay_hours", "observed" if elapsed >= 0 else "invalid_temporal_order", elapsed if elapsed >= 0 else None, "hours", [financial_pending, financial_satisfied], ordered, None if elapsed >= 0 else "financial satisfaction precedes pending state"))
+
+    return results
 
 
 def expected_subset_matches(result: Mapping[str, Any], expected: Mapping[str, Any]) -> bool:
