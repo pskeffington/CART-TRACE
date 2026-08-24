@@ -39,7 +39,7 @@ See [ROADMAP.md](ROADMAP.md) for phase gates and the 21-month capstone execution
 
 ## Research extension — administrative access gating
 
-A separate synthetic research extension now examines how referral, program review, facility, network, payer, Medicare, financial-clearance, and derived access states can be represented as auditable longitudinal administrative events.
+A separate synthetic research extension examines how referral, program review, facility, network, payer, Medicare, financial-clearance, and derived access states can be represented as auditable longitudinal administrative events.
 
 This extension is **outside the required capstone scope** and does not modify the frozen post-infusion trajectory package. Its purpose is retrospective methods research: defining source-to-event mappings, deterministic reconstruction rules, provenance, uncertainty handling, and synthetic test cases for administrative access pathways.
 
@@ -49,11 +49,17 @@ The current extension includes:
 - synthetic source-to-event mapping rules;
 - deterministic reconstruction of administrative access states and delays;
 - explicit policy-version and policy-drift handling;
-- synthetic oracle cases and validation controls.
+- synthetic oracle cases and validation controls;
+- Gate 2B governed-source readiness, provenance, reporting, CLI, and review tooling;
+- a frozen Gate 3 retrospective metric contract for delay, attrition, barrier classification, denominator semantics, missingness, and provenance.
+
+**Current extension status:** Access Gate 1 and Gate 2A are passed. Gate 2B preparation/tooling is passed, while governed source validation remains not started and authorization-dependent. Gate 3A synthetic metric validity is now in progress; Gate 3B governed representation validity remains blocked behind authorization and completion of governed Gate 2B validation.
 
 The access-gating extension does **not** determine whether a patient is clinically eligible for CAR T-cell therapy, whether an insurer must provide coverage, whether treatment is financially approved, or whether a patient is ready for treatment. It is not an authorization engine, utilization-management system, eligibility tool, or clinical decision-support system.
 
 Any future use of institutional, payer, or patient-level administrative data requires separate governance, source authorization, local validation, and domain review.
+
+See `docs/access_gating/dartmouth_health_access_gating_framework.md` for the extension framework and `docs/access_gating/access_gate_3_metric_contract.md` for the current synthetic metric-validity gate.
 
 ## Canonical care states
 
