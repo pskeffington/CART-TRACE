@@ -258,20 +258,9 @@ Protected health information and payer correspondence must remain in governed en
 
 ## Delay and attrition measures
 
-A future retrospective analysis could measure:
+The frozen synthetic Gate 3 metric contract is defined in `docs/access_gating/access_gate_3_metric_contract.md`. It formalizes referral-to-access-ready time, authorization turnaround, information-request delay, appeal/reconsideration delay, financial-clearance delay, referral-to-terminal disposition, barrier classification, access-ready proportion, stage reach/attrition, policy-version drift, metric missingness, denominator semantics, and provenance requirements.
 
-- referral-to-program-review time;
-- program-review-to-authorization-submission time;
-- authorization turnaround time;
-- number of payer information requests;
-- denial and overturn frequency;
-- time attributable to network exceptions;
-- time attributable to financial clearance;
-- proportion of referred patients reaching each access milestone;
-- documented reasons for non-progression;
-- total referral-to-access-ready time.
-
-These are health-services/access measures, not treatment-effect or clinical-outcome measures.
+These remain health-services/access measures, not treatment-effect, clinical-outcome, or prospective eligibility measures.
 
 ## Evidence hierarchy
 
@@ -296,12 +285,25 @@ Every policy-derived rule must carry an effective date and version where availab
 - CMS, **NCD 110.24 — Chimeric Antigen Receptor (CAR) T-cell Therapy**: https://www.cms.gov/medicare-coverage-database/view/ncd.aspx?ncdid=374
 - FDA, **FDA Eliminates REMS for Autologous CAR T cell Immunotherapies**, June 26, 2025: https://www.fda.gov/vaccines-blood-biologics/safety-availability-biologics/fda-eliminates-risk-evaluation-and-mitigation-strategies-rems-autologous-chimeric-antigen-receptor
 
-## First implementation backlog
+## Current extension gate status
 
-1. Build a payer-policy registry for Dartmouth-relevant payers.
-2. Record current FDA indication/label versions by CAR-T product.
-3. Resolve the post-2025 relationship between CMS NCD 110.24 wording and FDA REMS elimination using current Medicare implementation sources.
-4. Define a governed Dartmouth source-field inventory for referral, authorization, financial-clearance, and program-disposition events.
-5. Build synthetic access episodes covering approval, denial, appeal, network exception, incomplete referral, and financial-assistance pathways.
-6. Define a retrospective access-delay metric contract.
-7. Keep all patient-specific and institutional workflow validation outside the public repository unless explicitly approved for release.
+- **Access Gate 1:** PASS — canonical access event model and synthetic baseline.
+- **Access Gate 2A:** PASS — synthetic source-to-event mapping.
+- **Access Gate 2B preparation/tooling:** PASS — readiness metadata, reporting, provenance, CLI, and governed-review templates.
+- **Access Gate 2B governed source validation:** NOT STARTED / authorization-dependent.
+- **Access Gate 3A synthetic metric validity:** IN PROGRESS — metric contract frozen; implementation and validation next.
+- **Access Gate 3B governed representation validity:** NOT STARTED / authorization-dependent and downstream of Gate 2B governed validation.
+
+## Immediate implementation backlog
+
+1. Implement the frozen Gate 3 episode-level metric representation.
+2. Add explicit metric ascertainment/missingness states.
+3. Add cohort summaries for access-ready proportion, gate reach, barrier classes, and metric availability.
+4. Link each metric to contributing event IDs and mapping/policy versions.
+5. Add synthetic cases for unresolved follow-up, repeated information requests, multiple appeal events, and invalid temporal order.
+6. Generate deterministic Gate 3 synthetic summary artifacts and CI validation evidence.
+7. Build a payer-policy registry for Dartmouth-relevant payers.
+8. Record current FDA indication/label versions by CAR-T product.
+9. Resolve the post-2025 relationship between CMS NCD 110.24 wording and FDA REMS elimination using current Medicare implementation sources.
+10. Define and validate governed Dartmouth source fields only after appropriate authorization.
+11. Keep all patient-specific and institutional workflow validation outside the public repository unless explicitly approved for release.
