@@ -1,5 +1,11 @@
 # CART-TRACE
 
+## Portfolio evidence review — 2026-09-17
+
+**Reviewed carry-forward.** The frozen synthetic scholarly package remains separate from the administrative-access extension. Access Gate 3A is still recorded as a candidate with CI/artifact and repeated-event/temporal-fixture work remaining; governed source validation and representation validity remain authorization-dependent. Internal project gate labels do not establish portfolio G3.
+
+Maturity and valuation ranges are unchanged. [Current review and next evidence gates](docs/valuation/2026-09-17_review.md). Dates and result claims elsewhere retain their original scope.
+
 **CART-TRACE** is a synthetic-first, non-operational research framework for reconstructing post-infusion hospital care trajectories following CAR T-cell therapy.
 
 The current MS Health Data Science capstone asks:

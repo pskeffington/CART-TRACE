@@ -1,18 +1,11 @@
 {
-  "schema_version": "portfolio-valuation-manifest/v1",
-  "repository": "pskeffington/CART-TRACE",
-  "portfolio_valuator": "pskeffington/Portfolio",
-  "valuation_status": "aligned_internal_estimate",
-  "market_lane": "translational health data science / longitudinal clinical research methods / administrative access research",
-  "maturity_stage": "manuscript-ready",
+  "claim_boundary": "Synthetic-first retrospective research methods only. Internal Gate 6 methodological readiness and access-gating research do not establish portfolio G3 independent validation, treatment recommendation, clinical eligibility, payer coverage, financial clearance, prospective clinical decision support, institutional adoption, or external clinical validity.",
+  "collateral_treatment": "Treat as research software and technical IP only. Apply substantial transferability, key-person, external-validation, institutional-adoption, governed-data-access, and clinical/regulatory discounts; no clinical, payer, or eligibility-decision collateral value is asserted. Reviewed on 2026-09-17 against the recorded main-branch evidence; current and forward ranges, maturity, and evidence grade are carried forward without uplift. See docs/valuation/2026-09-17_review.md for scope and unresolved evidence gates.",
+  "current_value_range_usd": {
+    "high": 450000,
+    "low": 250000
+  },
   "evidence_grade": "A-",
-  "product_surface": "frozen synthetic longitudinal CAR T-cell trajectory research framework with separate governed administrative-access extension",
-  "integration_role": "flagship biomedical and translational-health research software asset",
-  "public_safety_status": "clean",
-  "risk_level": "medium",
-  "current_value_range_usd": {"low": 250000, "high": 450000},
-  "forward_value_range_usd": {"low": 600000, "high": 1500000},
-  "collateral_treatment": "Treat as research software and technical IP only. Apply substantial transferability, key-person, external-validation, institutional-adoption, governed-data-access, and clinical/regulatory discounts; no clinical, payer, or eligibility-decision collateral value is asserted.",
   "evidence_paths": [
     "README.md",
     "ROADMAP.md",
@@ -20,15 +13,18 @@
     "docs/scholarly/final_public_scholarly_freeze.md",
     "docs/access_gating/dartmouth_health_access_gating_framework.md",
     "docs/access_gating/access_gate_3_metric_contract.md",
-    "portfolio_valuation_manifest.json"
+    "portfolio_valuation_manifest.json",
+    "docs/access_gating/access_gate_3a_candidate_validation_record.md",
+    "docs/valuation/2026-09-17_review.md"
   ],
-  "next_value_unlocks": [
-    "peer-reviewed or equivalent external scholarly validation",
-    "independent reproducibility review tied to the frozen public package",
-    "governed institutional clinical-data implementation under appropriate approvals",
-    "governed source validation for the administrative-access extension",
-    "external research user or design partner"
-  ],
+  "forward_value_range_usd": {
+    "high": 1500000,
+    "low": 600000
+  },
+  "integration_role": "flagship biomedical and translational-health research software asset",
+  "last_aligned_on": "2026-09-17",
+  "market_lane": "translational health data science / longitudinal clinical research methods / administrative access research",
+  "maturity_stage": "manuscript-ready",
   "missing_financial_inputs": [
     "revenue",
     "customers",
@@ -37,6 +33,18 @@
     "institutional implementation",
     "independent appraisal"
   ],
-  "claim_boundary": "Synthetic-first retrospective research methods only. Internal Gate 6 methodological readiness and access-gating research do not establish portfolio G3 independent validation, treatment recommendation, clinical eligibility, payer coverage, financial clearance, prospective clinical decision support, institutional adoption, or external clinical validity.",
-  "last_aligned_on": "2026-08-31"
+  "next_value_unlocks": [
+    "peer-reviewed or equivalent external scholarly validation",
+    "independent reproducibility review tied to the frozen public package",
+    "governed institutional clinical-data implementation under appropriate approvals",
+    "governed source validation for the administrative-access extension",
+    "external research user or design partner"
+  ],
+  "portfolio_valuator": "pskeffington/Portfolio",
+  "product_surface": "frozen synthetic longitudinal CAR T-cell trajectory research framework with separate governed administrative-access extension",
+  "public_safety_status": "clean",
+  "repository": "pskeffington/CART-TRACE",
+  "risk_level": "medium",
+  "schema_version": "portfolio-valuation-manifest/v1",
+  "valuation_status": "reviewed_carry_forward"
 }
