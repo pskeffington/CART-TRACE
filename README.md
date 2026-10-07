@@ -124,3 +124,14 @@ The administrative access extension follows the same principle at a separate res
 `synthetic source-like record -> mapping rule -> access event -> deterministic reconstruction -> validation -> bounded research summary`
 
 The repository prioritizes transparent definitions, versioned transformations, explicit uncertainty, synthetic truth sets, automated tests, reproducible generated outputs, and separation of public synthetic artifacts from governed institutional data.
+
+## Valuation tracking
+
+Current internal valuation status (2026-10-07 reviewed carry-forward):
+
+- repository current range: **$250K-$450K**
+- conditional forward range: **$600K-$1.5M**
+- maturity: **manuscript-ready**
+- evidence grade: **A-**
+
+The range covers the transferable synthetic-first trajectory reconstruction methods, reproducibility package, and bounded research tooling. It excludes clinical validity, institutional data rights, patient-level use, and any treatment or eligibility authority.
