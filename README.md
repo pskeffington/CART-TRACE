@@ -1,6 +1,6 @@
 # CART-TRACE
 
-## Portfolio evidence review — 2026-09-17
+## Portfolio evidence review — reviewed 2026-10-07
 
 **Reviewed carry-forward.** The frozen synthetic scholarly package remains separate from the administrative-access extension. Access Gate 3A is still recorded as a candidate with CI/artifact and repeated-event/temporal-fixture work remaining; governed source validation and representation validity remain authorization-dependent. Internal project gate labels do not establish portfolio G3.
 
